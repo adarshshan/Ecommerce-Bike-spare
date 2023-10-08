@@ -3,28 +3,47 @@ const app = express();
 const port = 3000
 const bodyParser=require('body-parser')
 const morgan=require('morgan')
-const products=require('./mongodb')
+const path=require('path')
+const {dbconnect}=require('./config')
+
+
+require('dotenv/config')
+
+
+app.set('views',path.join(__dirname,'views'));
+app.set('view engine','ejs')
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended:true}))
+
+//to load static files
+app.use('/static', express.static(path.join(__dirname, 'public')))
+app.use('/static', express.static(path.join(__dirname, 'public/assets')))
+
+
 
 //Middlewares
 app.use(bodyParser.json())
 app.use(morgan('tiny'))
 
-require('dotenv/config')
+
+
+//routers
+const productRouter=require('./routers/products');
+const usersRouter=require('./routers/users')
 
 const api = process.env.API_URL
 
-app.get(`${api}/product`,(req,res)=>{
-    const product={
-        id:1,
-        name:"knife",
-        price:288
+app.use(`/products`,productRouter)
+app.use(`/users`,usersRouter)
 
-    }
-    res.send(product)
-})
-app.post(`${api}/product`,(req,res)=>{
-    const newproduct=req.body;
-    console.log(newproduct+'hai')
-    res.send(newproduct)
-})
+
+
+
+
+
+
+
+
+dbconnect()
+
 app.listen(port,()=>console.log('server is running on port 3000'));
