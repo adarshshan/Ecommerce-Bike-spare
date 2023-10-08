@@ -30,11 +30,15 @@ app.use(morgan('tiny'))
 //routers
 const productRouter=require('./routers/products');
 const usersRouter=require('./routers/users')
+const brandsRouter=require('./routers/brands')
+const categoriesRouter=require('./routers/categories')
 
 const api = process.env.API_URL
 
 app.use(`/products`,productRouter)
 app.use(`/users`,usersRouter)
+app.use('/brands',brandsRouter)
+app.use('/categories',categoriesRouter)
 
 
 

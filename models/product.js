@@ -1,9 +1,9 @@
 const mongoose=require('mongoose') 
 
-const prouctSchema =mongoose.Schema({
+const prouctSchema =new mongoose.Schema({
     name:String,
     image:String,
     countInStock:Number
 })
-
-exports.product =mongoose.model('product',prouctSchema)
+const product = mongoose.model('product',prouctSchema)
+module.exports = product;
