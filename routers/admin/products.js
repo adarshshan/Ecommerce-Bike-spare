@@ -1,16 +1,16 @@
 const express = require('express')
-const Prodct=require('../models/product')
+const Prodct=require('../../models/product')
 const router = express.Router()
 
 router.get(`/`,async (req,res)=>{
-    const productList= await Prodct.find()
+    // const productList= await Prodct.find()
 
-    if(!productList){
-    res.status(500).json({success:false})
-    }else
+    // if(!productList){
+    // res.status(500).json({success:false})
+    // }else
     
-    res.send(productList)
-    // res.render('user/engine.ejs')
+    // res.send(productList)
+    res.render('admin/categories.ejs')
     
 })
 router.post(`/`,(req,res)=>{

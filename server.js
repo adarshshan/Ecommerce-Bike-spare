@@ -1,19 +1,22 @@
 const express = require('express');
 const app = express();
 const port = 3000
-const bodyParser=require('body-parser')
-const morgan=require('morgan')
-const path=require('path')
-const {dbconnect}=require('./config')
+const bodyParser = require('body-parser')
+const morgan = require('morgan')
+const path = require('path')
+const { dbconnect } = require('./config')
+const cors = require('cors')
 
+app.use(cors())
+app.use('*', cors())
 
 require('dotenv/config')
 
-
-app.set('views',path.join(__dirname,'views'));
-app.set('view engine','ejs')
+//to set view engine 
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs')
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended:true}))
+app.use(bodyParser.urlencoded({ extended: true }))
 
 //to load static files
 app.use('/static', express.static(path.join(__dirname, 'public')))
@@ -28,26 +31,33 @@ app.use(morgan('tiny'))
 
 
 //routers
-const productRouter=require('./routers/products');
-const usersRouter=require('./routers/users')
-const brandsRouter=require('./routers/brands')
-const categoriesRouter=require('./routers/categories')
+const productRouter = require('./routers/admin/products');
+const usersRouter = require('./routers/admin/users')
+const brandsRouter = require('./routers/admin/brands')
+const categoriesRouter = require('./routers/admin/categories')
+const ordersRouter = require('./routers/admin/orders')
+const couponsRouter = require('./routers/admin/coupons')
+const cartsRouter = require('./routers/admin/carts')
+const wishlistsRouter = require('./routers/admin/wishlists')
+const userDetailsRouter = require('./routers/admin/userDetails')
+const paymentsRouter = require('./routers/admin/payments')
 
 const api = process.env.API_URL
 
-app.use(`/products`,productRouter)
-app.use(`/users`,usersRouter)
-app.use('/brands',brandsRouter)
-app.use('/categories',categoriesRouter)
-
-
-
-
-
+app.use(`/products`, productRouter)
+app.use(`/users`, usersRouter)
+app.use('/brands', brandsRouter)
+app.use('/categories', categoriesRouter)
+app.use('/orders', ordersRouter)
+app.use('/coupons', couponsRouter)
+app.use('/carts', cartsRouter)
+app.use('/wishlists', wishlistsRouter)
+app.use('/userDetails', userDetailsRouter)
+app.use('/payments', paymentsRouter)
 
 
 
 
 dbconnect()
 
-app.listen(port,()=>console.log('server is running on port 3000'));
+app.listen(port, () => console.log('server is running on port 3000'));

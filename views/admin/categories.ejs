@@ -1,0 +1,45 @@
+<%- include('head/header') %>
+    <div id="page-content-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-12">
+                    <h1>CATEGORIES</h1>
+                    <a href="/categories/add"><button type="button" class="btn btn-outline-success float-end mb-2">Add
+                            Categories</button></a>
+                    <% if (data!="" ) { %>
+                        <table class="table border">
+                            <thead>
+                                <tr>
+                                    <th scope="col">sl.no</th>
+                                    <th scope="col">Name</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% data.forEach((row,index)=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= index+1 %>
+                                        </td>
+                                        <td>
+                                            <%= row.name %>
+                                        </td>
+                                        <td><a href="/categories/edit/<%= row._id %>"><i
+                                                    class="fa-solid fa-pen-to-square text-success"></i></a><a
+                                                href="/categories/delete/<%= row._id %>"><i
+                                                    class="fa-solid fa-trash text-danger ms-3"></i></a></td>
+                                    </tr>
+                                    <% }) %>
+
+                            </tbody>
+                        </table>
+                        <% }else{ %>
+                            <div class="text-center text-secondary mt-5">
+                                <h1>No Categories found in the Database</h1>
+                            </div>
+                            <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+    <%- include('head/footer') %>

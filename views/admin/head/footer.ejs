@@ -1,0 +1,48 @@
+
+      <!-- jQuery -->
+      <script>
+        $("#menu-toggle").click(function(e) {
+e.preventDefault();
+$("#wrapper").toggleClass("toggled");
+});
+$("#menu-toggle-2").click(function(e) {
+e.preventDefault();
+$("#wrapper").toggleClass("toggled-2");
+$('#menu ul').hide();
+});
+
+function initMenu() {
+$('#menu ul').hide();
+$('#menu ul').children('.current').parent().show();
+//$('#menu ul:first').show();
+$('#menu li a').click(
+function() {
+  var checkElement = $(this).next();
+  if ((checkElement.is('ul')) && (checkElement.is(':visible'))) {
+    return false;
+  }
+  if ((checkElement.is('ul')) && (!checkElement.is(':visible'))) {
+    $('#menu ul:visible').slideUp('normal');
+    checkElement.slideDown('normal');
+    return false;
+  }
+}
+);
+}
+$(document).ready(function() {
+initMenu();
+});
+    </script>
+  </body>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+crossorigin="anonymous"></script>
+</body>
+
+</html>

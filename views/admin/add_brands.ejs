@@ -1,0 +1,16 @@
+<%- include('head/header') %>
+<div id="page-content-wrapper">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h1>Insert Brands</h1>
+            <form action="/brands" method="post">
+                <label for="name">Brand Name</label>
+                <input type="text" id="name" name="name">
+                <input type="submit" value="Insert Brand">
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+<%- include('head/footer') %>

@@ -5,4 +5,4 @@ const brandSchema= new mongoose.Schema({
 })
 
 const brand =mongoose.model('brand',brandSchema)
-module.exports=brand;
+module.exports=brand;   

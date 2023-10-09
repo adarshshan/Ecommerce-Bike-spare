@@ -1,27 +1,29 @@
 const express = require('express')
 const router = express.Router()
-const Brand = require('../models/brand')
+const Payment = require('../../models/payment')
 
 router.get('/', async (req, res) => {
-    const brandList = await Brand.find()
+    const paymentList = await Payment.find()
 
-    res.send(brandList)
+    res.send(paymentList)
 })
-
 router.post('/', (req, res) => {
-    const brands = new Brand({
-        name: req.body.name
+    const payment = new Payment({
+
     })
-    brands.save()
-        .then((brandCreated) => {
-            res.status(201).json(brandCreated)
+    payment.save()
+        .then((result) => {
+            res.status(201).json(result)
         })
         .catch((err) => {
             res.status(500).json({
                 error: err,
                 success: false
-            })  
+            })
         })
+})
+router.delete('/', (req, res) => {
+
 })
 
 module.exports = router
