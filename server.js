@@ -6,10 +6,13 @@ const morgan = require('morgan')
 const path = require('path')
 const { dbconnect } = require('./config')
 const cors = require('cors')
+const session=require('express-session')
+const {v4:uuidv4}=require('uuid')
+
+const oneDay = 1000 * 60 * 60 * 24
 
 app.use(cors())
 app.use('*', cors())
-
 require('dotenv/config')
 
 //to set view engine 
@@ -21,12 +24,23 @@ app.use(bodyParser.urlencoded({ extended: true }))
 //to load static files
 app.use('/static', express.static(path.join(__dirname, 'public')))
 app.use('/static', express.static(path.join(__dirname, 'public/assets')))
+app.use(express.static('uploads'));
 
-
+app.use(session({
+    secret: uuidv4(),
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: oneDay }
+}))
 
 //Middlewares
 app.use(bodyParser.json())
 app.use(morgan('tiny'))
+app.use((req,res,next)=>{
+    res.locals.message=req.session.message;
+    delete req.session.message;
+    next()
+})
 
 
 
@@ -42,6 +56,8 @@ const wishlistsRouter = require('./routers/admin/wishlists')
 const userDetailsRouter = require('./routers/admin/userDetails')
 const paymentsRouter = require('./routers/admin/payments')
 
+const personsRouter=require('./routers/user/person')
+
 const api = process.env.API_URL
 
 app.use(`/products`, productRouter)
@@ -54,6 +70,8 @@ app.use('/carts', cartsRouter)
 app.use('/wishlists', wishlistsRouter)
 app.use('/userDetails', userDetailsRouter)
 app.use('/payments', paymentsRouter)
+
+app.use('/persons',personsRouter)
 
 
 

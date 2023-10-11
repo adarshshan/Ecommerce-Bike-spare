@@ -1,0 +1,44 @@
+<%- include('head/header') %>
+<div class="container">
+    <div class="row">
+      <div class="col-lg-7 ms-5 mt-5 bg-light border pb-4 px-4">
+        <h1>Edit Product Details</h1>
+          <form action="/products/update/<%= product.id %>" method="post" enctype="multipart/form-data">
+            <label for="">Title</label>
+            <input type="text" name="name" class="form-control" value="<%= product.name %>">
+
+            <label for="">Select Brand</label>
+            <select name="brandId" id="" class="form-control">
+               <option value="">choose...</option>
+               <% for( let brand of showData.brandList ) { %>
+               <option brand="<%= brand._id %>"><%= brand.name %></option>
+               <% } %>
+            </select>
+
+            <label for="">Select Categorie</label>
+            <select name="categorieId" id="" class="form-control">
+                <option value="">choose...</option>
+                <% for( let categorie of viewData.categorieList) { %>
+                <option value="<%= categorie._id %>"><%= categorie.name %></option>
+                <% } %>
+            </select>
+
+            <label for="">Price</label>
+            <input type="number" name="price" class="form-control" value="<%= product.price %>">
+
+            <label for="">Stock Quantity</label>
+            <input type="number" name="stock" class="form-control" value="<%= product.stock %>">
+
+            <label for="">Description</label>
+            <input type="text" name="description" class="form-control" value="<%= product.description %>">
+
+            <label for="">image</label>
+            <input type="file" name="image" class="form-control">
+
+            <button type="submit" class="btn btn-success mt-4">Update Product</button>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('head/footer') %>

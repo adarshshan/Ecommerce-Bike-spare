@@ -7,7 +7,11 @@ router.get('/', async (req, res) => {
     if (!userList) {
         res.status(500).json({ success: false })
     }
-    res.send(userList)
+    // res.send(userList)
+    res.render('admin/users',{
+        title:'users',
+        users:userList
+    })
 })
 router.post('/', (req, res) => {
     const user = new User({
