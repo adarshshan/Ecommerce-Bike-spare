@@ -1,4 +1,4 @@
-<%-include('head/header')-%>
+<%- include('head/header') %>
 
     <section>
         <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
@@ -51,24 +51,30 @@
                 <h2 class="text-center">POPULAR PRODUCTS</h2>
             </div>
             <div class="row mt-5 mx-auto">
-                <% products.forEach((row,index) => { %>
-                    <div class="col-12 col-sm-6 col-md-4">
-                        <div class="card" style="width: 25rem;">
-                            <img src="<%= row.image %>" class="card-img-top" alt="<%= row.image %>">
-                            <div class="card-body">
-                                <h5 class="card-title"><%= row.name %></h5>
-                                <p class="card-text"><%= row.price %></p>
-                                <div class="d-flex">
-                                    <a href="#" class="btn btn-primary">Add to cart</a>
-                                    <a href="#" class="btn btn-primary ms-4">Buy Now</a>
+                <% products.forEach((row,index)=> { %>
+                    <div class="col-12 col-sm-6 col-md-4 ">
+                        <a style="text-decoration: none; color: black;" href="/persons/productDetails/<%= row._id %>">
+                            <div class="card mb-3" style="width: 25rem;">
+                                <img src="<%= row.image %>" class="card-img-top" alt="<%= row.image %>">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <%= row.name %>
+                                    </h5>
+                                    <p class="card-text">RS. <%= row.price %>
+                                    </p>
+                                    <div class="d-flex mt-3">
+                                        <a href="#" class="btn btn-warning p-3 fw-bold">Add to
+                                            cart</a>
+                                        <a href="#" class="btn btn-danger ms-4 p-3 fw-bold">Buy Now</a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
-                <% }) %>
-                
-                
+                    <% }) %>
+
+
             </div>
         </div>
     </section>
-    <%-include('head/footer')-%>
+<%- include('head/header') %>

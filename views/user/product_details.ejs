@@ -1,0 +1,21 @@
+<%- include('head/header') %>
+        <div class="container">
+        	<div class="row">
+               <div class="col-sm-4 col-lg-6">
+                    <img style="max-width:100%;" src="http://localhost:3000/<%= products.image %>" alt="Image will appear after some times" >
+                </div>
+                <div class="col-sm-4 col-lg-6" style="margin-top: 120px;">
+                    <h3><%= products.name %></h3>    
+                    <h6 class="title-price"><small><%= products.name %></small></h6>
+                    <h3 style="margin-top:0px;">RS. <%= products.price %></h3>
+                    <p><%= products.description %></p>
+        
+                    <div class="section" style="padding-bottom:20px;">
+                        <button class="btn btn-success">Buy Now</button>
+                        <button class="btn btn-danger">Add to cart</button>
+                    </div>                                        
+                </div>     		
+            </div>
+        </div>        
+    
+<%- include('head/footer') %>
