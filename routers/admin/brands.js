@@ -1,9 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const Brand = require('../../models/brand')
+const { findById } = require('../../models/product')
 
 router.get('/', async (req, res) => {
-    const brandList = await Brand.find()
+    const brandList = await Brand.find({isDeleted:false})
     res.render('admin/brands',{
         title:'Brands',
         data:brandList
@@ -30,12 +31,20 @@ router.post('/', (req, res) => {
 router.get('/add',(req,res)=>{
     res.render('admin/add_brands')
 })
-router.get('/delete/:id',(req,res)=>{
+router.get('/delete/:id',async (req,res)=>{
     let id=req.params.id
-    Brand.findByIdAndRemove(id).then((result)=>{
+    const brand=await Brand.findById(id)
+    // Brand.findByIdAndRemove(id).then((result)=>{
+    //     res.redirect('/brands')
+    // })
+    // .catch((err)=>{
+    //     res.send(err)
+    // })
+    brand.isDeleted=true
+    await brand.save().then((s)=>{
         res.redirect('/brands')
-    })
-    .catch((err)=>{
+    }).catch((err)=>{
+        console.log(err)
         res.send(err)
     })
 })

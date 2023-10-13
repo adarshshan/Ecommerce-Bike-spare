@@ -26,7 +26,7 @@
                     <td><%= row.email %></td>
                     <td><%= row.phone %></td>
                     <td><%= row.password %></td>
-                    <td><a class="text-danger" href="#">Block</a><a class="text-success ms-4" href="#">Unblock</a></td>
+                    <td><a class="text-danger" href="/users/block/<%= row._id %>">Block</a><a class="text-success ms-4" href="/users/Unblock/<%= row._id %>">Unblock</a></td>
                   </tr>
                 <% }) %>
               </tbody>

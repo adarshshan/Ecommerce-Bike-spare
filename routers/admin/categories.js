@@ -3,7 +3,7 @@ const router=express.Router()
 const Categorie=require('../../models/categorie')
 
 router.get('/',async (req,res)=>{
-    const categorieList=await Categorie.find()
+    const categorieList=await Categorie.find({isDeleted:false})
     res.render('admin/categories',{
         title:'Categories',
         data:categorieList
@@ -31,14 +31,22 @@ router.post('/',(req,res)=>{
 router.get('/add',(req,res)=>{
     res.render('admin/add_categories')
 })
-router.get('/delete/:id',(req,res)=>{
+router.get('/delete/:id',async (req,res)=>{
     let id=req.params.id;
-    Categorie.findByIdAndRemove(id).then((result)=>{
+    const category=await Categorie.findById(id)
+    category.isDeleted=true
+    await category.save().then((result)=>{
         res.redirect('/categories')
-    })
-    .catch((err)=>{
+    }).catch((err)=>{
         res.send(err)
+        console.log(err)
     })
+    // Categorie.findByIdAndRemove(id).then((result)=>{
+    //     res.redirect('/categories')
+    // })
+    // .catch((err)=>{
+    //     res.send(err)
+    // })
 })
 router.get('/edit/:id',(req,res)=>{
     let id =req.params.id;

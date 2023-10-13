@@ -20,7 +20,7 @@ let upload=multer({
 }).single('image')
 
 router.get(`/`,async (req,res)=>{
-    const productList= await Prodct.find()
+    const productList= await Prodct.find({isDeleted:false})
 
     if(!productList){
     res.status(500).json({success:false})
@@ -34,54 +34,67 @@ router.get(`/`,async (req,res)=>{
     
 })
 router.post(`/`,upload,(req,res)=>{
-    const product= new Prodct({
-        name:req.body.name,
-        brandId:req.body.brandId,
-        categorieId:req.body.categorieId,
-        price:req.body.price,
-        stock:req.body.stock,
-        description:req.body.description,
-        image:req.file.filename
-    })
+    let data=req.body
     // await Product.insertOne([product])
-
-    product.save().then((createdProduct =>{
-        // res.status(201).json(createdProduct)
-        
-        req.session.message={
-            type:'success',
-            message:'Product Add successfully.'
-        }
-        res.redirect('/products')
-    }))
-    .catch((err)=>{
-        console.log('the problem is here')
-        res.status(500).json(console.log(err))
-    })
+    if(data){
+        const product= new Prodct({
+            name:req.body.name,
+            brandId:req.body.brandId,
+            categorieId:req.body.categorieId,
+            price:req.body.price,
+            stock:req.body.stock,
+            description:req.body.description,
+            image:req.file.filename
+        })
+        product.save().then((createdProduct =>{
+            // res.status(201).json(createdProduct)
+            
+            req.session.message={
+                type:'success',
+                message:'Product Add successfully.'
+            }
+            res.redirect('/products')
+        }))
+        .catch((err)=>{
+            console.log('the problem is here')
+            res.status(500).json(console.log(err))
+        })
+    }else{
+        res.redirect('/products/add')
+    }
+    
 })
 router.get('/add',async (req,res)=>{
-    let categorieList=await Categorie.find();
+    let categorieList=await Categorie.find({isDeleted:true});
     const viewData={
         edit:false,
         categorieList
         
     }
-    let brandList=await Brand.find()
+    let brandList=await Brand.find({isDeleted:true})
     const showData={
         edit:false,
         brandList
     }
     res.render('admin/add_products',{viewData,showData,title:"add product"})
 })
-router.get('/delete/:id',(req,res)=>{
+router.get('/delete/:id',async (req,res)=>{
     let id=req.params.id
-    Prodct.findByIdAndDelete(id).then(()=>{
+    let product = await Prodct.findById(id)
+    product.isDeleted=true;
+    await product.save().then((result)=>{
         res.redirect('/products')
-    })
-    .catch((err)=>{
-        console.log('problem is at get(/delete/:id ,Products..')
+    }).catch((err)=>{
         console.log(err)
+        res.send(err)
     })
+    // Prodct.findByIdAndDelete(id).then(()=>{
+    //     res.redirect('/products')
+    // })
+    // .catch((err)=>{
+    //     console.log('problem is at get(/delete/:id ,Products..')
+    //     console.log(err)
+    // })
 })
 router.get('/update/:id',async (req,res)=>{
     let id=req.params.id
@@ -110,19 +123,19 @@ router.post('/update/:id',async (req,res)=>{
     let id=req.params.id;
     await Prodct.findByIdAndUpdate(id,{
         name:req.body.name,
-        brandId:req.body.brandId,
-        categorieId:req.body.categorieId,
         price:req.body.price,
         stock:req.body.stock,
         description:req.body.description
 
-    }).then((result)=>{
-        console.log(result)
-        res.redirect('/products')
-    }).catch((err)=>{
-        console.log('The error is here at product,update,post')
-        console.log(err)
     })
+    // .then((result)=>{
+    //     console.log(result)
+        res.redirect('/products')
+    // }).catch((err)=>{
+    //     res.send(err)
+    //     console.log('The error is here at product,update,post')
+    //     console.log(err)
+    // })
 })
 
 module.exports=router;

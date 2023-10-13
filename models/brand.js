@@ -1,7 +1,14 @@
 const mongoose =require('mongoose')
 
 const brandSchema= new mongoose.Schema({
-    name:String
+    name:{
+        type:String,
+        required:true
+    },
+    isDeleted:{
+        type:Boolean,
+        default:false
+    }
 })
 
 const brand =mongoose.model('brand',brandSchema)

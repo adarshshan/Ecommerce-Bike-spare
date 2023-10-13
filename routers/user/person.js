@@ -11,15 +11,19 @@ router.get('/',async (req,res)=>{
         }
    
 })
-router.get('/signup',(req,res)=>{
-    res.render('user/signup',{title:'user signUp'})
-})
+
 router.get('/login',(req,res)=>{
     res.render('user/login',{title:'User Login'})
 })
+
+router.get('/signup',(req,res)=>{
+    res.render('user/signup',{title:'user signUp'})
+})
+
+
 router.get('/productDetails/:id',async (req,res)=>{
     let id=req.params.id;
-    Products.findById(id).then((products)=>{
+    Products.findById({_id:id}).then((products)=>{
         console.log(products)
         res.render('user/product_details',{title:'Details',products})
     }).catch((err)=>{

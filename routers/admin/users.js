@@ -32,5 +32,29 @@ router.post('/', (req, res) => {
         })
 
 })
+router.get('/block/:id',async (req,res)=>{
+    let id=req.params.id
+    let user= await User.findOne({_id:id})
+    user.isDeleted=true;
+    await user.save().then((rsult)=>{
+        res.redirect('/users')
+    }).catch((err)=>{
+        console.log(err)
+        res.send(err)
+    })
+})
+router.get('/unblock/:id',async (req,res)=>{
+    let id=req.params.id
+    let user=await User.findOne({_id:id})
+    user.isDeleted=false;
+    await user.save().then((result)=>{
+        res.redirect('/users')
+    }).catch((err)=>{
+        console.log(err)
+        res.send(err)
+    })
+
+
+})
 
 module.exports = router;

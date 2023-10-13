@@ -9,14 +9,12 @@ const prouctSchema = new mongoose.Schema({
     brandId:
         [{
             type: mongoose.Types.ObjectId,
-            ref: "brand",
-            required:true
+            ref: "brand"
         }],
     categorieId:
         [{
             type: mongoose.Types.ObjectId,
-            ref: "categorie",
-            required:true
+            ref: "categorie"
         }],
     price: {
         type: Number,
@@ -33,6 +31,10 @@ const prouctSchema = new mongoose.Schema({
     image: {
         type: String,
         default: ''
+    },
+    isDeleted:{
+        type:Boolean,
+        default:false
     },
     crated_at: {
         type: Date,
