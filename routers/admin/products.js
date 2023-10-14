@@ -82,6 +82,7 @@ router.get('/delete/:id',async (req,res)=>{
     let id=req.params.id
     let product = await Prodct.findById(id)
     product.isDeleted=true;
+    product.deleted_at=Date.now()
     await product.save().then((result)=>{
         res.redirect('/products')
     }).catch((err)=>{

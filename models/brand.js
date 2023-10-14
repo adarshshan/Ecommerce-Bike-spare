@@ -8,6 +8,15 @@ const brandSchema= new mongoose.Schema({
     isDeleted:{
         type:Boolean,
         default:false
+    },
+    created_at:{
+        type:Date,
+        default:Date.now()
+    },
+    modified_at:{
+        type:Date
+    },deleted_at:{
+        type:Date
     }
 })
 

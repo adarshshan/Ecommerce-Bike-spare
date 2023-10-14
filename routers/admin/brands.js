@@ -41,6 +41,7 @@ router.get('/delete/:id',async (req,res)=>{
     //     res.send(err)
     // })
     brand.isDeleted=true
+    brand.deleted_at=Date.now()
     await brand.save().then((s)=>{
         res.redirect('/brands')
     }).catch((err)=>{

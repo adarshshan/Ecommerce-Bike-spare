@@ -35,6 +35,7 @@ router.get('/delete/:id',async (req,res)=>{
     let id=req.params.id;
     const category=await Categorie.findById(id)
     category.isDeleted=true
+    category.deleted_at=Date.now();
     await category.save().then((result)=>{
         res.redirect('/categories')
     }).catch((err)=>{

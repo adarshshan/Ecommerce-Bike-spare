@@ -14,6 +14,9 @@ const categorieSchema= new mongoose.Schema({
         type:Date,
         default:Date.now
     },
+    deleted_at:{
+        type:Date
+    },
     modified_at:{
         type:Date
 
