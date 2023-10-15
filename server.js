@@ -55,6 +55,7 @@ const cartsRouter = require('./routers/admin/carts')
 const wishlistsRouter = require('./routers/admin/wishlists')
 const userDetailsRouter = require('./routers/admin/userDetails')
 const paymentsRouter = require('./routers/admin/payments')
+const adminRouter=require('./routers/admin/admin')
 
 const personsRouter=require('./routers/user/person')
 
@@ -70,6 +71,7 @@ app.use('/carts', cartsRouter)
 app.use('/wishlists', wishlistsRouter)
 app.use('/userDetails', userDetailsRouter)
 app.use('/payments', paymentsRouter)
+app.use('/admin',adminRouter)
 
 app.use('/persons',personsRouter)
 

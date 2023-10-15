@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= locals.title?title:'Login System' %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <section>
+        <div class="center-div text-center mt-5">
+            <div class="container w-25 border rounded bg-light py-5 mt-5">
+                <div class="text-center fs-3 text-primary">
+                    <h1>Login</h1>
+                </div>
+                <div class="text-center border-bottom border-primary pb-2">
+                    <small>Enter your Username and password</small>
+                    <div class="alert-warning text-danger">
+                        <p> </p>
+                    </div>
+
+                </div>
+                <form action="/admin/login" method="post" id="">
+                    <div class="form-group mt-3">
+                        <input class="border border-primary px-3 py-2 rounded" autocomplete="off" type="text"
+                            name="email" placeholder="Enter your Username">
+                    </div>
+                    <div class="form-group mt-3">
+                        <input class="border border-primary px-3 py-2 rounded" autocomplete="off" type="password"
+                            name="password" placeholder="Enter your Password"><br>
+                    </div>
+                    <input type="submit" class="btn btn-primary rounded-pill px-5 mt-3 mb-2 fs-5" value="Log In">
+                    <p>Don't have an account?<a href="/route/signup">Create Account.</a></p>
+                </form>
+
+            </div>
+        </div>
+    </section>
+    <div id="cookies">
+        <div class="container">
+            <div class="subcontainer">
+                <div class="cookies">
+                    <p>This website uses cookies to ensure you get the best experience on our website. <a href="">More info</a></p>
+                    <button id="cookies-btn">That's Fine!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/script.js"></script>
+    </body>
+    
+    </html>

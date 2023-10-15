@@ -1,6 +1,8 @@
 const User = require('../../models/user');
 const express = require('express')
 const router = express.Router()
+const bcrypt=require('bcrypt')
+const jwt=require('jsonwebtoken')
 
 
 router.get('/', async (req, res) => {
@@ -16,7 +18,12 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/login', (req, res) => {
-    res.render('user/login', { title: 'User Login' })
+    if (req.session.logined) {
+        res.redirect('/persons')
+    } else {
+        res.render('user/login', { title: 'User Login' })
+    }
+
 })
 
 router.get('/signup', (req, res) => {
@@ -25,20 +32,27 @@ router.get('/signup', (req, res) => {
 
 router.post('/login', async (req, res) => {
     try {
-        let mail = await User.findOne({ email: req.body.password })
 
-        if (mail) {
-            if (pass === mail.password) {
-                req.session.logined=true
-                req.session.name=mail.name
-                res.redirect('/persons')
-                console.log(req.session.name)
+        let password = req.body.password
+        let mail = await User.findOne({ email: req.body.email })
+        if (!mail.isDeleted) {
+            if (mail) {
+                bcrypt.compare(password,mail.password).then((result)=>{
+                    req.session.logined=true
+                    req.session.name=mail.name
+                    console.log(result+' your password name')
+                    res.redirect('/persons')
+                }).catch((err)=>{
+                    res.send(err)
+                    console.log('An Error occured at bcrypt comparing.')
+                })
             } else {
-                res.send('Incorrct password')
+                res.send('Email is not matching')
             }
-        } else {
-            res.send('Email is not matching')
+        }else{
+            res.send('You were Blocked!')
         }
+
 
 
     } catch (err) {
@@ -66,14 +80,23 @@ router.post('/login', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
+        var pass
         const password = req.body.password
         const cpassword = req.body.cpassword
+        const hashpass=await bcrypt.hash(password,10).then((hash)=>{
+            pass=hash
+            console.log('hashed password: '+hash)
+        }).catch((err)=>{
+            console.log('Error is at users post')
+            res.send(err)
+        })
+        
         if (password === cpassword) {
             let user = {
                 name: req.body.name,
                 email: req.body.email,
                 phone: req.body.phone,
-                password: req.body.password
+                password: pass
             }
             await User.insertMany([user])
             res.redirect('/users/login')

@@ -17,8 +17,7 @@ const userSchema =new mongoose.Schema({
         required:true
     },
     password:{
-        type:String,
-        required:true
+        type:String
     },
     cpassword:{
         type:String
@@ -36,7 +35,13 @@ const userSchema =new mongoose.Schema({
     },
     unBlocked_at:{
         type:Date
-    }
+    },
+    // tokens:[{
+    //     token:{
+    //         type:String,
+    //         required:true
+    //     }
+    // }]
     
 })
 // //generating token
@@ -59,8 +64,7 @@ const userSchema =new mongoose.Schema({
 //     if(this.isModified('password')){
        
 //         this.password=await bcrypt.hash(this.password,10)
-       
-//         this.confirmpassword=await bcrypt.hash(this.password,10)
+//         console.log(this.password)
 //     }
 //     next()
 // })
