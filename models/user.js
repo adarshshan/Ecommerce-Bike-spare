@@ -36,6 +36,9 @@ const userSchema =new mongoose.Schema({
     unBlocked_at:{
         type:Date
     },
+    verified:{
+        type:Boolean
+    }
     // tokens:[{
     //     token:{
     //         type:String,

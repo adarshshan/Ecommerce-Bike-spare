@@ -19,7 +19,6 @@ router.get('/', async (req, res) => {
 
 
 
-
 router.get('/productDetails/:id', async (req, res) => {
     let id = req.params.id;
     Products.findById({ _id: id }).then((products) => {
