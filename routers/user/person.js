@@ -5,7 +5,7 @@ const User = require('../../models/user')
 const bcrypt = require('bcrypt')
 
 router.get('/', async (req, res) => {
-    let productList = await Products.find()
+    let productList = await Products.find({isDeleted:false})
     if (!productList) {
         res.status(500).json({ success: false })
     } else {

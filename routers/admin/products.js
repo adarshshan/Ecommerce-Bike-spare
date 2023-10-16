@@ -1,10 +1,7 @@
 const express = require('express')
-const Prodct=require('../../models/product')
-const Categorie=require('../../models/categorie')
-const Brand=require('../../models/brand')
 const router = express.Router()
 const multer=require('multer')
-
+const controller=require('../../controller/productController')
 
 let storrage=multer.diskStorage({
     destination:function(req,file,cb){
@@ -19,124 +16,17 @@ let upload=multer({
     storage:storrage,
 }).single('image')
 
-router.get(`/`,async (req,res)=>{
-    const productList= await Prodct.find({isDeleted:false})
 
-    if(!productList){
-    res.status(500).json({success:false})
-    }else
-    
-    // res.send(productList)
-    res.render('admin/products.ejs',{
-        title:'Produts',
-        data:productList
-    })
-    
-})
-router.post(`/`,upload,(req,res)=>{
-    let data=req.body
-    // await Product.insertOne([product])
-    if(data){
-        const product= new Prodct({
-            name:req.body.name,
-            brandId:req.body.brandId,
-            categorieId:req.body.categorieId,
-            price:req.body.price,
-            stock:req.body.stock,
-            description:req.body.description,
-            image:req.file.filename
-        })
-        product.save().then((createdProduct =>{
-            // res.status(201).json(createdProduct)
-            
-            req.session.message={
-                type:'success',
-                message:'Product Add successfully.'
-            }
-            res.redirect('/products')
-        }))
-        .catch((err)=>{
-            console.log('the problem is here')
-            res.status(500).json(console.log(err))
-        })
-    }else{
-        res.redirect('/products/add')
-    }
-    
-})
-router.get('/add',async (req,res)=>{
-    let categorieList=await Categorie.find({isDeleted:true});
-    const viewData={
-        edit:false,
-        categorieList
-        
-    }
-    let brandList=await Brand.find({isDeleted:true})
-    const showData={
-        edit:false,
-        brandList
-    }
-    res.render('admin/add_products',{viewData,showData,title:"add product"})
-})
-router.get('/delete/:id',async (req,res)=>{
-    let id=req.params.id
-    let product = await Prodct.findById(id)
-    product.isDeleted=true;
-    product.deleted_at=Date.now()
-    await product.save().then((result)=>{
-        res.redirect('/products')
-    }).catch((err)=>{
-        console.log(err)
-        res.send(err)
-    })
-    // Prodct.findByIdAndDelete(id).then(()=>{
-    //     res.redirect('/products')
-    // })
-    // .catch((err)=>{
-    //     console.log('problem is at get(/delete/:id ,Products..')
-    //     console.log(err)
-    // })
-})
-router.get('/update/:id',async (req,res)=>{
-    let id=req.params.id
-    let categorieList=await Categorie.find();
-    const viewData={
-        edit:false,
-        categorieList
-        
-    }
-    let brandList=await Brand.find()
-    const showData={
-        edit:false,
-        brandList
-    }
-    Prodct.findById(id).then((product)=>{ console.log(product)
-        res.render('admin/edit_product',{product,viewData,showData,title:'edit_product'})
-    })
-    .catch((err)=>{
-        console.log('Problem is ata update get request.')
-        console.log(err)
-        res.redirect('/products/uptate/:id')
-    })
-})
+router.get(`/`,controller.productHome)
 
-router.post('/update/:id',async (req,res)=>{
-    let id=req.params.id;
-    await Prodct.findByIdAndUpdate(id,{
-        name:req.body.name,
-        price:req.body.price,
-        stock:req.body.stock,
-        description:req.body.description
+router.post(`/`,upload,controller.addProduct)
 
-    })
-    // .then((result)=>{
-    //     console.log(result)
-        res.redirect('/products')
-    // }).catch((err)=>{
-    //     res.send(err)
-    //     console.log('The error is here at product,update,post')
-    //     console.log(err)
-    // })
-})
+router.get('/add',controller.addProdutPage)
+
+router.get('/delete/:id',controller.deleteProduct)
+
+router.get('/update/:id',controller.updateProductpage)
+
+router.post('/update/:id',controller.updateProduct)
 
 module.exports=router;

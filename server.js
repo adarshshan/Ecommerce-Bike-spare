@@ -25,6 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/static', express.static(path.join(__dirname, 'public')))
 app.use('/static', express.static(path.join(__dirname, 'public/assets')))
 app.use(express.static('uploads'));
+app.use(express.static(path.join(__dirname,'controller')))
 
 app.use(session({
     secret: uuidv4(),
@@ -36,9 +37,12 @@ app.use(session({
 //Middlewares
 app.use(bodyParser.json())
 app.use(morgan('tiny'))
+
+//to delete the session
 app.use((req,res,next)=>{
     res.locals.message=req.session.message;
-    delete req.session.message;
+    delete req.session.message
+    
     next()
 })
 
