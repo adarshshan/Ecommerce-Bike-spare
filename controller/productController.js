@@ -4,6 +4,7 @@ const Category=require('../models/categorie')
 
 
 
+
 async function productHome(req,res){
     const productList= await Product.find({isDeleted:false})
 
@@ -22,6 +23,11 @@ function addProduct(req,res){
     let data=req.body
     // await Product.insertOne([product])
     if(data){
+        let arrayimage = []
+        for (let i = 0; i < req.files.length; i++) {
+            arrayimage[i] = req.files[i].filename
+        }
+            
         const product= new Product({
             name:req.body.name,
             brandId:req.body.brandId,
@@ -29,7 +35,7 @@ function addProduct(req,res){
             price:req.body.price,
             stock:req.body.stock,
             description:req.body.description,
-            image:req.file.filename
+            image:arrayimage
         })
         product.save().then((createdProduct =>{
             // res.status(201).json(createdProduct)

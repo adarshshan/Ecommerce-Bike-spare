@@ -31,7 +31,7 @@ async function userLogin(req,res){
         if (!mail.isDeleted) {
             if (mail) {
                 bcrypt.compare(password, mail.password).then((result) => {
-                    req.session.logined = true
+                    req.session.userlogin = true
                     req.session.name = mail.name
                     console.log(result + ' your password name')
                     res.redirect('/persons')

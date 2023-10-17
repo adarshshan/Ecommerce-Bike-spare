@@ -4,6 +4,7 @@ const Admin = require('../../models/admin')
 const bcrypt=require('bcrypt')
 const controller=require('../../controller/adminController')
 
+
 router.get('/login',controller.adminLoginPage )
 
 router.post('/login',controller.adminLogin)

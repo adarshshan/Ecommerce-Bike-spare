@@ -30,7 +30,7 @@
                 <% data.forEach((row,index) => { %>
                   <tr>
                     <td><%= index+1 %></td>
-                    <td><img width="50" src="<%= row.image %>" ></td>
+                    <td><img width="50" src="<%= row.image[0] %>" ></td>
                     <td><%= row.name %></td>
                     <td><%= row.price %></td>
                     <td><%= row.stock %></td>

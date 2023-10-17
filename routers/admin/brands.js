@@ -1,8 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const Brand = require('../../models/brand')
-const { findById } = require('../../models/product')
 const controller=require('../../controller/brandController')
+const adminAuth=require('../../middlware/adminAuth')
+
+router.use(adminAuth)
 
 router.get('/',controller.brandHome)
 

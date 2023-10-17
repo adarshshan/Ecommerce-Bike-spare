@@ -1,12 +1,13 @@
 const User = require('../../models/user');
 const express = require('express')
 const router = express.Router()
+const adminAuth=require('../../middlware/adminAuth')
 
 const controller=require('../../controller/userController')
 require('dotenv/config')
 
 
-router.get('/',controller.userHome)
+router.get('/',adminAuth,controller.userHome)
 //to render teh login page
 router.get('/login',controller.loginPage)
 //to render the signup page

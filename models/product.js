@@ -25,13 +25,12 @@ const prouctSchema = new mongoose.Schema({
         default: 0
     },
     description: {
-        type: String,
-        default: ''
+        type: String
     },
-    image: {
-        type: String,
-        default: ''
-    },
+    image: [{type: String}],
+    // image:{
+    //     type:String,
+    // },
     isDeleted:{
         type:Boolean,
         default:false
