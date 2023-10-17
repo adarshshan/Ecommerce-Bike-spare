@@ -1,6 +1,5 @@
 const express=require('express')
 const router=express.Router()
-const Categorie=require('../../models/categorie')
 const categoryController=require('../../controller/categoryController')
 
 router.get('/',categoryController.categoryHome)

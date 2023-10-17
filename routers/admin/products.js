@@ -12,9 +12,7 @@ let storrage=multer.diskStorage({
     }
 })
 
-let upload=multer({
-    storage:storrage,
-}).single('image')
+let upload=multer({storage:storrage,}).single('image')
 
 
 router.get(`/`,controller.productHome)

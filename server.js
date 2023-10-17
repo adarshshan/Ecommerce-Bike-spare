@@ -8,11 +8,15 @@ const { dbconnect } = require('./config')
 const cors = require('cors')
 const session=require('express-session')
 const {v4:uuidv4}=require('uuid')
+const nocache=require('nocache')
 
 const oneDay = 1000 * 60 * 60 * 24
 
 app.use(cors())
 app.use('*', cors())
+
+app.use(nocache())
+
 require('dotenv/config')
 
 //to set view engine 

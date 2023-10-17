@@ -35,7 +35,7 @@
                     <td><%= row.price %></td>
                     <td><%= row.stock %></td>
                     <td><%= row.description %></td>
-                    <td><a href="/products/update/<%= row._id %>"><i class="fa-solid fa-pen-to-square text-success me-1"></i></a><a href="/products/delete/<%= row._id %>" onclick="confirm('Are you sure ?')"><i
+                    <td><a href="/products/update/<%= row._id %>"><i class="fa-solid fa-pen-to-square text-success me-1"></i></a><a href="/products/delete/<%= row._id %>" onclick=" return confirm('Are you sure ?')"><i
                       class="fa-solid fa-trash text-danger ms-5"></i></a></td>
                     
                   </tr>
