@@ -6,7 +6,14 @@ const Category=require('../models/categorie')
 
 
 async function productHome(req,res){
-    const productList= await Product.find({isDeleted:false})
+    const productList= await Product.find({isDeleted:false}).populate({
+        path:'categorieId',
+        select:'name'
+    })
+    .populate({
+            path:'brandId',
+            select:'name'
+    })
 
     if(!productList){
     res.status(500).json({success:false})
@@ -96,17 +103,41 @@ async function updateProductpage(req,res){
         edit:false,
         brandList
     }
-    Product.findById(id).then((product)=>{ console.log(product)
-        res.render('admin/edit_product',{product,viewData,showData,title:'edit_product'})
+    // Product.findById(id).then((product)=>{ console.log(product)
+    //     res.render('admin/edit_product',{product,viewData,showData,title:'edit_product'})
+    // })
+    // .catch((err)=>{
+    //     console.log('Problem is ata update get request.')
+    //     console.log(err)
+    //     res.redirect('/products/uptate/:id')
+    // })
+    const product=await Product.findById(id).populate({
+        path:'categorieId',
+        select:'name',
+        select:'_id'
+    }).populate({
+        path:'brandId',
+        select:'name',
+        select:'_id'
     })
-    .catch((err)=>{
-        console.log('Problem is ata update get request.')
-        console.log(err)
-        res.redirect('/products/uptate/:id')
-    })
+    const bid = await Product.findById({ _id: id }, { _id: 0, brandId: 1 })
+    const cid = await Product.findById({ _id: id }, { _id: 0, categorieId: 1 })
+
+    const bname = await Brand.find({ _id: bid.brandId }, { _id: 0, name: 1 });
+    const cname = await Category.find({ _id: cid.categorieId }, { _id: 0, name: 1 });
+
+    const brandid = bname[0]._id
+    const categoryid = cname[0]._id
+    res.render('admin/edit_product',{product,viewData,showData,title:'edit_product',brandid:brandid,categoryid:categoryid})
+
 }
 
 async function updateProduct(req,res){
+    if(req.body){
+        let arrayimage = []
+        for (let i = 0; i < req.files.length; i++) {
+            arrayimage[i] = req.files[i].filename
+        }
     let id=req.params.id;
     await Product.findByIdAndUpdate(id,{
         name:req.body.name,
@@ -114,10 +145,14 @@ async function updateProduct(req,res){
         categorieId:req.body.categorieId,
         price:req.body.price,
         stock:req.body.stock,
-        description:req.body.description
-
+        description:req.body.description,
+        image:arrayimage
     })
         res.redirect('/products')
+    }else{
+        return res.redirect(`/products/update/${id}`)
+    }
+    
 }
 
 module.exports={

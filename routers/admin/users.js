@@ -19,33 +19,16 @@ router.post('/login',controller.userLogin)
 
 router.post('/',controller.userSignup)
 
-
-router.get('/block/:id', async (req, res) => {
-    let id = req.params.id
-    let user = await User.findOne({ _id: id })
-    user.isDeleted = true;
-    user.blocked_at = Date.now()
-    await user.save().then((rsult) => {
-        res.redirect('/users')
-    }).catch((err) => {
-        console.log(err)
-        res.send(err)
-    })
+router.get('/logout',(req,res)=>{
+    delete req.session.userlogin
+    res.redirect('/persons')
 })
-router.get('/unblock/:id', async (req, res) => {
-    let id = req.params.id
-    let user = await User.findOne({ _id: id })
-    user.isDeleted = false;
-    user.unBlocked_at = Date.now()
-    await user.save().then((result) => {
-        res.redirect('/users')
-    }).catch((err) => {
-        console.log(err)
-        res.send(err)
-    })
 
 
-})
+router.get('/block/:id',controller.blockUser)
+
+router.get('/unblock/:id',controller.unBlockUser)
+
 //to verify the otp
 router.post('/verifyOtp',controller.verifyOtp)
 

@@ -4,6 +4,13 @@
       <div class="row">
         <div class="col-lg-12">
           <h1>Insert Brands</h1>
+          <% if (locals.msg) { %>
+            <div class="alert alert-dismissible fade show alert-danger alert-<%= msg.type%>" role="alert">
+             <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+             <strong><%= msg %></strong>
+           </div>
+  
+           <% } %>
             <form action="/brands" method="post">
                 <label for="name">Brand Name</label>
                 <input type="text" id="name" name="name">

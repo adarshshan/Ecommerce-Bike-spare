@@ -4,38 +4,24 @@ const multer = require('multer')
 const controller = require('../../controller/productController')
 const adminAuth = require('../../middlware/adminAuth')
 
-// let storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, './uploads/')
+// let storrage=multer.diskStorage({
+//     destination:function(req,file,cb){
+//         cb(null,'./uploads')
 //     },
-//     filename: function (req, file, cb) {
-//         cb(null, file.fieldname + "_" + Date.now() + "_" + file.originalname)
+//     filename:function (req,file,cb){
+//         cb(null,file.fieldname + "_" + Date.now()+"_"+file.originalname)
 //     }
 // })
 
-// let upload = multer({
-//     storage: storage,
-// }).single('image')
+// let upload=multer({
+//     storage:storrage,
+// }).array('image',12)
 
-// router.use(multer({destination:'./uploads/',storage: storage}).array('image',12));
-let storrage=multer.diskStorage({
-    destination:function(req,file,cb){
-        cb(null,'./uploads')
-    },
-    filename:function (req,file,cb){
-        cb(null,file.fieldname + "_" + Date.now()+"_"+file.originalname)
-    }
-})
-
-let upload=multer({
-    storage:storrage,
-}).array('image',12)
-
-// router.use(adminAuth)
+router.use(adminAuth)
 
 router.get(`/`, controller.productHome)
 
-router.post(`/`,upload, controller.addProduct)
+router.post(`/`, controller.addProduct)
 
 router.get('/add', controller.addProdutPage)
 

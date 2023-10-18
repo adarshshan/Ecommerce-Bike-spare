@@ -9,14 +9,19 @@ async function categoryHome (req,res){
     })
 }
 
-function addCategories(req,res){
-    console.log('im here')
+async function addCategories(req,res){
+    const iscategory=await Category.findOne({name:req.body.name})
+    if(iscategory !== null) return res.render('admin/add_categories',{title:'aaai',msg:'Entered Category name is already exists'})
     const categorie=new Category({
         name:req.body.name
     })
     categorie.save()
     .then((categorieCreated)=>{
         // res.status(201).json(categorieCreated)
+        req.session.message={
+            type:'success',
+            message:'Product Add successfully.'
+        }
         res.redirect('/categories')
     })
     .catch((err)=>{

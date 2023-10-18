@@ -2,12 +2,12 @@ const Admin=require('../models/admin')
 const bcrypt=require('bcrypt')
 
 function adminLoginPage(req, res)  {
-    res.render('admin/login')
-    // if (req.session.name) {
-    //     res.redirect('/products')
-    // } else {
-    //     res.render('admin/login')
-    // }
+    // res.render('admin/login')
+    if (req.session.login) {
+        res.redirect('/products')
+    } else {
+        res.render('admin/login')
+    }
 }
 
 async function adminLogin (req, res)  {

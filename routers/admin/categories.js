@@ -10,7 +10,7 @@ router.get('/',categoryController.categoryHome)
 router.post('/',categoryController.addCategories)
 
 router.get('/add',(req,res)=>{
-    res.render('admin/add_categories')
+    res.render('admin/add_categories',{title:'add-category',msg:''})
 })
 router.get('/delete/:id',categoryController.deleteCategory)
 

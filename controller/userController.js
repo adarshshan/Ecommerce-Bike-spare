@@ -16,7 +16,7 @@ async function userHome(req,res){
 }
 
 function loginPage(req,res){
-    if (req.session.logined) {
+    if (req.session.userlogin) {
         res.redirect('/persons')
     } else {
         res.render('user/login', { title: 'User Login' })
@@ -147,6 +147,34 @@ async function resendOtp(req,res){
     }
 }
 
+async function blockUser(req, res) {
+    let id = req.params.id
+    let user = await User.findOne({ _id: id })
+    user.isDeleted = true;
+    user.blocked_at = Date.now()
+    await user.save().then((rsult) => {
+        res.redirect('/users')
+    }).catch((err) => {
+        console.log(err)
+        res.send(err)
+    })
+}
+
+async function unBlockUser (req, res) {
+    let id = req.params.id
+    let user = await User.findOne({ _id: id })
+    user.isDeleted = false;
+    user.unBlocked_at = Date.now()
+    await user.save().then((result) => {
+        res.redirect('/users')
+    }).catch((err) => {
+        console.log(err)
+        res.send(err)
+    })
+
+
+}
+
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -201,5 +229,7 @@ module.exports={
     userLogin,
     userSignup,
     verifyOtp,
-    resendOtp
+    resendOtp,
+    blockUser,
+    unBlockUser
 }

@@ -14,7 +14,6 @@
                   <th scope="col">Name</th>
                   <th scope="col">Email</th>
                   <th scope="col">Mobile</th>
-                  <th scope="col">Password</th>
                   <th></th>
                 </tr>
               </thead>
@@ -25,8 +24,12 @@
                     <td><%= row.name %></td>
                     <td><%= row.email %></td>
                     <td><%= row.phone %></td>
-                    <td><%= row.password %></td>
-                    <td><a class="text-danger" href="/users/block/<%= row._id %>">Block</a><a class="text-success ms-4" href="/users/Unblock/<%= row._id %>">Unblock</a></td>
+                    <td><% if (row.isDeleted) { %>
+                      <a style="width: 80px;" onclick="return confirm('You want to unblock this User ?')" class="text-success btn btn-success text-white fw-bold" href="/users/Unblock/<%= row._id %>">Unblock</a>
+                    <% }else{ %>
+                      <a style="width: 80px;" onclick="return confirm('You want to Block this User ?')" class="text-danger btn btn-danger text-white fw-bold" href="/users/block/<%= row._id %>">Block</a>
+                      <% } %>
+                  </td>
                   </tr>
                 <% }) %>
               </tbody>

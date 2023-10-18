@@ -8,13 +8,21 @@ async function brandHome(req,res){
     })
 }
 
-function addBrand(req,res){
+async function addBrand(req,res){
+    const isBrand=await Brand.findOne({name:req.body.name})
+
+    if(isBrand!==null) return res.render('admin/add_brands',{title:'add-brand',msg:'Entered Brand is already exists.'})
+
     const brands = new Brand({
         name: req.body.name
     })
     brands.save()
         .then((brandCreated) => {
             // res.status(201).json(brandCreated)
+            req.session.message={
+                type:'success',
+                message:'Product Add successfully.'
+            }
             res.redirect('/brands')
         })
         .catch((err) => {

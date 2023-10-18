@@ -9,15 +9,15 @@
 
             <label for="">Select Brand</label>
             <select name="brandId" id="" class="form-control">
-               <option value="">choose...</option>
+               <option value="<%= brandid %>"><%= product.brandId.name %></option>
                <% for( let brand of showData.brandList ) { %>
-               <option brand="<%= brand._id %>"><%= brand.name %></option>
+               <option value="<%= brand._id %>"><%= brand.name %></option>
                <% } %>
             </select>
 
             <label for="">Select Categorie</label>
             <select name="categorieId" id="" class="form-control">
-                <option value="">choose...</option>
+                <option value="<%= categoryid %>"><%= product.categorieId.name %></option>
                 <% for( let categorie of viewData.categorieList) { %>
                 <option value="<%= categorie._id %>"><%= categorie.name %></option>
                 <% } %>
@@ -33,9 +33,9 @@
             <input type="text" name="description" class="form-control" value="<%= product.description %>">
 
             <label for="">image</label>
-            <input type="file" name="image" class="form-control">
+            <input type="file" name="image" class="form-control" multiple>
 
-            <input type="submit" value="update product" class="btn btn-success p-3">
+            <button type="submit" class="btn btn-success mt-4">Update Details</button>
           </form>
       </div>
     </div>

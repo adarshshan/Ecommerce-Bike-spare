@@ -7,15 +7,15 @@ const prouctSchema = new mongoose.Schema({
         required: true
     },
     brandId:
-        [{
+        {
             type: mongoose.Types.ObjectId,
             ref: "brand"
-        }],
+        },
     categorieId:
-        [{
+        {
             type: mongoose.Types.ObjectId,
             ref: "categorie"
-        }],
+        },
     price: {
         type: Number,
         default: 0

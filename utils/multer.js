@@ -1,21 +1,16 @@
 const multer=require('multer')
 
-const fileStorage=multer.diskStorage({
-    destination:(req,file,cb)=>{
-        cb(null,'uploads')
+let storrage=multer.diskStorage({
+    destination:function(req,file,cb){
+        cb(null,'./uploads')
     },
-    filename:(req,file,cb)=>{
-        cb(null,new Date().toISOString()+"_"+file.originalname)
+    filename:function (req,file,cb){
+        cb(null,file.fieldname + "_" + Date.now()+"_"+file.originalname)
     }
 })
 
-const fileFilter=(req,file,cb)=>{
-    if(file.mimetype==='image/png' || file.mimetype==='image/jpeg'){
-        cb(null,true)
-    }else{
-        cb(null,false)
-    }
-}
-module.exports={
-    fileFilter,fileStorage
-}
+let upload=multer({
+    storage:storrage,
+}).array('image',12)
+
+module.exports=upload

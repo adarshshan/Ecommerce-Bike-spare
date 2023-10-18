@@ -10,7 +10,7 @@ router.get('/',controller.brandHome)
 router.post('/',controller.addBrand)
 
 router.get('/add',(req,res)=>{
-    res.render('admin/add_brands')
+    res.render('admin/add_brands',{title:'add-brand',msg:''})
 })
 
 router.get('/delete/:id',controller.deleteBrand)

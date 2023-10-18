@@ -9,8 +9,7 @@ const cors = require('cors')
 const session=require('express-session')
 const {v4:uuidv4}=require('uuid')
 const nocache=require('nocache')
-const multer=require('multer')
-const mul=require('./utils/multer')
+const imageUpload=require('./utils/multer')
 
 const oneDay = 1000 * 60 * 60 * 24
 
@@ -32,11 +31,10 @@ app.use('/static', express.static(path.join(__dirname, 'public')))
 app.use('/static', express.static(path.join(__dirname, 'public/assets')))
 app.use(express.static(path.join(__dirname,'utils')))
 app.use(express.static(path.join(__dirname,'uploads')));
-// app.use(multer({dest:'uploads',Storage:mul.fileStorage,fileFilter:mul.fileFilter}).array('image',10))
 app.use(express.static(path.join(__dirname,'controller')))
-
 app.use(express.static(path.join(__dirname,'middlware')))
 
+app.use(imageUpload)
 
 
 app.use(session({
