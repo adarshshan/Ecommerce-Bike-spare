@@ -2,9 +2,12 @@ const User = require('../models/user')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 const userOtpVerification = require('../models/userOtpVerification')
+const { body, validationResult } = require('express-validator')
+
+
 
 async function userHome(req, res) {
-    const userList = await User.find({verified:true})
+    const userList = await User.find({ verified: true })
     if (!userList) {
         res.status(500).json({ success: false })
     }
@@ -79,36 +82,70 @@ async function userSignup(req, res) {
     try {
         const password = req.body.password
         const cpassword = req.body.cpassword
+        const name = req.body.name
+        const mobile = req.body.phone
+        const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const email = req.body.email
         const isuser = await User.findOne({ email: req.body.email })
-        if (isuser !== null){
+        if (isuser !== null) {
             req.session.message = {
                 message: 'User with Entered Email address is already exists',
                 type: 'warning'
             }
             return res.redirect('/users/signup')
-        } 
-        if (password === cpassword) {
-            const hashedpassword = await bcrypt.hash(password, 10)
-            let user = new User({
-                name: req.body.name,
-                email: req.body.email,
-                phone: req.body.phone,
-                password: hashedpassword,
-                verified: false
-            })
-            const result = await user.save()
-
-            const otpsent = sendOtpVerificationEmail(result, req, res)
-            if (otpsent) {
-                return res.render('user/otppage', { title: 'OTP Login page.', msg: '', type: '' })
-            }
-        } else {
+        } else if (name.length < 4 || name.length > 20) {
             req.session.message = {
-                message: 'Passwords not matching',
+                message: 'Name must be 4-20 characters',
+                type: 'warning'
+            }
+            return res.redirect('/users/signup')
+        } else if (mobile.length !== 10) {
+            req.session.message = {
+                message: 'phone number must be 10 numbers',
+                type: 'warning'
+            }
+            return res.redirect('/users/signup')
+        } else if (password.length < 8 || password.length > 20) {
+            req.session.message = {
+                message: 'password must be atleast 8 charectors!',
+                type: 'warning'
+            }
+            return res.redirect('/users/signup')
+        } else if (password !== cpassword) {
+            req.session.message = {
+                message: 'Passwords are not matching!!!',
+                type: 'danger'
+            }
+            return res.redirect('/users/signup')
+        } else if (!pattern.test(email)) {
+            req.session.message = {
+                message: `${email} is not a valid email address.`,
+                type: 'danger'
+            }
+            return res.redirect('/users/signup')
+        } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || ! /[!@#$%^&*]/.test(password)) {
+            req.session.message = {
+                message: `password is weak. please make a strong password.`,
                 type: 'warning'
             }
             return res.redirect('/users/signup')
         }
+
+        const hashedpassword = await bcrypt.hash(password, 10)
+        let user = new User({
+            name: req.body.name,
+            email: req.body.email,
+            phone: req.body.phone,
+            password: hashedpassword,
+            verified: false
+        })
+        const result = await user.save()
+
+        const otpsent = sendOtpVerificationEmail(result, req, res)
+        if (otpsent) {
+            return res.render('user/otppage', { title: 'OTP Login page.', msg: '', type: '' })
+        }
+
     } catch (error) {
         console.log(error)
         req.session.message = {
@@ -131,7 +168,7 @@ async function verifyOtp(req, res) {
             if (userOtpVerificationRecords.length <= 0) {
                 //no records found
                 return res.render('user/otppage', { title: 'OTP Login page.', msg: "Account records doesn't exist or has been verified already. Please sign up or log in", type: 'danger' })
-                
+
             } else {
                 //user otp record exists
                 const { expired_at } = userOtpVerificationRecords[0]
@@ -236,7 +273,6 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
         //hash the otp
         const saltrounds = 10
         req.session.uesrid = _id
-        console.log('your session userid is:' + req.session.uesrid)
         const hashedOtp = await bcrypt.hash(otp, saltrounds);
         const newOtpVerification = await new userOtpVerification({
             userId: _id,

@@ -3,6 +3,12 @@
     <div class="row">
       <div class="col-lg-7 ms-5 mt-5 bg-light border pb-4 px-4">
         <h1>Edit Product Details</h1>
+        <% if (locals.message) { %>
+          <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
+           <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+           <strong><%= message.message %></strong>
+         </div>
+         <% } %>
           <form action="/products/update/<%= product.id %>" method="post" enctype="multipart/form-data">
             <label for="">Title</label>
             <input type="text" name="name" class="form-control" value="<%= product.name %>">
@@ -34,6 +40,11 @@
 
             <label for="">image</label>
             <input type="file" name="image" class="form-control" multiple>
+
+            <% for (let i = 0; i < product.image.length; i++) { %>
+              <img src="http://localhost:3000/<%= product.image[i] %>" style="height: 40px;width: 60px;" alt="http://localhost:3000/<%= product.image[i] %>">
+              <a href="/products/deleteImages/<%= product._id %>/<%= product.image[i] %>"class="text-danger" onclick="return confirm('Are you sure want to delete this product?')"><i class="fas fa-trash fa-lg mx-1"></i></a>
+            <% } %> <br>
 
             <button type="submit" class="btn btn-success mt-4">Update Details</button>
           </form>

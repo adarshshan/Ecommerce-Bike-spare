@@ -2,7 +2,7 @@ const User = require('../../models/user');
 const express = require('express')
 const router = express.Router()
 const adminAuth=require('../../middlware/adminAuth')
-
+const {body,validationResult}=require('express-validator')
 const controller=require('../../controller/userController')
 require('dotenv/config')
 
