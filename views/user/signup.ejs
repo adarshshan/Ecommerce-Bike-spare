@@ -10,7 +10,12 @@
                             <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
               
                               <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
-              
+                              <% if (locals.message) { %>
+                                <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
+                                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                                 <strong><%= message.message %></strong>
+                               </div>
+                               <% } %>
                               <form class="mx-1 mx-md-4" action="/users" method="post">
               
                                 <div class="d-flex flex-row align-items-center mb-4">

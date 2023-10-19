@@ -13,24 +13,52 @@ function adminLoginPage(req, res)  {
 async function adminLogin (req, res)  {
     try {
         const password = req.body.password
-        const admin = await Admin.findOne({ email: req.body.email })
+        if(req.body.email && password){
+            const admin = await Admin.findOne({ email: req.body.email })
         if (admin) {
-            await bcrypt.compare(password,admin.password).then((result)=>{
+            const ismatch=await bcrypt.compare(password,admin.password);
+            if(ismatch){
                 req.session.name=admin.name
                 req.session.login=true
                 res.redirect('/products')
-            }).catch((err)=>{
-                console.log('Incorrect password.')
-                console.log(err)
+            }else{
+                req.session.message={
+                    message:'You entered the wrong password.',
+                    type:'danger'
+                }
                 res.redirect('/admin/login')
-            })
+            }
+            // await bcrypt.compare(password,admin.password).then((result)=>{
+            //     req.session.name=admin.name
+            //     req.session.login=true
+            //     res.redirect('/products')
+            // }).catch((err)=>{
+            //     console.log('Incorrect password.')
+            //     console.log(err)
+            //     res.redirect('/admin/login')
+            // })
         } else {
-            console.log('User is not exists')
+            req.session.message={
+                message:'Admin with entered email is not exsts',
+                type:'warning'
+            }
             res.redirect('/admin/login')
         }
+        }else{
+            req.session.message={
+                message:'The input field must not be blank!',
+                type:'warning'
+            }
+            res.redirect('/admin/login')
+        }
+        
     } catch (error) {
         console.log(error)
-        res.send(error)
+        req.session.message={
+            message:'!Unknown error!',
+            type:'danger'
+        }
+        res.redirect('/admin/login')
     }
 
 }

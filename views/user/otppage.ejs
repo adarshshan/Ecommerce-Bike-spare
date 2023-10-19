@@ -17,9 +17,16 @@
                                     <label for="floatingInput">Enter the OTP</label>
                                 </div>
                                 <br>
-                                <input type="submit" class="btn btn-primary p-3" value="submit">
+                                <% if (locals.msg) { %>
+                                    <div class="alert alert-dismissible fade show alert-<%= type %>" role="alert">
+                                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                                        <strong><%= msg %></strong>
+                                      </div>
+                                <% } %>
+                                <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
                             </form>
-                            <a method="post" href="/users/resendtpVerficationCode">Resend otp ?</a>
+                            <form action="/users/resendtpVerficationCode"></form>
+                            <input type="submit" value="Resend OTP ?">
                         </div>
                     </div>
                 </div>

@@ -17,6 +17,7 @@
                 <div class="text-center fs-3 text-primary">
                     <h1>Login</h1>
                 </div>
+                
                 <div class="text-center border-bottom border-primary pb-2">
                     <small>Enter your Username and password</small>
                     <div class="alert-warning text-danger">
@@ -27,12 +28,18 @@
                 <form action="/admin/login" method="post" id="">
                     <div class="form-group mt-3">
                         <input class="border border-primary px-3 py-2 rounded" autocomplete="off" type="text"
-                            name="email" placeholder="Enter your Username">
+                            name="email" placeholder="Enter your Email">
                     </div>
                     <div class="form-group mt-3">
                         <input class="border border-primary px-3 py-2 rounded" autocomplete="off" type="password"
                             name="password" placeholder="Enter your Password"><br>
                     </div>
+                    <% if (locals.message) { %>
+                        <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
+                         <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                         <strong><%= message.message %></strong>
+                       </div>
+                       <% } %>
                     <input type="submit" class="btn btn-primary rounded-pill px-5 mt-3 mb-2 fs-5" value="Log In">
                     <p>Don't have an account?<a href="/route/signup">Create Account.</a></p>
                 </form>
