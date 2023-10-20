@@ -7,9 +7,7 @@ router.get('/login',controller.adminLoginPage )
 
 router.post('/login',controller.adminLogin)
 
-router.get('/signup', (req, res) => {
-    res.render('admin/signup')
-})
+router.get('/signup',controller.adminSignupPage)
 
 router.post('/signup',controller.adminSignup)
 

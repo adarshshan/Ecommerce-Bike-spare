@@ -3,28 +3,38 @@ const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 const userOtpVerification = require('../models/userOtpVerification')
 const notifier = require('node-notifier');
-const path=require('path')
+const path = require('path')
 
 
 
 async function userHome(req, res) {
-    const userList = await User.find({ verified: true })
-    if (!userList) {
-        res.status(500).json({ success: false })
+    try {
+        const userList = await User.find({ verified: true })
+        if (!userList) {
+            res.status(500).json({ success: false })
+        }
+        // res.send(userList)
+        res.render('admin/users', {
+            title: 'users',
+            users: userList
+        })
+    } catch (error) {
+        console.log('Error is at userHome ' + error)
     }
-    // res.send(userList)
-    res.render('admin/users', {
-        title: 'users',
-        users: userList
-    })
+
 }
 
 function loginPage(req, res) {
-    if (req.session.userlogin) {
-        res.redirect('/persons')
-    } else {
-        res.render('user/login', { title: 'User Login' })
+    try {
+        if (req.session.userlogin) {
+            res.redirect('/persons')
+        } else {
+            res.render('user/login', { title: 'User Login' })
+        }
+    } catch (error) {
+        console.log('Error is at loginPage ' + error)
     }
+
 }
 
 async function userLogin(req, res) {
@@ -44,7 +54,7 @@ async function userLogin(req, res) {
                             icon: path.join(__dirname, 'public/assets/sparelogo.png'),
                             sound: true,
                             wait: true
-                          })
+                        })
 
                         res.redirect('/persons')
                     } else {
@@ -61,7 +71,7 @@ async function userLogin(req, res) {
                         icon: path.join(__dirname, 'public/assets/sparelogo.png'),
                         sound: true,
                         wait: true
-                      })
+                    })
                     req.session.message = {
                         message: 'You were Blocked!',
                         type: 'danger'
@@ -83,9 +93,6 @@ async function userLogin(req, res) {
             }
             return res.redirect('/users/login')
         }
-
-
-
 
     } catch (err) {
         console.log(err)
@@ -217,7 +224,7 @@ async function verifyOtp(req, res) {
                             icon: path.join(__dirname, 'public/assets/sparelogo.png'),
                             sound: true,
                             wait: true
-                          })
+                        })
                         console.log('User verified successfully')
                         return res.redirect('/persons')
                     }
@@ -232,15 +239,15 @@ async function verifyOtp(req, res) {
 
 async function resendOtp(req, res) {
     try {
-        let userId=req.session.uesrid
-        let email=req.session.emailAddress
+        let userId = req.session.uesrid
+        let email = req.session.emailAddress
         console.log(`userid is ${userId} and email is ${email} checking...`)
         if (!userId || !email) {
             return res.render('user/otppage', { title: 'OTP Login page.', msg: "Empty user details are not allowed", type: 'danger' })
         } else {
             //delete existing record and resend
             await userOtpVerification.deleteMany({ userId })
-            sendOtpVerificationEmail({ _id: userId, email }, req,res)
+            sendOtpVerificationEmail({ _id: userId, email }, req, res)
         }
     } catch (error) {
         res.json({
@@ -251,7 +258,8 @@ async function resendOtp(req, res) {
 }
 
 async function blockUser(req, res) {
-    let id = req.params.id
+    try {
+        let id = req.params.id
     let user = await User.findOne({ _id: id })
     user.isDeleted = true;
     user.blocked_at = Date.now()
@@ -261,10 +269,15 @@ async function blockUser(req, res) {
         console.log(err)
         res.send(err)
     })
+    } catch (error) {
+        console.log('Error is at blockUser '+error)
+    }
+    
 }
 
 async function unBlockUser(req, res) {
-    let id = req.params.id
+    try {
+        let id = req.params.id
     let user = await User.findOne({ _id: id })
     user.isDeleted = false;
     user.unBlocked_at = Date.now()
@@ -274,8 +287,10 @@ async function unBlockUser(req, res) {
         console.log(err)
         res.send(err)
     })
-
-
+    } catch (error) {
+        console.log('Error is at unBlockUser '+error)
+    }
+    
 }
 
 let transporter = nodemailer.createTransport({
@@ -302,7 +317,7 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
             }
         //hash the otp
         const saltrounds = 10
-        req.session.emailAddress=email
+        req.session.emailAddress = email
         req.session.uesrid = _id
         const hashedOtp = await bcrypt.hash(otp, saltrounds);
         const newOtpVerification = await new userOtpVerification({
@@ -323,7 +338,7 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
                     icon: path.join(__dirname, 'public/assets/sparelogo.png'),
                     sound: true,
                     wait: true
-                  })
+                })
             }
         })
 
