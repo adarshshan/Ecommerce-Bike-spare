@@ -2,7 +2,8 @@ const User = require('../models/user')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 const userOtpVerification = require('../models/userOtpVerification')
-const { body, validationResult } = require('express-validator')
+const notifier = require('node-notifier');
+const path=require('path')
 
 
 
@@ -37,7 +38,14 @@ async function userLogin(req, res) {
                     console.log(`isuser: ${isuser}`)
                     if (isuser) {
                         req.session.userlogin = true
-                        req.session.name = mail.name
+                        notifier.notify({
+                            title: 'Notifications',
+                            message: 'User logined successfully...',
+                            icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+                            sound: true,
+                            wait: true
+                          })
+
                         res.redirect('/persons')
                     } else {
                         req.session.message = {
@@ -47,6 +55,13 @@ async function userLogin(req, res) {
                         return res.redirect('/users/login')
                     }
                 } else {
+                    notifier.notify({
+                        title: 'Notifications',
+                        message: 'The user has been blocked by the Admin. Please try to connect with the help center to know more.',
+                        icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+                        sound: true,
+                        wait: true
+                      })
                     req.session.message = {
                         message: 'You were Blocked!',
                         type: 'danger'
@@ -87,7 +102,13 @@ async function userSignup(req, res) {
         const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         const email = req.body.email
         const isuser = await User.findOne({ email: req.body.email })
-        if (isuser !== null) {
+        if (!name || !email || !mobile || !password || !cpassword) {
+            req.session.message = {
+                message: 'Input fields must not be blank!!!',
+                type: 'danger'
+            }
+            return res.redirect('/users/signup')
+        } else if (isuser !== null) {
             req.session.message = {
                 message: 'User with Entered Email address is already exists',
                 type: 'warning'
@@ -189,8 +210,15 @@ async function verifyOtp(req, res) {
                         //success
                         await User.updateOne({ _id: userId }, { verified: true })
                         await userOtpVerification.deleteMany({ userId })
+                        // alert('Email verified successfully...')
+                        notifier.notify({
+                            title: 'Notifications',
+                            message: 'Email Verified successfully ',
+                            icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+                            sound: true,
+                            wait: true
+                          })
                         console.log('User verified successfully')
-                        delete req.session.uesrid
                         return res.redirect('/persons')
                     }
                 }
@@ -286,7 +314,13 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
             if (err) {
                 console.log(err)
             } else {
-
+                notifier.notify({
+                    title: 'Notifications',
+                    message: 'OTP has send to your Email address. please check your Inbox. ',
+                    icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+                    sound: true,
+                    wait: true
+                  })
             }
         })
 

@@ -7,6 +7,9 @@ const bcrypt = require('bcrypt')
 const categorie = require('../../models/categorie')
 
 router.get('/', async (req, res) => {
+    if(req.session.uesrid){
+        delete req.session.uesrid
+    }
     let productList = await Products.find({ isDeleted: false })
     if (!productList) {
         res.status(500).json({ success: false })

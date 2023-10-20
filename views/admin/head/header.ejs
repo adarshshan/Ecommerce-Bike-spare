@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= locals.title?title:'categories' %></title>
+    <title>
+        <%= locals.title?title:'categories' %>
+    </title>
     <link rel="stylesheet" href="/static/admin.css">
     <script src="https://kit.fontawesome.com/718fa3d4ba.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -14,17 +16,22 @@
 <body>
 
     <body>
-        <nav class="navbar navbar-default no-margin d-flex ">
+        <nav class="navbar  fixed-top no-margin d-flex ">
 
             <div class="navbar-header fixed">
-                <a class="navbar-brand fw-bold fs-3 text-white ms-4" href="#">SpareKIT</a>
+                <a class="navbar-brand fw-bold fs-1 text-white ms-4" href="#">Spare<span style="color: rgb(154, 155, 156);">KIT</span></a>
             </div>
-            <a href="/admin/logout" class="text-white me-4 fs-3"><i class="fa-solid fa-power-off"></i></a>
-           
+            <div class="d-flex">
+                <p class="text-white mt-2 me-3"><%= locals.email?email:'Adarsh' %></p>
+                <a href="/admin/logout" class="text-white me-4 fs-3" onclick="return confirm('are you sure ?')"><i
+                        class="fa-solid fa-power-off"></i></a>
+            </div>
+
+
         </nav>
-        <div id="wrapper">
-            <div id="sidebar-wrapper">
-                <ul class="sidebar-nav nav-pills nav-stacked" id="menu">
+        <div id="wrapper" class="mt-5 pt-3">
+            <div id="sidebar-wrapper" class="">
+                <ul class="sidebar-nav nav-pills nav-stacked pt-3" id="menu">
 
                     <li class="active pt-2">
                         <a href="#"><span class="fa-stack fa-lg pull-left"><i
@@ -60,3 +67,4 @@
                     </li>
                 </ul>
             </div>
+        </div>
