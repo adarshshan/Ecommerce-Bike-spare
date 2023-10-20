@@ -232,13 +232,15 @@ async function verifyOtp(req, res) {
 
 async function resendOtp(req, res) {
     try {
-        let { userId, email } = req.body
+        let userId=req.session.uesrid
+        let email=req.session.emailAddress
+        console.log(`userid is ${userId} and email is ${email} checking...`)
         if (!userId || !email) {
-            throw Error('Empty user details are not allowed.')
+            return res.render('user/otppage', { title: 'OTP Login page.', msg: "Empty user details are not allowed", type: 'danger' })
         } else {
             //delete existing record and resend
             await userOtpVerification.deleteMany({ userId })
-            sendOtpVerificationEmail({ _id: userId, email }, res)
+            sendOtpVerificationEmail({ _id: userId, email }, req,res)
         }
     } catch (error) {
         res.json({
@@ -300,6 +302,7 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
             }
         //hash the otp
         const saltrounds = 10
+        req.session.emailAddress=email
         req.session.uesrid = _id
         const hashedOtp = await bcrypt.hash(otp, saltrounds);
         const newOtpVerification = await new userOtpVerification({
