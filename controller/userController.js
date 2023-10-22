@@ -9,7 +9,7 @@ const path = require('path')
 
 async function userHome(req, res) {
     try {
-        const userList = await User.find({ verified: true })
+        const userList = await User.find({ verified: true }).sort({ name: 1 })
         if (!userList) {
             res.status(500).json({ success: false })
         }
@@ -55,7 +55,6 @@ async function userLogin(req, res) {
                             sound: true,
                             wait: true
                         })
-
                         res.redirect('/persons')
                     } else {
                         req.session.message = {
@@ -225,8 +224,7 @@ async function verifyOtp(req, res) {
                             sound: true,
                             wait: true
                         })
-                        console.log('User verified successfully')
-                        return res.redirect('/persons')
+                        return res.redirect('/users/login')
                     }
                 }
             }
@@ -260,37 +258,37 @@ async function resendOtp(req, res) {
 async function blockUser(req, res) {
     try {
         let id = req.params.id
-    let user = await User.findOne({ _id: id })
-    user.isDeleted = true;
-    user.blocked_at = Date.now()
-    await user.save().then((rsult) => {
-        res.redirect('/users')
-    }).catch((err) => {
-        console.log(err)
-        res.send(err)
-    })
+        let user = await User.findOne({ _id: id })
+        user.isDeleted = true;
+        user.blocked_at = Date.now()
+        user.save().then((rsult) => {
+            res.redirect('/users')
+        }).catch((err) => {
+            console.log(err)
+            res.send(err)
+        })
     } catch (error) {
-        console.log('Error is at blockUser '+error)
+        console.log('Error is at blockUser ' + error)
     }
-    
+
 }
 
 async function unBlockUser(req, res) {
     try {
         let id = req.params.id
-    let user = await User.findOne({ _id: id })
-    user.isDeleted = false;
-    user.unBlocked_at = Date.now()
-    await user.save().then((result) => {
-        res.redirect('/users')
-    }).catch((err) => {
-        console.log(err)
-        res.send(err)
-    })
+        let user = await User.findOne({ _id: id })
+        user.isDeleted = false;
+        user.unBlocked_at = Date.now()
+        user.save().then((result) => {
+            res.redirect('/users')
+        }).catch((err) => {
+            console.log(err)
+            res.send(err)
+        })
     } catch (error) {
-        console.log('Error is at unBlockUser '+error)
+        console.log('Error is at unBlockUser ' + error)
     }
-    
+
 }
 
 let transporter = nodemailer.createTransport({
@@ -348,6 +346,15 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
 
     }
 }
+function userLogout(req, res) {
+    try {
+        delete req.session.userlogin
+        res.redirect('/persons')
+    } catch (error) {
+        console.log('An Error occured when logging out ' + error)
+    }
+
+}
 module.exports = {
     userHome,
     loginPage,
@@ -356,5 +363,6 @@ module.exports = {
     verifyOtp,
     resendOtp,
     blockUser,
-    unBlockUser
+    unBlockUser,
+    userLogout
 }

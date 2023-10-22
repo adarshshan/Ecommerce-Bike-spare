@@ -3,7 +3,7 @@ const Product = require('../models/product')
 
 async function categoryHome(req, res) {
     try {
-        const categorieList = await Category.find({ isDeleted: false })
+        const categorieList = await Category.find({ isDeleted: false }).sort({ name: 1 })
         res.render('admin/categories', {
             title: 'Categories',
             data: categorieList
@@ -16,7 +16,8 @@ async function categoryHome(req, res) {
 
 async function addCategories(req, res) {
     try {
-        const iscategory = await Category.findOne({ name: req.body.name })
+        // const iscategory = await Category.findOne({ name: req.body.name })
+        const iscategory = await Category.findOne({ $and: [{ name: req.body.name }, { isDeleted: false }] })
         if (!req.body.name) {
             return res.render('admin/add_categories', { title: 'aaai', msg: 'The input field must not be blank!' })
         } else if (iscategory !== null) {
@@ -54,7 +55,7 @@ async function deleteCategory(req, res) {
         const category = await Category.findById(id)
         category.isDeleted = true
         category.deleted_at = Date.now();
-        await category.save().then((result) => {
+        category.save().then((result) => {
             res.redirect('/categories')
         }).catch((err) => {
             res.send(err)
@@ -84,13 +85,27 @@ function editCategory(req, res) {
 function updateCategory(req, res) {
     try {
         let id = req.params.id
-        Category.findByIdAndUpdate(id, {
-            name: req.body.name
-        }).then((result) => {
-            res.redirect('/categories')
-        }).catch((err) => {
-            res.send(err)
+        Category.find({ $and: [{ name: req.body.name }, { isDeleted: false }] }).count().then((result) => {
+            if (result == 1 || result == 2) {
+                console.log(`result is${result}`)
+                req.session.message = {
+                    message: 'The entered name is already exixt in the list. Please try another one.',
+                    type: 'warning'
+                }
+                return res.redirect(`/categories/edit/${id}`)
+            } else {
+                console.log(`result${result}`)
+                Category.findByIdAndUpdate(id, {
+                    name: req.body.name
+                }).then((result) => {
+                    res.redirect('/categories')
+                }).catch((err) => {
+                    res.send(err)
+                })
+            }
+
         })
+
     } catch (error) {
         console.log('Error is at updateCategory ' + error)
     }

@@ -69,13 +69,8 @@ async function adminLogin(req, res) {
 
 async function adminSignup(req, res) {
     try {
-        var pass
-        await bcrypt.hash(req.body.password, 10).then((hash) => {
-            pass = hash;
-        }).catch((err) => {
-            console.log('An error occured while hashing the password' + err)
-            res.redirect('/admin/signup')
-        })
+        const pass=await bcrypt.hash(req.body.password, 10)
+        console.log(`the result is ${pass}`)
         const data = new Admin({
             name: req.body.name,
             email: req.body.email,
@@ -84,7 +79,7 @@ async function adminSignup(req, res) {
         await data.save().then((result) => {
             res.redirect('/products')
         }).catch((err) => {
-            console.log(err)
+            console.log('The error is here'+err)
             res.send(err)
         })
     } catch (error) {

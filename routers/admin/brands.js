@@ -3,7 +3,7 @@ const router = express.Router()
 const controller=require('../../controller/brandController')
 const adminAuth=require('../../middlware/adminAuth')
 
-router.use(adminAuth)
+// router.use(adminAuth)
 
 router.get('/',controller.brandHome)
 

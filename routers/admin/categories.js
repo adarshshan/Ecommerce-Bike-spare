@@ -3,7 +3,7 @@ const router=express.Router()
 const categoryController=require('../../controller/categoryController')
 const adminAuth=require('../../middlware/adminAuth')
 
-router.use(adminAuth)
+// router.use(adminAuth)
 
 router.get('/',categoryController.categoryHome)
 

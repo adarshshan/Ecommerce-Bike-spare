@@ -2,7 +2,7 @@ const Brand = require('../models/brand')
 
 async function brandHome(req, res) {
     try {
-        const brandList = await Brand.find({ isDeleted: false })
+        const brandList = await Brand.find({ isDeleted: false }).sort({ name: 1 })
         res.render('admin/brands', {
             title: 'Brands',
             data: brandList
@@ -15,7 +15,7 @@ async function brandHome(req, res) {
 
 async function addBrand(req, res) {
     try {
-        const isBrand = await Brand.findOne({ name: req.body.name })
+        const isBrand = await Brand.findOne({ $and: [{ name: req.body.name }, { isDeleted: false }] })
         if (!req.body.name) {
             return res.render('admin/add_brands', { title: 'add-brand', msg: 'Input field must not be blank!' })
         } else if (isBrand !== null) {
@@ -50,7 +50,7 @@ async function deleteBrand(req, res) {
         const brand = await Brand.findById(id)
         brand.isDeleted = true
         brand.deleted_at = Date.now()
-        await brand.save().then((s) => {
+        brand.save().then((s) => {
             res.redirect('/brands')
         }).catch((err) => {
             console.log(err)
@@ -83,14 +83,27 @@ function editBrand(req, res) {
 function updateBrand(req, res) {
     try {
         let id = req.params.id
-        Brand.findByIdAndUpdate(id, {
-            name: req.body.name
-        }).then((user) => {
-            res.redirect('/brands')
+        Brand.find({$and:[{name: req.body.name},{isDeleted:false}]}).count().then((resu) => {
+            if (resu == 1 || resu==2) {
+                console.log(`numbers : ${resu}`)
+                req.session.message = {
+                    message: 'This name is already exist please try another one',
+                    type: 'warning'
+                }
+                return res.redirect(`/brands/edit/${id}`)
+            } else {
+                Brand.findByIdAndUpdate(id, {
+                    name: req.body.name
+                }).then((user) => {
+                    console.log(`numbers : ${resu}`)
+                    return res.redirect('/brands')
+                })
+                    .catch((err) => {
+                        return res.send(err)
+                    })
+            }
         })
-            .catch((err) => {
-                res.send(err)
-            })
+
     } catch (error) {
         console.log('Error is at updateBrand ' + error)
     }

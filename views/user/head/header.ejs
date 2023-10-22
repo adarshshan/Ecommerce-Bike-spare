@@ -46,26 +46,30 @@
                                 <li><a class="dropdown-item" href="#">Honda</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="#">Orders</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="#">Cart <i class="fa-solid fa-cart-shopping"></i></a>
-                        </li>
+
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
+                                Account
                                 <i class="fa-solid fa-user"></i>
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="#">Account</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user"></i> My Profile</a></li>
+                                <% if (!locals.NoUser) { %>
+                                    <li><a class="dropdown-item" href="/users/signup">Sign Up</a></li>
+                                <% } %>
                                 <li><a class="dropdown-item" href="#">Wish List</a></li>
+                                <li><a class="dropdown-item" href="#">Orders</a></li>
                                 <li><a class="dropdown-item" href="#">contact</a></li>
-                                <li><a class="dropdown-item" href="/users/logout" onclick="return confirm('are you sure ?')">logout</a></li>
+                                <% if (locals.NoUser) { %>
+                                    <li><a class="dropdown-item" href="/users/logout"
+                                        onclick="return confirm('are you sure ?')">logout</a></li>
+                                <% } %>
+                                
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a href="/users/signup"><button type="button" class="btn btn-outline-light">Sign Up</button></a>
+                            <a class="nav-link text-white" href="#">Cart <i class="fa-solid fa-cart-shopping"></i></a>
                         </li>
                     </ul>
 

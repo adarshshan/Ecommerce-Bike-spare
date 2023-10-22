@@ -7,7 +7,7 @@ const controller=require('../../controller/userController')
 require('dotenv/config')
 
 
-router.get('/',adminAuth,controller.userHome)
+router.get('/',controller.userHome)
 //to render teh login page
 router.get('/login',controller.loginPage)
 //to render the signup page
@@ -19,10 +19,7 @@ router.post('/login',controller.userLogin)
 
 router.post('/',controller.userSignup)
 
-router.get('/logout',(req,res)=>{
-    delete req.session.userlogin
-    res.redirect('/persons')
-})
+router.get('/logout',controller.userLogout)
 
 
 router.get('/block/:id',controller.blockUser)

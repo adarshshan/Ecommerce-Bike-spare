@@ -6,25 +6,32 @@ const Category = require('../models/categorie')
 
 
 async function productHome(req, res) {
+    productsPerPage = 5;
     try {
-        const productList = await Product.find({ isDeleted: false }).populate({
-            path: 'categorieId',
-            select: 'name'
-        })
+        const productList = await Product.find({ isDeleted: false }).sort({ crated_at: -1 })
             .populate({
+                path: 'categorieId',
+                select: 'name'
+            }).populate({
                 path: 'brandId',
                 select: 'name'
             })
 
         if (!productList) {
+            console.log('it is here')
             res.status(500).json({ success: false })
-        } else
-
-            // res.send(productList)
-            res.render('admin/products.ejs', {
-                title: 'Produts',
-                data: productList
-            })
+        }
+        let page =parseInt(req.query.page) || 1;
+        const start = (page - 1) * productsPerPage;
+        const end = start + productsPerPage;
+        const paginatedProducts = productList.slice(start, end)
+        // res.send(productList)
+        res.render('admin/products.ejs', {
+            title: 'Produts',
+            data: paginatedProducts,
+            currentPage: page,
+            totalPages: Math.ceil(productList.length / productsPerPage)
+        })
     } catch (error) {
         console.log('Error is at productHome ' + error)
     }
@@ -123,7 +130,7 @@ async function deleteProduct(req, res) {
         let product = await Product.findById(id)
         product.isDeleted = true;
         product.deleted_at = Date.now()
-        await product.save().then((result) => {
+        product.save().then((result) => {
             res.redirect('/products')
         }).catch((err) => {
             console.log(err)

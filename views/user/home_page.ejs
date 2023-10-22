@@ -75,6 +75,19 @@
 
 
             </div>
+
         </div>
+        <ul class="pagination " style="margin-left: 47%;">
+            <% for (let i=1; i <=totaPages; i++) { %>
+                <li class="page-item <%= i === currenPage ? 'active' : '' %> m-1">
+                    <a class="page-link" href="/persons?page=<%= i %>">
+                        <%= i %>
+                    </a>
+                </li>
+                <% } %>
+        </ul>
+
+
+
     </section>
-<%- include('head/footer') %>
+    <%- include('head/footer') %>
