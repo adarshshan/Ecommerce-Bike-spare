@@ -21,7 +21,7 @@ async function productHome(req, res) {
             console.log('it is here')
             res.status(500).json({ success: false })
         }
-        let page =parseInt(req.query.page) || 1;
+        let page = parseInt(req.query.page) || 1;
         const start = (page - 1) * productsPerPage;
         const end = start + productsPerPage;
         const paginatedProducts = productList.slice(start, end)
@@ -168,12 +168,11 @@ async function updateProductpage(req, res) {
         const bid = await Product.findById({ _id: id }, { _id: 0, brandId: 1 })
         const cid = await Product.findById({ _id: id }, { _id: 0, categorieId: 1 })
 
-        const bname = await Brand.find({ _id: bid.brandId }, { _id: 0, name: 1 });
-        const cname = await Category.find({ _id: cid.categorieId }, { _id: 0, name: 1 });
+        const bname = await Brand.find({ _id: bid.brandId }, { _id: 1, name: 1 });
+        const cname = await Category.find({ _id: cid.categorieId }, { _id: 1, name: 1 });
 
-        const brandid = bname[0]._id
-        const categoryid = cname[0]._id
-        res.render('admin/edit_product', { product, viewData, showData, title: 'edit_product', brandid: brandid, categoryid: categoryid })
+        console.log(`brandNmae:${bname} ,categoryNmae:${cname}`)
+        res.render('admin/edit_product', { product, viewData, showData, title: 'edit_product', brand: bname, category: cname })
     } catch (error) {
         console.log('Error is at updateProductPage ' + error)
     }

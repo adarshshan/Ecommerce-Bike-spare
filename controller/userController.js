@@ -48,6 +48,8 @@ async function userLogin(req, res) {
                     console.log(`isuser: ${isuser}`)
                     if (isuser) {
                         req.session.userlogin = true
+                        req.session.currentUserId=mail._id
+                        console.log(`Current userId is ${req.session.currentUserId}`)
                         notifier.notify({
                             title: 'Notifications',
                             message: 'User logined successfully...',
@@ -349,6 +351,7 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
 function userLogout(req, res) {
     try {
         delete req.session.userlogin
+        delete req.session.currentUserId
         res.redirect('/persons')
     } catch (error) {
         console.log('An Error occured when logging out ' + error)

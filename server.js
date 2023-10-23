@@ -69,13 +69,13 @@ const brandsRouter = require('./routers/admin/brands')
 const categoriesRouter = require('./routers/admin/categories')
 const ordersRouter = require('./routers/admin/orders')
 const couponsRouter = require('./routers/admin/coupons')
-const cartsRouter = require('./routers/admin/carts')
 const wishlistsRouter = require('./routers/admin/wishlists')
 const userDetailsRouter = require('./routers/admin/userDetails')
 const paymentsRouter = require('./routers/admin/payments')
 const adminRouter=require('./routers/admin/admin')
 
 const personsRouter=require('./routers/user/person')
+const cartsRouter = require('./routers/user/carts')
 
 const api = process.env.API_URL
 
@@ -85,13 +85,13 @@ app.use('/brands', brandsRouter)
 app.use('/categories', categoriesRouter)
 app.use('/orders', ordersRouter)
 app.use('/coupons', couponsRouter)
-app.use('/carts', cartsRouter)
 app.use('/wishlists', wishlistsRouter)
 app.use('/userDetails', userDetailsRouter)
 app.use('/payments', paymentsRouter)
 app.use('/admin',adminRouter)
 
 app.use('/persons',personsRouter)
+app.use('/carts', cartsRouter)
 
 
 

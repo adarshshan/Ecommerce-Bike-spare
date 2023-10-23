@@ -15,7 +15,7 @@
 
             <label for="">Select Brand</label>
             <select name="brandId" id="" class="form-control">
-               <option value="<%= brandid %>"><%= product.brandId.name %></option>
+               <option value="<%= brand[0]._id %>"><%= brand[0].name %></option>
                <% for( let brand of showData.brandList ) { %>
                <option value="<%= brand._id %>"><%= brand.name %></option>
                <% } %>
@@ -23,7 +23,7 @@
 
             <label for="">Select Categorie</label>
             <select name="categorieId" id="" class="form-control">
-                <option value="<%= categoryid %>"><%= product.categorieId.name %></option>
+                <option value="<%= category[0]._id %>"><%= category[0].name %></option>
                 <% for( let categorie of viewData.categorieList) { %>
                 <option value="<%= categorie._id %>"><%= categorie.name %></option>
                 <% } %>
