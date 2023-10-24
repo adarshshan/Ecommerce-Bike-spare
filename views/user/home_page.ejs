@@ -57,18 +57,23 @@
                             <div class="card mb-3" style="width: 25rem;">
                                 <img src="<%= row.image[0] %>" class="card-img-top" alt="<%= row.image %>">
                                 <div class="card-body">
-                                        <h5 class="card-title">
-                                            <%= row.name %>
-                                        </h5>
-                                        <i class="fas fa-heart float-end fs-1 text-danger pb-5"></i>
-                                    
+                                    <h5 class="card-title">
+                                        <%= row.name %>
+                                    </h5>
+                                    <i class="fas fa-heart float-end fs-1 text-danger pb-5"></i>
+
                                     <p class="card-text">RS. <%= row.price %>
                                     </p>
                                     <div class="d-flex mt-3">
-                                        <form action="/carts/add/<%= row._id %>" method="post">
-                                            <input class="btn btn-warning p-3 fw-bold" type="submit" value="Add to Cart">
-                                        </form>
-                                        <a href="#" class="btn btn-danger ms-4 p-3 fw-bold">Buy Now</a>
+                                        <% if (row.cart) { %>
+                                            <a href="/carts" class="btn btn-warning p-3 fw-bold">Go to carts</a>
+                                            <% }else{ %>
+                                                <form action="/carts/add/<%= row._id %>" method="post">
+                                                    <input class="btn btn-warning p-3 fw-bold" type="submit"
+                                                        value="Add to Cart">
+                                                </form>
+                                                <% } %>
+                                                    <a href="#" class="btn btn-danger ms-4 p-3 fw-bold">Buy Now</a>
                                     </div>
                                 </div>
                             </div>

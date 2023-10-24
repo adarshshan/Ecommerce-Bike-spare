@@ -3,7 +3,9 @@ const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 const userOtpVerification = require('../models/userOtpVerification')
 const notifier = require('node-notifier');
-const path = require('path')
+const path = require('path');
+const cart = require('../models/cart');
+const product = require('../models/product');
 
 
 
@@ -45,11 +47,19 @@ async function userLogin(req, res) {
             if (mail) {
                 if (!mail.isDeleted) {
                     const isuser = await bcrypt.compare(password, mail.password)
-                    console.log(`isuser: ${isuser}`)
                     if (isuser) {
                         req.session.userlogin = true
-                        req.session.currentUserId=mail._id
-                        console.log(`Current userId is ${req.session.currentUserId}`)
+                        req.session.currentUserId = mail._id
+                        if (req.session.cartId && req.session.cartId !== null) {
+                            const cartdetails = await cart.findById(req.session.cartId)
+                            const data = cartdetails.products
+                            for (let i = 0; i < data.length; i++) {
+                                await cart.findOneAndUpdate({ userId: req.session.currentUserId }, { $push: { products: { productId: data[i].productId } } })
+                            }
+                            // await cart.deleteOne({_id:req.session.cartId})
+                            await cart.findByIdAndDelete(req.session.cartId)
+                            
+                        }
                         notifier.notify({
                             title: 'Notifications',
                             message: 'User logined successfully...',
@@ -348,10 +358,12 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
 
     }
 }
-function userLogout(req, res) {
+async function userLogout(req, res) {
     try {
         delete req.session.userlogin
         delete req.session.currentUserId
+        delete req.session.cartId
+        await product.updateMany({},{$set:{cart:false}})
         res.redirect('/persons')
     } catch (error) {
         console.log('An Error occured when logging out ' + error)

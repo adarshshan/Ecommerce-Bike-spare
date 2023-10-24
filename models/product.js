@@ -41,6 +41,10 @@ const prouctSchema = new mongoose.Schema({
     },
     modified_at: {
         type: Date
+    },
+    cart:{
+        type:Boolean,
+        default:false
     }
 })
 const product = mongoose.model('product', prouctSchema)
