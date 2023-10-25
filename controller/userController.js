@@ -53,12 +53,28 @@ async function userLogin(req, res) {
                         if (req.session.cartId && req.session.cartId !== null) {
                             const cartdetails = await cart.findById(req.session.cartId)
                             const data = cartdetails.products
-                            for (let i = 0; i < data.length; i++) {
-                                await cart.findOneAndUpdate({ userId: req.session.currentUserId }, { $push: { products: { productId: data[i].productId } } })
+                            const isCart = await cart.findOne({ userId: req.session.currentUserId })
+                            if (!isCart) {
+                                let array = []
+                                for (let i = 0; i < data.length; i++) {
+                                    array[i] = data[i].productId
+                                }
+                                console.log(array)
+                                await cart.insertMany({
+                                    userId: req.session.currentUserId,
+                                    products: {productId:[array]} 
+                                })
+                                await cart.findByIdAndDelete(req.session.cartId)
+                            } else {
+                                for (let i = 0; i < data.length; i++) {
+                                    await cart.findOneAndUpdate({ userId: req.session.currentUserId }, { $push: { products: { productId: data[i].productId } } })
+                                }
+                                // await cart.deleteOne({_id:req.session.cartId})
+                                await cart.findByIdAndDelete(req.session.cartId)
                             }
-                            // await cart.deleteOne({_id:req.session.cartId})
-                            await cart.findByIdAndDelete(req.session.cartId)
-                            
+
+
+
                         }
                         notifier.notify({
                             title: 'Notifications',
@@ -363,7 +379,7 @@ async function userLogout(req, res) {
         delete req.session.userlogin
         delete req.session.currentUserId
         delete req.session.cartId
-        await product.updateMany({},{$set:{cart:false}})
+        await product.updateMany({}, { $set: { cart: false } })
         res.redirect('/persons')
     } catch (error) {
         console.log('An Error occured when logging out ' + error)

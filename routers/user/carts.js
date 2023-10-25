@@ -80,13 +80,6 @@ router.post('/add/:id', async (req, res) => {
                 products: [{ productId: id }]
             })
             if (resu) {
-                const cartdetails=await Cart.findById({_id:req.session.cartId});
-                console.log('cartdetails'+cartdetails)
-                const data=cartdetails.products
-                console.log(`data is ${data}`)
-                for(let i=0;i<data.length;i++){
-                    await Cart.findOneAndUpdate({userId:req.session.currentUserId},{$push:{products:{productId:data[i].productId}}})
-                }
                 await product.findByIdAndUpdate(id, { $set: { cart: true } })
                 res.redirect('/carts')
             } else {
@@ -107,19 +100,19 @@ router.get('/remove/:id', async (req, res) => {
         const id = req.params.id
         const userId = req.session.currentUserId;
 
-        // const cartdelete=await Cart.findOneAndUpdate({userId:userId},{$pull:{products:{productId:id}}})
-        // if(cartdelete){
-        //     await product.findByIdAndUpdate(id,{$set:{cart:false}})
-        //     notifier.notify({
-        //         title: 'Notifications',
-        //         message: 'The Cart Item removed ',
-        //         icon: path.join(__dirname, 'public/assets/sparelogo.png'),
-        //         wait: true
-        //     })
-        //     res.redirect('/carts')
-        // }else{
-        //     res.send('An Error')
-        // }
+        const cartdelete=await Cart.findOneAndUpdate({userId:userId},{$pull:{products:{productId:id}}})
+        if(cartdelete){
+            await product.findByIdAndUpdate(id,{$set:{cart:false}})
+            notifier.notify({
+                title: 'Notifications',
+                message: 'The Cart Item removed ',
+                icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+                wait: true
+            })
+            res.redirect('/carts')
+        }else{
+            res.send('An Error')
+        }
     } catch (error) {
         console.log('The Error is at Remove from cart.' + error)
     }
