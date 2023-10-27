@@ -21,81 +21,96 @@
                                 <% cartItem.products.forEach(productItem=> { %>
 
 
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
-                                                        <!-- Image -->
-                                                        <div class="bg-image hover-overlay hover-zoom ripple rounded"
-                                                            data-mdb-ripple-color="light">
-                                                            <img src="<%= productItem.productId.image[0] %>"
-                                                                class="w-100" alt="Blue Jeans Jacket" />
-                                                            <a href="#!">
-                                                                <div class="mask"
-                                                                    style="background-color: rgba(251, 251, 251, 0.2)">
-                                                                </div>
-                                                            </a>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
+                                                <!-- Image -->
+                                                <div class="bg-image hover-overlay hover-zoom ripple rounded"
+                                                    data-mdb-ripple-color="light">
+                                                    <img src="<%= productItem.productId.image[0] %>" class="w-100"
+                                                        alt="Blue Jeans Jacket" />
+                                                    <a href="#!">
+                                                        <div class="mask"
+                                                            style="background-color: rgba(251, 251, 251, 0.2)">
                                                         </div>
-                                                        <!-- Image -->
-                                                    </div>
-
-                                                    <div class="col-lg-5 col-md-6 mt-4 mb-lg-0">
-                                                        <!-- Data -->
-                                                        <p><strong>
-                                                                <%= productItem.productId.name %>
-                                                            </strong></p>
-                                                        <a href="/carts/remove/<%= productItem.productId._id %>" onclick="return confirm('Are you sure you want to remove this item?')" class="btn btn-primary btn-sm me-1 mb-2"><i class="fas fa-trash"></i></a> 
-                                                            
-                                                        <button type="button" class="btn btn-danger btn-sm mb-2"
-                                                            data-mdb-toggle="tooltip" title="Move to the wish list">
-                                                            <i class="fas fa-heart"></i>
-                                                        </button>
-                                                        <!-- Data -->
-                                                    </div>
-
-                                                    <div class="col-lg-4 col-md-6  mb-lg-0">
-                                                        <!-- Quantity -->
-                                                        <div class="d-flex mt-5" style="max-width: 300px">
-                                                            <button class="btn btn-primary px-3 me-2"
-                                                                onclick="this.parentNode.querySelector('input[type=number]').stepDown()">
-                                                                <i class="fas fa-minus"></i>
-                                                            </button>
-
-                                                            <div class="form-outline">
-                                                                <input id="form1" min="0" name="quantity" value="1"
-                                                                    type="number" class="form-control" />
-                                                                <label class="form-label" for="form1">Quantity</label>
-                                                            </div>
-
-                                                            <button class="btn btn-primary px-3 ms-2"
-                                                                onclick="this.parentNode.querySelector('input[type=number]').stepUp()">
-                                                                <i class="fas fa-plus"></i>
-                                                            </button>
-                                                        </div>
-                                                        <!-- Quantity -->
-
-                                                        <!-- Price -->
-                                                        <p class="text-start text-md-center">
-                                                            <strong>Rs.<%= productItem.productId.price %></strong>
-                                                        </p>
-                                                        <!-- Price -->
-                                                    </div>
+                                                    </a>
                                                 </div>
-                                                <!-- Single item -->
-
-                                                <hr class="my-4" />
-
-
-
-
-
+                                                <!-- Image -->
                                             </div>
-                                            <% }); %>
-                                                <% }); %>
-                                                    <% }else{ %>
-                                                        <div class="text-center text-secondary mt-5">
-                                                            <h1>No Products found in the Database</h1>
-                                                        </div>
-                                                        <% } %>
+
+                                            <div class="col-lg-5 col-md-6 mt-4 mb-lg-0">
+                                                <!-- Data -->
+                                                <p><strong>
+                                                        <%= productItem.productId.name %>
+                                                    </strong></p>
+                                                <a href="/carts/remove/<%= productItem.productId._id %>"
+                                                    onclick="return confirm('Are you sure you want to remove this item?')"
+                                                    class="btn btn-primary btn-sm me-1 mb-2"><i
+                                                        class="fas fa-trash"></i></a>
+
+                                                <button type="button" class="btn btn-danger btn-sm mb-2"
+                                                    data-mdb-toggle="tooltip" title="Move to the wish list">
+                                                    <i class="fas fa-heart"></i>
+                                                </button>
+                                                <!-- Data -->
+                                            </div>
+
+                                            <div class="col-lg-4 col-md-6  mb-lg-0">
+                                                <!-- Quantity -->
+                                                <div class="d-flex mt-5" style="max-width: 300px">
+                                                    <button class="decrement-button btn btn-primary px-3 ms-2"
+                                                        data-product-id="<%= productItem.productId._id %>">
+                                                        <i class="fas fa-minus mt-3"></i>
+                                                    </button>
+                                                    <!-- <a class="btn btn-primary px-3 ms-2"
+                                                        href="/carts/decreaseCount/<%= productItem.productId._id %>">
+                                                        <i class="fas fa-minus mt-3"></i>
+                                                    </a> -->
+
+
+                                                    <div class="form-outline">
+                                                        <input id="form1" min="0" name="quantity"
+                                                            value="<%= productItem.quantity %>" type="number"
+                                                            class="form-control" />
+                                                        <label class="form-label" for="form1">Quantity</label>
+                                                    </div>
+
+                                                    <!-- <a class="btn btn-primary px-3 ms-2"  data-product-id="<%= productItem.productId._id %>"
+                                                        href="/carts/increaseCount/<%= productItem.productId._id %>">
+                                                        <i class="fas fa-plus mt-3"></i>
+                                                    </a> -->
+                                                    <button class="increment-button btn btn-primary px-3 ms-2"
+                                                        data-product-id="<%= productItem.productId._id %>"
+                                                        onclick="increaseProductQuantity('<%= productItem.productId._id %>')">
+                                                        <i class="fas fa-plus mt-3"></i>
+                                                    </button>
+                                                </div>
+                                                <!-- Quantity -->
+
+                                                <!-- Price -->
+                                                <p class="text-start text-md-center disp">
+                                                    <strong>Rs.<%= productItem.productId.price*productItem.quantity %>
+                                                    </strong>
+                                                </p>
+                                                <!-- Price -->
+                                            </div>
+                                        </div>
+                                        <!-- Single item -->
+
+                                        <hr class="my-4" />
+
+
+
+
+
+                                    </div>
+                                    <% }); %>
+                                        <% }); %>
+                                            <% }else{ %>
+                                                <div class="text-center text-secondary mt-5">
+                                                    <h1>No Products found in the Database</h1>
+                                                </div>
+                                                <% } %>
                     </div>
                     <div class="card mb-4">
                         <div class="card-body">
@@ -158,4 +173,80 @@
             </div>
         </div>
     </section>
+    <script>
+        function increaseProductQuantity(productId) {
+            fetch(`/carts/increaseCount/${productId}`, {
+                method: 'GET'
+            }).then((response) => {
+                    console.log(response)
+                    response.json()
+                }) // If you expect JSON response
+                .then(data => {
+                    // Handle the response data if needed
+                    console.log('Product quantity increased successfully:', data);
+                    console.log(`Quantity is ${data.quantity}`)
+                    // You can update the UI here if needed
+                })
+                .catch(error => {
+                    console.error('Error increasing product quantity:', error);
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // Increment and Decrement button click events (same code as provided earlier)
+            // document.querySelectorAll(".increment-button").forEach(button => {
+            //     button.addEventListener("click", function () {
+            //         const productId = button.getAttribute("data-product-id");
+            //         increaseQuantity(productId, +1);
+            //     });
+            // });
+
+            document.querySelectorAll(".decrement-button").forEach(button => {
+                button.addEventListener("click", function () {
+                    const productId = button.getAttribute("data-product-id");
+                    decreaseQuantity(productId, -1);
+                });
+            });
+
+            function decreaseQuantity(productId, change) {
+                console.log('Decrease button clicked...')
+                // Make a Fetch API request to update the quantity (same code as provided earlier)
+                fetch(`/carts/decreaseCount/${productId}`, {
+                    method: "GET"
+                })
+
+                    .then(response => {
+                        response.json()
+                        console.log(response)
+                        console.log('The response is ' + response.blob)
+                    })
+                    .then(data => {
+                        // Update the quantity on the client-side (same code as provided earlier)
+                        const quantityDisplay = document.querySelector(".quantity-display");
+                        const currentQuantity = parseInt(quantityDisplay.textContent);
+                        const newQuantity = currentQuantity + change;
+                        if (newQuantity >= 0) {
+                            quantityDisplay.textContent = newQuantity;
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error: " + error);
+                    });
+            }
+            function increaseQuantity(productId, change) {
+                
+                try {
+                    fetch(`/carts/increaseCount/${productId}`, {
+                        method: "GET"
+                    }).then((response)=>{
+                        console.log(response)
+                        response.json();
+                    }).catch((err)=>console.log(`error is${err}`))
+                    // Update the quantity on the client-side if needed
+                } catch (error) {
+                    console.error("Error: " + error);
+                }
+            }
+        });
+    </script>
     <%- include('head/footer') %>

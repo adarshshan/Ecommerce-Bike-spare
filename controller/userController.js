@@ -76,6 +76,7 @@ async function userLogin(req, res) {
 
 
                         }
+                        await product.updateMany({}, { $set: { cart: false } })
                         notifier.notify({
                             title: 'Notifications',
                             message: 'User logined successfully...',

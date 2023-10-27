@@ -61,7 +61,6 @@ app.use((req,res,next)=>{
 })
 
 
-
 //routers
 const productRouter = require('./routers/admin/products');
 const usersRouter = require('./routers/admin/users')
