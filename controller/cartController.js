@@ -2,13 +2,16 @@ const Cart = require('../models/cart')
 const product = require('../models/product')
 const notifier = require('node-notifier');
 const path = require('path')
-const { ObjectId } = require('mongoose').Types;
+const mongoose=require('mongoose')
+const ObjectId = mongoose.Types.ObjectId;
 
 
 async function cartHome(req, res) {
     try {
         const userId = req.session.currentUserId
         const cartId = req.session.cartId
+        const car=new ObjectId(cartId)
+        const use=new ObjectId(userId)
         const cartList = await Cart.find({ userId: userId })
             .populate({
                 path: 'products.productId',
@@ -18,37 +21,8 @@ async function cartHome(req, res) {
         let totalAmount = 0;
         let totalquantity = 0;
         if (cartList) {
-            const result = await Cart.aggregate([
-                {
-                    $match: {userId:userId }
-                },
-                {
-                    $unwind: "$products" // Assuming "items" is the array containing products in the cart
-                },
-                {
-                    $lookup: {
-                        from: "products", // The name of the product collection
-                        localField: "products.productId",
-                        foreignField: "_id",
-                        as: "product"
-                    }
-                },
-                {
-                    $unwind: "$product"
-                },
-                {
-                    $group: {
-                        _id: null,
-                        totalAmount: { $sum: { $multiply: ["$product.price", "$product.quantity"] } }
-                    }
-                }
-            ]);
-            console.log(`result is ${result}`)
-            if (result.length > 0) {
-                totalAmount = result[0].totalAmount;
-            }
-            console.log(`totalAmount is ${totalAmount}`)
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList})
+            let totalAmount=await calculateTotalAmount({userId:use})
+            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList,totalAmount})
 
         } else {
             const cartList = await Cart.findOne({ _id: cartId }).populate({
@@ -56,10 +30,8 @@ async function cartHome(req, res) {
                 select: 'name price image description stock'
             }).sort({ created_at: -1 })
             if (cartList) {
-                cartList.products.forEach(product => {
-                    product.totalPrice = product.productId.price * product.quantity;
-                });
-                return res.render('user/cart.ejs', { title: 'shopping Cart', cartList })
+                let totalAmount=await calculateTotalAmount({userId:car})
+                return res.render('user/cart.ejs', { title: 'shopping Cart', cartList,totalAmount })
             } else {
                 console.log('An error occured while rendering the cartlist...')
             }
@@ -170,7 +142,7 @@ const calculateTotalAmount = async (matchCriteria) => {
         },
         {
             $lookup: {
-                from: "product",
+                from: "products",
                 localField: "products.productId",
                 foreignField: "_id",
                 as: "product"

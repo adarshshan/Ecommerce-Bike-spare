@@ -52,7 +52,10 @@ async function userLogin(req, res) {
                         req.session.currentUserId = mail._id
                         if (req.session.cartId && req.session.cartId !== null) {
                             const cartdetails = await cart.findById(req.session.cartId)
-                            const data = cartdetails.products
+                            let data
+                            if(cartdetails){
+                                data = cartdetails.products
+                            }else{return res.send('cart is not found in database')}
                             const isCart = await cart.findOne({ userId: req.session.currentUserId })
                             if (!isCart) {
                                 let array = []
