@@ -1,4 +1,63 @@
-<%- include('head/header') %>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>user-dashboard</title>
+    <link rel="stylesheet" href="/static/user.css">
+    <script src="https://kit.fontawesome.com/718fa3d4ba.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <a class="navbar-brand fs-1 fw-normal ms-4 text-white" href="/persons">Spare<span
+                        class="text-dark">KIT</span></a>
+                <form class="d-flex ms-5">
+                    <input class="inp rounded-pill p-2" type="search" placeholder="Search">
+                    <button class="btn" type="submit"></button>
+                </form>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                    <ul class="navbar-nav ms-auto fs-5 mb-2 mb-lg-0">
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                My Account
+                                <i class="fa-solid fa-user"></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user"></i> My Profile</a></li>
+                                <% if (!locals.NoUser) { %>
+                                    <li><a class="dropdown-item" href="/users/signup">Sign Up</a></li>
+                                <% } %>
+                                <li><a class="dropdown-item" href="#">Wish List</a></li>
+                                <li><a class="dropdown-item" href="#">Orders</a></li>
+                                <li><a class="dropdown-item" href="#">contact</a></li>
+                                <% if (locals.NoUser) { %>
+                                    <li><a class="dropdown-item" href="/users/logout"
+                                        onclick="return confirm('are you sure ?')">logout</a></li>
+                                <% } %>
+                                
+                            </ul>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+    </header>
     <style>
         .card-header {
             box-shadow: 5px 4px 5px rgb(143, 194, 207);
@@ -14,7 +73,7 @@
                 <div class="col-md-8">
                     <div class="card mb-4">
                         <div class="card-header py-3">
-                            <h5 class="mb-0">Cart - 2 items</h5>
+                            <h5 id="totalProducts" class="mb-0">(<%= totalProducts %>)items</h5>
                         </div>
                         <% if (cartList && cartList.length) { %>
                             <% cartList.forEach(cartItem=> { %>
@@ -78,7 +137,8 @@
                                                 <!-- Quantity -->
 
                                                 <!-- Price -->
-                                                <p class="text-start text-md-center disp" id="totalproductPrice<%=productItem.productId._id %>">
+                                                <p class="text-start text-md-center disp"
+                                                    id="totalproductPrice<%=productItem.productId._id %>">
                                                     <strong id=`totalproductPrice<%=productItem.productId._id %>`>
                                                         <%= productItem.productId.price*productItem.quantity %>
                                                     </strong>
@@ -136,12 +196,18 @@
                             <ul class="list-group list-group-flush">
                                 <li
                                     class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-                                    Products
-                                    <span>$53.98</span>
+                                    Price(<%= totalProducts %> items)
+                                        <span id="actualamount">
+                                            <%= totalAmount %>
+                                        </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    Discount
+                                    <span>0</span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                     Shipping
-                                    <span>Gratis</span>
+                                    <span>Free</span>
                                 </li>
                                 <li
                                     class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
@@ -151,13 +217,14 @@
                                             <p class="mb-0">(including VAT)</p>
                                         </strong>
                                     </div>
-                                    <span><strong>$53.98</strong></span>
+                                    <span><strong id="totalAmount">Rs.<%= totalAmount %></strong></span>
                                 </li>
                             </ul>
-
-                            <button type="button" class="btn btn-primary btn-lg btn-block">
-                                Go to checkout
-                            </button>
+                            <a href="/users/checkout">
+                                <button type="button" class="btn btn-primary btn-lg btn-block">
+                                    Go to checkout
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -175,10 +242,12 @@
                 }
                 console.log(response)
                 return response.json();
-            }) 
+            })
                 .then((data) => {
                     let total = data.productQuantity * productPrice
                     let quantity = data.productQuantity
+                    let totalAmount = data.totalAmount
+                    let totalProducts = data.totalProducts
 
                     const quantityInput = document.getElementById(`form${productId}`);
                     if (quantityInput) {
@@ -188,12 +257,24 @@
                     if (totalPriceElement) {
                         totalPriceElement.innerHTML = total;
                     }
+                    const totalAmountElement = document.getElementById('totalAmount')
+                    if (totalAmountElement) {
+                        totalAmountElement.innerHTML = totalAmount
+                    }
+                    const totalProductsElement = document.getElementById('totalProducts')
+                    if (totalProductsElement) {
+                        totalProductsElement.innerHTML = `(${totalProducts})items`
+                    }
+                    const taem = document.getElementById('actualamount')
+                    if (taem) {
+                        taem.innerHTML = totalAmount
+                    }
                 })
                 .catch(error => {
                     console.error('Error increasing product quantity:', error);
                 });
         }
-        
+
         function decreaseProductQuantity(productId, productPrice) {
             fetch(`/carts/decreaseCount/${productId}`, {
                 method: 'GET'
@@ -204,10 +285,12 @@
                 }
                 console.log(response)
                 return response.json();
-            }) 
+            })
                 .then((data) => {
                     let total = data.productQuantity * productPrice
                     let quantity = data.productQuantity
+                    let totalAmount = data.totalAmount
+                    let totalProducts = data.totalProducts
 
                     const quantityInput = document.getElementById(`form${productId}`);
                     if (quantityInput) {
@@ -217,12 +300,22 @@
                     if (totalPriceElement) {
                         totalPriceElement.innerHTML = total;
                     }
+                    const totalAmountElement = document.getElementById('totalAmount')
+                    if (totalAmountElement) {
+                        totalAmountElement.innerHTML = totalAmount
+                    }
+                    const totalProductsElement = document.getElementById('totalProducts')
+                    if (totalProductsElement) {
+                        totalProductsElement.innerHTML = `(${totalProducts})items`
+                    }
+                    const taem = document.getElementById('actualamount')
+                    if (taem) {
+                        taem.innerHTML = totalAmount
+                    }
                 })
                 .catch(error => {
                     console.error('Error increasing product quantity:', error);
                 });
         }
-
-        
     </script>
     <%- include('head/footer') %>
