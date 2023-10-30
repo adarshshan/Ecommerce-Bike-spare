@@ -4,7 +4,7 @@ const router = express.Router()
 const adminAuth = require('../../middlware/adminAuth')
 const controller = require('../../controller/userController')
 const addressModel = require('../../models/userDetail')
-const Cart=require('../../models/cart')
+const Cart = require('../../models/cart')
 require('dotenv/config')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
@@ -35,22 +35,23 @@ router.post('/resendtpVerficationCode', controller.resendOtp)
 
 //------address------
 
-router.get('/checkout',async (req, res) => {
-    const userId=req.session.currentUserId
-    const user=new ObjectId(userId)
-    if(userId){
-        const address=await addressModel.findOne({userId:userId})
-        const {totalAmount,totalProducts}=await calculateTotalAmount({userId:user})
+router.get('/checkout', async (req, res) => {
+    const userId = req.session.currentUserId
+    const user = new ObjectId(userId)
+    if (userId) {
+        const address = await addressModel.findOne({ userId: userId })
+        const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: user })
         var addressDetails
-        if(address && address!==null){
-            addressDetails=address.address;
+        if (address && address !== null) {
+            addressDetails = address.address;
         }
-        res.render('user/checkout.ejs',{title:'checkout',addressDetails,totalAmount,totalProducts})
-        
-    }else{
-        console.log('userid not found..')
+        res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts })
+
+    } else {
+        console.log('not userid')
+        return res.redirect('/users/login');
     }
-    
+
 })
 router.post('/address', async (req, res) => {
     try {
@@ -78,31 +79,62 @@ router.post('/address', async (req, res) => {
 
 router.get('/address_get', async (req, res) => {
     try {
-         const userId=req.session.currentUserId
-         const addressList=await addressModel.findOne({userId:userId})
-         if(addressList && addressList!==null){
-            console.log(`addressList is ${addressList}`)
-            res.json({addressList:addressList})
-         }else{
+        const userId = req.session.currentUserId
+        const addressList = await addressModel.findOne({ userId: userId })
+        if (addressList && addressList !== null) {
+            res.json({ addressList: addressList })
+        } else {
             console.log("address with provided userId does not exist...")
-         }
+        }
     } catch (error) {
         console.log(`Error at address get...${error}`)
     }
 })
 
-router.get('/delete_address/:id',async(req,res)=>{
-    const idd=req.params.id
-    const id=new ObjectId(idd)
-    console.log('it is your address id '+id)
-    const userId=req.session.currentUserId
-    const deleted=await addressModel.findOneAndUpdate({userId:userId},{$pull:{address:{_id:id}}})
-    const addressList=await addressModel.findOne({userId:userId})
-    if(deleted){
-        console.log('Address removed...')
-        res.json({addressList:addressList})
+router.post('/updateAddress/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+        const data = req.body
+        console.log(data)
+        console.log(`id is ${id}  and the data is ${data}`)
+        // const update=await addressModel.findOneAndUpdate({'address._id':id},{$set:{address:[data]}})
+        const update = await addressModel.findOneAndUpdate({ 'address._id': id }, {
+            $set: {
+                'address.$.name': data.name,
+                'address.$.phone': data.phone,
+                'address.$.fullAddress': data.fullAddress,
+                'address.$.pinCode': data.pinCode,
+                'address.$.district': data.district,
+                'address.$.landmark': data.landmark,
+                'address.$.alternativePhone': data.alternativePhone,
+            }
+        })
+        // const updated=await addressModel.findByIdAndUpdate(id,{$set:{address:[data]}})
+        if (update) {
+            console.log(`successfully updated...`);
+            return res.json({ message: 'address successfully updated' })
+        } else {
+            console.log(`updation failed..`)
+            return res.json({ message: 'address updation failed...' })
+        }
+
+    } catch (error) {
+        console.log('Error while updating the address At /users/updateAddress')
     }
-    
+})
+
+router.get('/delete_address/:id', async (req, res) => {
+    const idd = req.params.id
+    const id = new ObjectId(idd)
+    console.log('it is your address id ' + id)
+    const userId = req.session.currentUserId
+    const deleted = await addressModel.findOneAndUpdate({ userId: userId }, { $pull: { address: { _id: id } } })
+    const addressList = await addressModel.findOne({ userId: userId })
+    if (deleted) {
+        console.log('Address removed...')
+        res.json({ addressList: addressList })
+    }
+
 })
 
 const calculateTotalAmount = async (matchCriteria) => {
@@ -139,9 +171,9 @@ const calculateTotalAmount = async (matchCriteria) => {
     if (result.length > 0) {
         console.log('Total Amount:', result[0].totalAmount);
         console.log(`totalProducts ${result[0].totalProducts}`)
-        let totalAmount=result[0].totalAmount
-        let totalProducts=result[0].totalProducts
-        return {totalAmount,totalProducts};
+        let totalAmount = result[0].totalAmount
+        let totalProducts = result[0].totalProducts
+        return { totalAmount, totalProducts };
     } else {
         console.log('No results found.');
         return 0; // Return 0 if no results

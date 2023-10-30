@@ -5,14 +5,13 @@ const path = require('path')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
 
-
 async function cartHome(req, res) {
     try {
         const userId = req.session.currentUserId
         const cartId = req.session.cartId
         const car = new ObjectId(cartId)
         const use = new ObjectId(userId)
-        console.log('user id is ' + userId)
+        if (!userId && !cartId) return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0 })
         const cartList = await Cart.find({ userId: userId })
             .populate({
                 path: 'products.productId',
@@ -26,16 +25,17 @@ async function cartHome(req, res) {
             })
         if (cartList && cartList.length > 0 && cartList !== undefined) {
             console.log('it is user...')
-            let {totalAmount,totalProducts} = await calculateTotalAmount({ userId: use })
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount,totalProducts })
+            let { totalAmount, totalProducts } = await calculateTotalAmount({ userId: use })
+            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts })
 
         } else if (justCart && justCart.length > 0) {
             console.log('Its just user...')
             let totalAmount = await calculateTotalAmount({ _id: car })
             console.log(`skldjflsdjf${totalAmount}`)
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount })
+            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts })
         } else {
-            console.log('An error occured while rendering the cartlist...')
+            console.log('kooi')
+            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0 })
         }
 
     } catch (error) {
@@ -43,6 +43,52 @@ async function cartHome(req, res) {
     }
 
 }
+// async function cartHome(req, res) {
+//     try {
+//         const userId = req.session.currentUserId
+//         const cartId = req.session.cartId
+//         const car = new ObjectId(cartId)
+//         const use = new ObjectId(userId)
+//         if (req.session.currentUserId) {
+//             console.log(`usertId is ${userId}`)
+//             const cartList = await Cart.findOne({ userId: userId })
+//                 .populate({
+//                     path: 'products.productId',
+//                     select: 'name price image description stock quantity'
+//                 })
+//             console.log('cartlist' + cartList)
+//             if (cartList && cartList !== null) {
+//                 console.log(`cartdfkdjflsfj${cartList}`)
+//                 console.log('it is user...')
+//                 let { totalAmount, totalProducts } = await calculateTotalAmount({ userId: use })
+//                 return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts })
+
+//             }
+//         }
+//         if (req.session.cartId) {
+//             console.log(`cartId is ${car}`)
+//             const cartList = await Cart.findOne({ _id: car })
+//                 .populate({
+//                     path: 'products.productId',
+//                     select: 'name price image description stock quantity'
+//                 })
+//             console.log(`justCart is ${cartList}`)
+//             if (cartList && cartList !== null) {
+//                 console.log('Its just user...') 
+//                 let { totalAmount, totalProducts } = await calculateTotalAmount({ _id: car })
+//                 console.log(`skldjflsdjf${totalAmount}`)
+//                 return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts })
+//             }
+//         }
+//         console.log('its here now')
+//         return res.render('user/cart.ejs', { title: 'shopping cart', cartList: '', totalAmount: 0, totalProducts: 0 })
+
+
+//     } catch (error) {
+//         console.log(`An Error occured at ...${error}`)
+//     }
+
+// }
 
 
 
@@ -141,7 +187,7 @@ async function increaseCount(req, res) {
         const use = new ObjectId(userId)
         if (userId) {
             await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': 1 } })
-            let {totalAmount,totalProducts} = await calculateTotalAmount({ userId: use })
+            let { totalAmount, totalProducts } = await calculateTotalAmount({ userId: use })
             const q = await Cart.aggregate([
                 {
                     $match: {
@@ -165,7 +211,7 @@ async function increaseCount(req, res) {
             ])
             let productQuantity = q[0].quantity
             console.log(`Quantity: ${productQuantity}`);
-            res.json({ success: true, productQuantity, totalAmount,totalProducts})
+            res.json({ success: true, productQuantity, totalAmount, totalProducts })
 
         } else if (cartId) {
             await Cart.updateOne({ _id: cartId, 'products.productId': id }, { $inc: { 'products.$.quantity': 1 } })
@@ -211,7 +257,7 @@ async function decreaseCount(req, res) {
         const cartId = req.session.cartId
         if (userId) {
             await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
-            let {totalAmount,totalProducts} = await calculateTotalAmount({ userId: use })
+            let { totalAmount, totalProducts } = await calculateTotalAmount({ userId: use })
             const q = await Cart.aggregate([
                 {
                     $match: {
@@ -235,7 +281,7 @@ async function decreaseCount(req, res) {
             ])
             let productQuantity = q[0].quantity
             console.log(`Quantity: ${productQuantity}`);
-            res.json({ success: true, productQuantity, totalAmount,totalProducts})
+            res.json({ success: true, productQuantity, totalAmount, totalProducts })
         } else if (cartId) {
             await Cart.updateOne({ _id: cartId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
             const q = await Cart.aggregate([
@@ -303,9 +349,9 @@ const calculateTotalAmount = async (matchCriteria) => {
     if (result.length > 0) {
         console.log('Total Amount:', result[0].totalAmount);
         console.log(`totalProducts ${result[0].totalProducts}`)
-        let totalAmount=result[0].totalAmount
-        let totalProducts=result[0].totalProducts
-        return {totalAmount,totalProducts};
+        let totalAmount = result[0].totalAmount
+        let totalProducts = result[0].totalProducts
+        return { totalAmount, totalProducts };
     } else {
         console.log('No results found.');
         return 0; // Return 0 if no results

@@ -30,11 +30,16 @@
                     <div class="row" id="inner">
                         <% if (addressDetails && addressDetails.length) { %>
                             <% for( let i=0; i < addressDetails.length; i++ ) { %>
-                                <div class="card col-md-12 form-group d-flex p-2">
-                                    <b>
-                                        <%= addressDetails[i].name %>
-                                            <%= addressDetails[i].phone %>
-                                    </b>
+                                <div class="card col-md-12 form-group p-2" id="address<%= addressDetails[i]._id %>">
+                                    <div>
+                                        <b>
+                                            <%= addressDetails[i].name %>
+                                                <%= addressDetails[i].phone %>
+                                        </b>
+                                        <button onclick="editAddress('<%= JSON.stringify({ id: addressDetails[i]._id, name: addressDetails[i].name, phone: addressDetails[i].phone, fullAddress: addressDetails[i].fullAddress, landmark: addressDetails[i].landmark, pinCode: addressDetails[i].pinCode, alternativePhone: addressDetails[i].alternativePhone, district: addressDetails[i].district }) %>')" class="float-end me-3" style="text-decoration: none;">EDIT</button>
+
+                                    </div>
+
                                     <p class="mt-3">
                                         <%= addressDetails[i].fullAddress %>,<%= addressDetails[i].landmark %>,<%=
                                                     addressDetails[i].pinCode %>,<%= addressDetails[i].alternativePhone
@@ -72,45 +77,7 @@
                     <!-- Checkout -->
                     <div class="card shadow-0 border">
                         <div class="p-4">
-                            <!-- <h5 class="card-title mb-3">Guest checkout</h5>
-                            <div class="row">
-                                <div class="col-6 mb-3">
-                                    <p class="mb-0">First name</p>
-                                    <div class="form-outline">
-                                        <input type="text" id="typeText" placeholder="Type here" class="form-control" />
-                                    </div>
-                                </div>
-
-                                <div class="col-6">
-                                    <p class="mb-0">Last name</p>
-                                    <div class="form-outline">
-                                        <input type="text" id="typeText" placeholder="Type here" class="form-control" />
-                                    </div>
-                                </div>
-
-                                <div class="col-6 mb-3">
-                                    <p class="mb-0">Phone</p>
-                                    <div class="form-outline">
-                                        <input type="tel" id="typePhone" value="+48 " class="form-control" />
-                                    </div>
-                                </div>
-
-                                <div class="col-6 mb-3">
-                                    <p class="mb-0">Email</p>
-                                    <div class="form-outline">
-                                        <input type="email" id="typeEmail" placeholder="example@gmail.com"
-                                            class="form-control" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
-                                <label class="form-check-label" for="flexCheckDefault">Keep me up to date on
-                                    news</label>
-                            </div>
-
-                            <hr class="my-4" /> -->
+                            <hr class="my-4" />
                             <div id="form">
                                 <% if (!addressDetails) { %>
                                     <div class="row" id="form1">
@@ -265,6 +232,67 @@
                                                 + Add new Address
                                             </div>`
         }
+        async function addNewAddress() {
+            name = document.getElementById('name').value
+            phone = document.getElementById('phone').value
+            address = document.getElementById('address').value
+            pin = document.getElementById('pin').value
+            district = document.getElementById('district').value
+            landmark = document.getElementById('Landmark').value
+            alterNumber = document.getElementById('alternumber').value
+
+            addressData = {
+                name: name,
+                phone: phone,
+                fullAddress: address,
+                pinCode: pin,
+                district: district,
+                landmark: landmark,
+                alternativePhone: alterNumber
+            }
+            const response = await fetch('/users/address', {
+                method: 'post',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(addressData)
+            })
+            const resBody = await response.json()
+            console.log(resBody.message)
+            clear()
+            getAddress()
+            document.getElementById('form1').innerHTML = `<div class="card col-md-12 form-group d-flex p-3 btn btn-outline-primary" onclick="showform()">
+                                                + Add new Address
+                                            </div>`
+        }
+        async function updateAddress(id) {
+            console.log(`the id reached at updateAddress function${id}`)
+            name = document.getElementById('name').value
+            phone = document.getElementById('phone').value
+            address = document.getElementById('address').value
+            pin = document.getElementById('pin').value
+            district = document.getElementById('district').value
+            landmark = document.getElementById('Landmark').value
+            alterNumber = document.getElementById('alternumber').value
+
+            addressData = {
+                name: name,
+                phone: phone,
+                fullAddress: address,
+                pinCode: pin,
+                district: district,
+                landmark: landmark,
+                alternativePhone: alterNumber
+            }
+            const response = await fetch(`/users/updateAddress/${id}`, {
+                method: 'post',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(addressData)
+            })
+            const resBody = await response.json()
+            console.log(resBody.message)
+            clear()
+            getAddress()
+            document.getElementById(`address${id}`).innerHTML = ``
+        }
 
         async function getAddress() {
             const response = await fetch('/users/address_get', { method: 'get' });
@@ -278,8 +306,12 @@
             } else {
                 let x = ''
                 for (let i = 0; i < resBody.addressList.address.length; i++) {
-                    x += `<div class="card col-md-12 form-group d-flex">
-                    <b>${resBody.addressList.address[i].name}      ${resBody.addressList.address[i].phone}</b>
+                    x += `<div class="card col-md-12 form-group p-2" id="address${resBody.addressList.address[i]._id}">
+                        <div>
+                            <b>${resBody.addressList.address[i].name}      ${resBody.addressList.address[i].phone}</b>
+                            <p onclick="a" class="float-end me-3" style="text-decoration: none;">EDIT</p>
+                            </div>
+                    
                     <p class="mt-3">${resBody.addressList.address[i].fullAddress},${resBody.addressList.address[i].landmark},${resBody.addressList.address[i].pinCode},${resBody.addressList.address[i].alternativePhone},${resBody.addressList.address[i].district}</p>
                     <div class="d-flex col-md-8 mb-4">
                         <botton class="btn btn-warning p-2 me-5 fw-bold" onclick="">Deliver Here</botton>
@@ -399,6 +431,82 @@
             } else {
                 console.log('A Trouble detected while deleting the address details.')
             }
+        }
+        function editAddress(data) {
+            const addressData = JSON.parse(data);
+            console.log(`${addressData.name} phone: ${addressData.id}`)
+            document.getElementById(`address${addressData.id}`).innerHTML = `<div class="row" id="form1">
+                                        <div class="col-sm-6 mb-3 col-12">
+                                            <p class="mb-0">Name</p>
+                                            <div class="form-outline">
+                                                <input type="text" id="name" value="${addressData.name}" placeholder="Type here"
+                                                    class="form-control p-3" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-12 mb-3">
+                                            <p class="mb-0">Mobile</p>
+                                            <div class="form-outline">
+                                                <input type="text" id="phone" value="${addressData.phone}" placeholder="Mobile"
+                                                    class="form-control p-3" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12  col-12 mb-3">
+                                            <p class="mb-0">Address</p>
+                                            <div class="form-outline">
+                                                <textarea name="address" id="address" value="${addressData.fullAddress}" cols="100" rows="3"
+                                                    placeholder="type here..."></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6 col-12 mb-3">
+                                            <p class="mb-0">Pin code</p>
+                                            <div class="form-outline">
+                                                <input type="number" id="pin" value="${addressData.pinCode}" placeholder="Type here"
+                                                    class="form-control p-3" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6  col-12 mb-3">
+                                            <p class="mb-0">District</p>
+                                            <select class="form-select p-3" id="district" >
+                                                <option value="${addressData.district}">Choose</option>
+                                                <option value="Malappuram">Malappuram</option>
+                                                <option value="Kozhikode">Kozhikode</option>
+                                                <option value="Thrissur">Thrissur</option>
+                                                <option value="Trivandrum">Trivandrum</option>
+                                                <option value="Pathanamthitta">Pathanamthitta</option>
+                                                <option value="Kasarkode">Kasarkode</option>
+                                                <option value="Eranakulam">Eranakulam</option>
+                                                <option value="Alappuzha">Alappuzha</option>
+                                                <option value="Idukki">Idukki</option>
+                                                <option value="Kannur">Kannur</option>
+                                                <option value="Kollam">Kollam</option>
+                                                <option value="Kottayam">Kottayam</option>
+                                                <option value="Palakkad">Palakkad</option>
+                                                <option value="Palakkad">Palakkad</option>
+                                            </select>
+                                        </div>
+
+
+
+                                        <div class="col-sm-6 col-12 mb-3">
+                                            <p class="mb-0">Landmark</p>
+                                            <div class="form-outline">
+                                                <input type="text" id="Landmark" value="${addressData.landmark}" class="form-control p-3" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6 col-12 mb-3">
+                                            <p class="mb-0">Alternative mobile number</p>
+                                            <div class="form-outline">
+                                                <input type="number" id="alternumber" value="${addressData.alternativePhone}" class="form-control p-3" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 form-group float-end pt-3">
+                                <button onclick="updateAddress('${addressData.id}')" class="btn btn-primary px-3 float-end"><i
+                                        class="fa fa-address-card mr-1"></i> Update address</button>
+                            </div>`
         }
     </script>
 
