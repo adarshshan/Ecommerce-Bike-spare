@@ -27,6 +27,7 @@ app.set('view engine', 'ejs')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use(express.json()); 
 //to load static files
 app.use('/static', express.static(path.join(__dirname, 'public')))
 app.use('/static', express.static(path.join(__dirname, 'public/assets')))

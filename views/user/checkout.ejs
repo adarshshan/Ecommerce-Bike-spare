@@ -36,7 +36,9 @@
                                             <%= addressDetails[i].name %>
                                                 <%= addressDetails[i].phone %>
                                         </b>
-                                        <button onclick="editAddress('<%= JSON.stringify({ id: addressDetails[i]._id, name: addressDetails[i].name, phone: addressDetails[i].phone, fullAddress: addressDetails[i].fullAddress, landmark: addressDetails[i].landmark, pinCode: addressDetails[i].pinCode, alternativePhone: addressDetails[i].alternativePhone, district: addressDetails[i].district }) %>')" class="float-end me-3" style="text-decoration: none;">EDIT</button>
+                                        <button
+                                            onclick="editAddress('<%= JSON.stringify({ id: addressDetails[i]._id, name: addressDetails[i].name, phone: addressDetails[i].phone, fullAddress: addressDetails[i].fullAddress, landmark: addressDetails[i].landmark, pinCode: addressDetails[i].pinCode, alternativePhone: addressDetails[i].alternativePhone, district: addressDetails[i].district }) %>')"
+                                            class="float-end me-3" style="text-decoration: none;">EDIT</button>
 
                                     </div>
 
@@ -46,8 +48,7 @@
                                                         %>,<%= addressDetails[i].district %>,
                                     </p>
                                     <div class="d-flex col-md-8 mb-4">
-                                        <botton class="btn btn-warning p-2 me-5 fw-bold" onclick="">Deliver Here
-                                        </botton>
+                                        <a href="/carts/payment_option/<%= addressDetails[i]._id %>"><botton class="btn btn-warning p-2 me-5 fw-bold">Deliver Here</botton></a>
                                         <button onclick="addressDelete('<%= addressDetails[i]._id %>')"
                                             class="border-0"><i class="fa fa-trash mr-1 text-danger"></i>Remove</button>
                                     </div>
@@ -61,20 +62,7 @@
                                         <% } %>
                     </div>
                     <h5 class="ms-2 mb-3 mt-3"><b>Checkout</b></h5>
-                    <!-- <div class="card mb-4 border shadow-0">
-                        <div class="p-4 d-flex justify-content-between">
-                            <div class="">
-                                <h5>Have an account?</h5>
-                                <p class="mb-0 text-wrap ">Lorem ipsum dolor sit amet, consectetur adipisicing elit</p>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center flex-column flex-md-row">
-                                <a href="#" class="btn btn-outline-primary me-0 me-md-2 mb-2 mb-md-0 w-100">Register</a>
-                                <a href="#" class="btn btn-primary shadow-0 text-nowrap w-100">Sign in</a>
-                            </div>
-                        </div>
-                    </div> -->
 
-                    <!-- Checkout -->
                     <div class="card shadow-0 border">
                         <div class="p-4">
                             <hr class="my-4" />
@@ -309,12 +297,14 @@
                     x += `<div class="card col-md-12 form-group p-2" id="address${resBody.addressList.address[i]._id}">
                         <div>
                             <b>${resBody.addressList.address[i].name}      ${resBody.addressList.address[i].phone}</b>
-                            <p onclick="a" class="float-end me-3" style="text-decoration: none;">EDIT</p>
+                            <button onclick="editAddress('{ id: ${resBody.addressList.address[i]._id}, name: ${resBody.addressList.address[i].name}, phone: ${resBody.addressList.address[i].phone}, fullAddress: ${resBody.addressList.address[i].fullAddress}, landmark: ${resBody.addressList.address[i].landmark}, pinCode: ${resBody.addressList.address[i].pinCode}, alternativePhone: ${resBody.addressList.address[i].alternativePhone}, district: ${resBody.addressList.address[i].district} }')" class="float-end me-3" style="text-decoration: none;">EDIT</button>
                             </div>
                     
                     <p class="mt-3">${resBody.addressList.address[i].fullAddress},${resBody.addressList.address[i].landmark},${resBody.addressList.address[i].pinCode},${resBody.addressList.address[i].alternativePhone},${resBody.addressList.address[i].district}</p>
                     <div class="d-flex col-md-8 mb-4">
-                        <botton class="btn btn-warning p-2 me-5 fw-bold" onclick="">Deliver Here</botton>
+                        <a href="/carts/payment_option/${resBody.addressList.address[i]._id}">
+                        <botton class="btn btn-warning p-2 me-5 fw-bold">Deliver Here</botton>
+                    </a>
                         <button onclick="addressDelete('${resBody.addressList.address[i]._id}')" class="border-0"><i class="fa fa-trash mr-1 text-danger"></i>Remove</button>
                         </div>
                     

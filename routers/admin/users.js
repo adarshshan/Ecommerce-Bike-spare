@@ -166,8 +166,6 @@ const calculateTotalAmount = async (matchCriteria) => {
         }
     ]);
 
-    console.log('Aggregation result:', result);
-
     if (result.length > 0) {
         console.log('Total Amount:', result[0].totalAmount);
         console.log(`totalProducts ${result[0].totalProducts}`)
