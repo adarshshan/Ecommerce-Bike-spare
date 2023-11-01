@@ -37,110 +37,156 @@ router.get('/payment_option/:id', (req, res) => {
 router.post('/orders/:value', async (req, res) => {
     try {
         const value = req.params.value
-        const addressId = req.session.selectedAddress
+        const addresId = req.session.selectedAddress
+        const addressId=new ObjectId(addresId)
         const user = req.session.currentUserId
         const userId = new ObjectId(user);
         let status = value === 'COD' ? 'PLACED' : 'PENDING'
         const cart = await Cart.findOne({ userId: userId })
         const exist = await Order.findOne({ userId: userId })
-        
+
         if (exist && exist !== null) {
-            console.log('already have an order collection...')
-            if (cart && cart !== null) {
-                let items = []
-                const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
-                const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
-                if (products) {
-                    console.log(`your products is ${products}`)
-                    console.log(products.products.length)
-                    for (let i = 0; i < products.products.length; i++) {
-                        let data = {
-                            product_id: products.products[i].productId,
-                            quantity: products.products[i].quantity,
-                            status: status,
+            try {
+                console.log('already have an order collection...')
+                if (cart && cart !== null) {
+                    let items = []
+                    const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
+                    const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
+                    if (products) {
+                        console.log(`your products is ${products}`)
+                        console.log(products.products.length)
+                        for (let i = 0; i < products.products.length; i++) {
+                            let data = {
+                                product_id: products.products[i].productId,
+                                quantity: products.products[i].quantity,
+                                status: status,
+                            }
+                            console.log(`index${i} and data is ${data}`)
+                            items.push(data)
                         }
-                        console.log(`index${i} and data is ${data}`)
-                        items.push(data)
+                        console.log('your Items is ' + items)
+                        console.log(items)
+                        console.log('products added to orders...')
+                    } else {
+                        console.log('products not found in database...')
                     }
-                    console.log('your Items is ' + items)
-                    console.log(items)
-                    console.log('products added to orders...')
-                } else {
-                    console.log('products not found in database...')
-                }
 
-                const orderOk = await Order.findOneAndUpdate({userId:user},{$push:{orders:[{
-                    paymentMethod: value,
-                    totalAmount: totalAmount,
-                    products: items,
-                    address: addressId,
+                    const orderOk = await Order.findOneAndUpdate({ userId: user }, {
+                        $push: {
+                            orders: [{
+                                paymentMethod: value,
+                                totalAmount: totalAmount,
+                                products: items,
+                                address: addressId,
 
-                }]}})
-                if(orderOk){
-                    console.log('order success pushed successfully into the existing order model..')
-                    const deleted=await Cart.findOneAndDelete({userId:user})
-                    if(deleted){
-                        console.log('The cart is no more....')
-                    }else{
-                        console.log('somthing trouble while deleting the cart')
-                    }
-                    return res.json({message:'order placed successfully...'})
-                }else{
-                    console.log('somthing trouble while push the orders into the ordermodel..')
-                }
-
-            }else{
-                console.log(`don't have any carts`);
-            }
-        }else{
-            console.log('new in orderlist...')
-            if (cart && cart !== null) {
-                let items=[]
-                const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
-                const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
-                if (products) {
-                    console.log(`your products is ${products}`)
-                    console.log(products.products.length)
-                    for (let i = 0; i < products.products.length; i++) {
-                        let data = {
-                            product_id: products.products[i].productId,
-                            quantity: products.products[i].quantity,
-                            status: status,
+                            }]
                         }
-                        items.push(data)
+                    })
+                    if (orderOk) {
+                        console.log('order success pushed successfully into the existing order model..')
+                        const deleted = await Cart.findOneAndDelete({ userId: user })
+                        if (deleted) {
+                            console.log('The cart is no more....')
+                        } else {
+                            console.log('somthing trouble while deleting the cart')
+                        }
+                        return res.json({ message: 'order placed successfully...' })
+                    } else {
+                        console.log('somthing trouble while push the orders into the ordermodel..')
                     }
-                    console.log('your Items is ' + items)
-                    console.log(items)
+
                 } else {
-                    console.log('products not found in database...')
+                    console.log(`don't have any carts`);
                 }
-
-                const orderOk = await Order.insertMany({
-                    userId: userId,
-                    orders: [{
-                        paymentMethod: value,
-                        totalAmount: totalAmount,
-                        products: items,
-                        address: addressId,
-
-                    }]
-                })
-                if (orderOk) {
-                    console.log('Order placed successfully')
-                    const deleted=await Cart.findOneAndDelete({userId:user})
-                    if(deleted){
-                        console.log('The cart is no more....')
-                    }else{
-                        console.log('somthing trouble while deleting the cart')
-                    }
-                }
-                return res.json({ message: 'success part' })
-            } else {
-                console.log('no products in your cart.')
+            } catch (error) {
+                console.log(error)
             }
+
+        } else {
+            try {
+                console.log('new in orderlist...')
+                if (cart && cart !== null) {
+                    let items = []
+                    const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
+                    const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
+                    if (products) {
+                        console.log(`your products is ${products}`)
+                        console.log(products.products.length)
+                        for (let i = 0; i < products.products.length; i++) {
+                            let data = {
+                                product_id: products.products[i].productId,
+                                quantity: products.products[i].quantity,
+                                status: status,
+                            }
+                            items.push(data)
+                        }
+                        console.log('your Items is ' + items)
+                        console.log(items)
+                    } else {
+                        console.log('products not found in database...')
+                    }
+
+                    const orderOk = await Order.insertMany({
+                        userId: userId,
+                        orders: [{
+                            paymentMethod: value,
+                            totalAmount: totalAmount,
+                            products: items,
+                            address: addressId,
+
+                        }]
+                    })
+                    if (orderOk) {
+                        console.log('Order placed successfully')
+                        const deleted = await Cart.findOneAndDelete({ userId: user })
+                        if (deleted) {
+                            console.log('The cart is no more....')
+                        } else {
+                            console.log('somthing trouble while deleting the cart')
+                        }
+                    }
+                    return res.json({ message: 'success part' })
+                } else {
+                    console.log('no products in your cart.')
+                }
+
+            } catch (error) {
+                console.log(error)
+            }
+
         }
     } catch (error) {
         console.log('An error occured at /order  post ' + error)
+    }
+})
+
+router.get('/orders', async (req, res) => {
+    try {
+        const user = req.session.currentUserId
+        const userId=new ObjectId(user)
+        const data = await Order.findOne({ userId: userId })
+            .populate({
+                path: 'orders.products.product_id',
+                model: 'product'
+            })
+            .populate({
+                path: 'orders.address.address',
+                model: 'userDetail'
+            })
+        console.log(data.orders[0].address)
+        console.log(data.orders[0].address.address);
+        // const prod=await Order.aggregate([
+        //     {
+        //         $match:{userId:userId}
+        //     },
+        //     {
+        //         $unwind:'$orders'
+        //     }
+        // ])
+        return res.render('user/orderlist.ejs', { title: 'orderList', data});
+    } catch (error) {
+        console.log('somthing went wrong at /orders  get')
+        console.log(error)
     }
 })
 
