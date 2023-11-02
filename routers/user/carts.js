@@ -164,25 +164,25 @@ router.get('/orders', async (req, res) => {
     try {
         const user = req.session.currentUserId
         const userId=new ObjectId(user)
-        const data = await Order.findOne({ userId: userId })
-            .populate({
-                path: 'orders.products.product_id',
-                model: 'product'
-            })
-            .populate({
-                path: 'orders.address.address',
-                model: 'userDetail'
-            })
-        console.log(data.orders[0].address)
-        console.log(data.orders[0].address.address);
-        // const prod=await Order.aggregate([
-        //     {
-        //         $match:{userId:userId}
-        //     },
-        //     {
-        //         $unwind:'$orders'
-        //     }
-        // ])
+        // const data = await Order.findOne({ userId: userId })
+        //     .populate({
+        //         path: 'orders.products.product_id',
+        //         model: 'product'
+        //     })
+        //     .populate({
+        //         path: 'orders.address.address',
+        //         model: 'userDetail'
+        //     })
+        // console.log(data.orders[0].address)
+        // console.log(data.orders[0].address.address);
+        const prod=await Order.aggregate([
+            {
+                $match:{userId:userId}
+            },
+            {
+                $unwind:'$orders'
+            }
+        ])
         return res.render('user/orderlist.ejs', { title: 'orderList', data});
     } catch (error) {
         console.log('somthing went wrong at /orders  get')
