@@ -53,24 +53,30 @@ async function userLogin(req, res) {
                         if (req.session.cartId && req.session.cartId !== null) {
                             const cartdetails = await cart.findById(req.session.cartId)
                             let data
-                            if(cartdetails){
+                            if (cartdetails) {
                                 data = cartdetails.products
-                            }else{return res.send('cart is not found in database')}
+                            } else { return res.send('cart is not found in database') }
                             const isCart = await cart.findOne({ userId: req.session.currentUserId })
                             if (!isCart) {
                                 let array = []
                                 for (let i = 0; i < data.length; i++) {
-                                    array[i] = data[i].productId
+                                    array[i] = {
+                                        productId: data[i].productId,
+                                        productName: data[i].productName,
+                                        productPrice: data[i].productPrice,
+                                        productImage: data[i].productImage,
+                                        quantity: data[i].quantity
+                                    }
                                 }
                                 console.log(array)
                                 await cart.insertMany({
                                     userId: req.session.currentUserId,
-                                    products: {productId:[array]} 
+                                    products: array
                                 })
                                 await cart.findByIdAndDelete(req.session.cartId)
                             } else {
                                 for (let i = 0; i < data.length; i++) {
-                                    await cart.findOneAndUpdate({ userId: req.session.currentUserId }, { $push: { products: { productId: data[i].productId } } })
+                                    await cart.findOneAndUpdate({ userId: req.session.currentUserId }, { $push: { products: { productId: data[i].productId, productName: data[i].productName, productPrice: data[i].productPrice, productImage: data[i].productImage, quantity: data[i].quantity } } })
                                 }
                                 // await cart.deleteOne({_id:req.session.cartId})
                                 await cart.findByIdAndDelete(req.session.cartId)

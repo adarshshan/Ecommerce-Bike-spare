@@ -48,7 +48,7 @@
                                                         %>,<%= addressDetails[i].district %>,
                                     </p>
                                     <div class="d-flex col-md-8 mb-4">
-                                        <a href="/carts/payment_option/<%= addressDetails[i]._id %>"><botton class="btn btn-warning p-2 me-5 fw-bold">Deliver Here</botton></a>
+                                        <a href="/carts/payment_option/<%= addressDetails[i]._id %>/<%= addressDetails[i].name %>/<%= addressDetails[i].phone %>"><botton class="btn btn-warning p-2 me-5 fw-bold">Deliver Here</botton></a>
                                         <button onclick="addressDelete('<%= addressDetails[i]._id %>')"
                                             class="border-0"><i class="fa fa-trash mr-1 text-danger"></i>Remove</button>
                                     </div>

@@ -11,7 +11,7 @@ const ObjectId = mongoose.Types.ObjectId;
 
 router.get('/', controller.cartHome)
 
-router.post('/add/:id', controller.addCart)
+router.post('/add/:id/:name/:price/:image', controller.addCart)
 
 router.get('/remove/:id', controller.removeCart)
 
@@ -22,11 +22,17 @@ router.get('/decreaseCount/:id', controller.decreaseCount)
 
 // payment options......
 
-router.get('/payment_option/:id', (req, res) => {
+router.get('/payment_option/:id/:name/:phone', (req, res) => {
     try {
         const id = req.params.id
+        const name = req.params.name
+        const phone = req.params.phone
         // console.log('Id received at backend ' + id)
-        req.session.selectedAddress = id;
+        req.session.selectedAddress = {
+            id: id,
+            name: name,
+            phone: phone
+        }
         if (req.session.selectedAddress) {
             res.render('user/paymentOption.ejs', { title: 'payment', result: 'success' })
         }
@@ -37,8 +43,9 @@ router.get('/payment_option/:id', (req, res) => {
 router.post('/orders/:value', async (req, res) => {
     try {
         const value = req.params.value
-        const addresId = req.session.selectedAddress
-        const addressId=new ObjectId(addresId)
+        const { id, name, phone } = req.session.selectedAddress
+        console.log(`id :${id}, name :${name}, phone : ${phone}`)
+        const addressId = new ObjectId(id)
         const user = req.session.currentUserId
         const userId = new ObjectId(user);
         let status = value === 'COD' ? 'PLACED' : 'PENDING'
@@ -54,10 +61,12 @@ router.post('/orders/:value', async (req, res) => {
                     const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
                     if (products) {
                         console.log(`your products is ${products}`)
-                        console.log(products.products.length)
                         for (let i = 0; i < products.products.length; i++) {
                             let data = {
                                 product_id: products.products[i].productId,
+                                productName: products.products[i].productName,
+                                productPrice: products.products[i].productPrice,
+                                productImage: products.products[i].productImage,
                                 quantity: products.products[i].quantity,
                                 status: status,
                             }
@@ -77,7 +86,11 @@ router.post('/orders/:value', async (req, res) => {
                                 paymentMethod: value,
                                 totalAmount: totalAmount,
                                 products: items,
-                                address: addressId,
+                                address: [{
+                                    addressId: addressId,
+                                    addressName: name,
+                                    addressPhone: phone
+                                }],
 
                             }]
                         }
@@ -90,9 +103,12 @@ router.post('/orders/:value', async (req, res) => {
                         } else {
                             console.log('somthing trouble while deleting the cart')
                         }
-                        return res.json({ message: 'order placed successfully...' })
+                        delete req.session.selectedAddress
+                        return res.json({ success: true, message: 'order placed successfully...' })
+                        // return res.redirect('/carts/orders')
                     } else {
                         console.log('somthing trouble while push the orders into the ordermodel..')
+                        return res.json({ success: false, message: 'somthing trouble while push the orders into the ordermodel..' })
                     }
 
                 } else {
@@ -115,6 +131,9 @@ router.post('/orders/:value', async (req, res) => {
                         for (let i = 0; i < products.products.length; i++) {
                             let data = {
                                 product_id: products.products[i].productId,
+                                productName: products.products[i].productName,
+                                productPrice: products.products[i].productPrice,
+                                productImage: products.products[i].productImage,
                                 quantity: products.products[i].quantity,
                                 status: status,
                             }
@@ -127,27 +146,37 @@ router.post('/orders/:value', async (req, res) => {
                     }
 
                     const orderOk = await Order.insertMany({
-                        userId: userId,
+                        userId: user,
                         orders: [{
                             paymentMethod: value,
                             totalAmount: totalAmount,
                             products: items,
-                            address: addressId,
+                            address: [{
+                                addressId: addressId,
+                                addressName: name,
+                                addressPhone: phone
+                            }],
 
                         }]
                     })
                     if (orderOk) {
                         console.log('Order placed successfully')
+                        delete req.session.selectedAddress
                         const deleted = await Cart.findOneAndDelete({ userId: user })
                         if (deleted) {
                             console.log('The cart is no more....')
                         } else {
                             console.log('somthing trouble while deleting the cart')
                         }
+                        return res.json({ success: true, message: 'success part' })
+                        // return res.redirect('/carts/orders')
+                    } else {
+                        console.log('Order FAiled at "OrderOk"')
+                        return res.json({ success: false, message: 'Order Failed!' })
                     }
-                    return res.json({ message: 'success part' })
+
                 } else {
-                    console.log('no products in your cart.')
+                    console.log('cart is Empty!')
                 }
 
             } catch (error) {
@@ -163,29 +192,53 @@ router.post('/orders/:value', async (req, res) => {
 router.get('/orders', async (req, res) => {
     try {
         const user = req.session.currentUserId
-        const userId=new ObjectId(user)
-        // const data = await Order.findOne({ userId: userId })
-        //     .populate({
-        //         path: 'orders.products.product_id',
-        //         model: 'product'
-        //     })
-        //     .populate({
-        //         path: 'orders.address.address',
-        //         model: 'userDetail'
-        //     })
-        // console.log(data.orders[0].address)
-        // console.log(data.orders[0].address.address);
-        const prod=await Order.aggregate([
-            {
-                $match:{userId:userId}
-            },
-            {
-                $unwind:'$orders'
-            }
-        ])
-        return res.render('user/orderlist.ejs', { title: 'orderList', data});
+        console.log(`user id is ${user}`)
+        const userId = new ObjectId(user)
+        const data = await Order.findOne({ userId: user })
+        if (data && data !== null && data !== undefined) {
+            console.log(data)
+            return res.render('user/orderlist.ejs', { title: 'orderList', data });
+        } else {
+            res.send('data not found...')
+            console.log('data not found...')
+        }
+
     } catch (error) {
         console.log('somthing went wrong at /orders  get')
+        console.log(error)
+    }
+})
+
+router.get('/view_order/:id', async (req, res) => {
+    try {
+        console.log(req.params.id)
+        const orderId = req.params.id
+        const order = await Order.findOne({ 'orders._id': orderId })
+        if (order && order !== undefined && order !== null) {
+            const products = await Order.aggregate([
+                {
+                    $unwind: '$orders'
+                },
+                {
+                    $match: {
+                        'orders._id': new ObjectId(orderId) // Replace 'orderId' with the specific order's _id you want to retrieve
+                    }
+                },
+                {
+                    $unwind: '$orders.products'
+                },
+                {
+                    $project: {
+                        _id: 0, // Exclude the _id field
+                        product: '$orders.products' // Include the individual product
+                    }
+                }
+            ]);
+            console.log(products);
+            return res.render('user/viewOrderedProducts.ejs',{products})
+            // res.send(products)
+        }
+    } catch (error) {
         console.log(error)
     }
 })

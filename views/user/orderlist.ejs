@@ -3,23 +3,23 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar" style="background: rgb(241, 241, 243);">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-4 fw-normal border-bottom border-top" style="background: rgb(36, 108, 149);">
                 <div class="position-sticky">
                     <ul class="nav flex-column p-2">
-                        <a class="nav-link text-dark" href="#">
+                        <a class="nav-link text-white" href="#">
                             <li class="nav-item"></li>
                             My Account
                             </li>
                         </a>
                         <hr class="my-4" />
-                        <a class="nav-link text-dark" href="#">
+                        <a class="nav-link text-white" href="#">
                             <li class="nav-item"></li>
                             Orders
                             </li>
                         </a>
                         <hr class="my-4" />
 
-                        <a class="nav-link text-dark" href="#">
+                        <a class="nav-link text-white" href="#">
                             <li class="nav-item"></li>
                             wishlist
                             </li>
@@ -33,10 +33,10 @@
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div
-                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-5 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Order Listing</h1>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive mb-5 mt-5">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -45,46 +45,41 @@
                                 <th>Order Date</th>
                                 <th>Total Amount</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             <% if (data) { %>
-                                <% data.orders.forEach((row,index) => { %>
+                                <% data.orders.forEach((row,index)=> { %>
                                     <tr>
-                                        <td><%= index+1 %></td>
-                                        <td><%= row.address.address[0].name %></td>
-                                        <td><%= row.date %></td>
-                                        <td><%= row.totalAmount %></td>
-                                        <td><%= row.products[0].status %></td>
+                                        <td>
+                                            <%= index+1 %>
+                                        </td>
+                                        <td>
+                                            <%= row.address[0].addressName %>
+                                        </td>
+                                        <td>
+                                            <%= row.date %>
+                                        </td>
+                                        <td>
+                                            <%= row.totalAmount %>
+                                        </td>
+                                        <td>
+                                            <%= row.products[0].status %>
+                                        </td>
+                                        <!-- <td><button onclick="showProducts('<%= row._id %>')">view</button></td> -->
+                                        <td><a href="" class="btn btn-danger me-2">Cancel</a><a href="/carts/view_order/<%= row._id %>" class="btn btn-primary ms-2">View</a></td>
                                     </tr>
-                                 
-                                <% }) %>
-                            <% }else{ %>
-                                <H1>No data</H1>
-                                <% } %>
-                                    
+
+                                    <% }) %>
+                                        <% }else{ %>
+                                            <H1>No data</H1>
+                                            <% } %>
+
                         </tbody>
                     </table>
                 </div>
 
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled" id="prevPage">
-                        <span class="page-link">Previous</span>
-                    </li>
-                    <li class="page-item active" id="page1">
-                        <a class="page-link" href="#">1</a>
-                    </li>
-                    <li class="page-item" id="page2">
-                        <a class="page-link" href="#">2</a>
-                    </li>
-                    <li class="page-item" id="page3">
-                        <a class="page-link" href="#">3</a>
-                    </li>
-                    <li class="page-item" id="nextPage">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
-                </ul>
             </main>
         </div>
     </div>
@@ -94,54 +89,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-
-        const itemsPerPage = 5; // Number of items to display per page
-        let currentPage = 1;
-
-        function renderOrders() {
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-
-        }
-
-
-        renderOrders();
-
-        // Handle pagination clicks
-        $("#prevPage").click(() => {
-            if (currentPage > 1) {
-                currentPage--;
-                renderOrders();
-                updatePagination();
-            }
-        });
-
-        $("#nextPage").click(() => {
-            if (currentPage < Math.ceil(orders.length / itemsPerPage)) {
-                currentPage++;
-                renderOrders();
-                updatePagination();
-            }
-        });
-
-        function updatePagination() {
-            for (let i = 1; i <= Math.ceil(orders.length / itemsPerPage); i++) {
-                $(`#page${i}`).removeClass("active");
-            }
-            $(`#page${currentPage}`).addClass("active");
-
-            if (currentPage === 1) {
-                $("#prevPage").addClass("disabled");
-            } else {
-                $("#prevPage").removeClass("disabled");
-            }
-
-            if (currentPage === Math.ceil(orders.length / itemsPerPage)) {
-                $("#nextPage").addClass("disabled");
-            } else {
-                $("#nextPage").removeClass("disabled");
-            }
-        }
+       
     </script>
 
     <%- include('head/footer') %>

@@ -25,7 +25,7 @@
             <div class="col-md-8">
                 <div class=" p-3">
                     <div class="form-group col-md-12 p-3 bg-primary text-white">
-                        <h2 class="section-title position-relative text-uppercase mb-3"><span
+                        <h2 class="section-title position-relative text-uppercase mb-3" id="pay"><span
                                 class="pr-3">Payment</span></h2>
                     </div>
 
@@ -118,14 +118,17 @@
             console.log('Entered into the function placeorder'+val)
             const response = await fetch(`/carts/orders/${val}`, {
                 method: 'post',
-                body: JSON.stringify({
-					name: 'John Doe'
-				})
+                body: JSON.stringify()
             })
             try {
                 const resBody = await response.json();
                 console.log('success part....')
                 console.log(resBody)
+                if(resBody.success){
+                    console.log('adarsh Iam here')
+                    document.getElementById('pay').style.display='none'
+                    document.getElementById('myForm').innerHTML=`<div class="bg light col-md-8 col-12 p-5 text-success"><h1>Order placed successfully </h1> <br> <a href="/carts/orders" class="btn btn-success px-2">Go to Orders</a></div>`
+                }
             } catch (error) {
                 console.log('Error is at resBody')
             }

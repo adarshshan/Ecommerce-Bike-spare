@@ -1,0 +1,63 @@
+<%- include('head/header') %>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-4 fw-normal border-bottom border-top" style="background: rgb(36, 108, 149);">
+                <div class="position-sticky">
+                    <ul class="nav flex-column p-2">
+                        <a class="nav-link text-white" href="#">
+                            <li class="nav-item"></li>
+                            My Account
+                            </li>
+                        </a>
+                        <hr class="my-4" />
+                        <a class="nav-link text-white" href="/carts/orders">
+                            <li class="nav-item"></li>
+                            Orders
+                            </li>
+                        </a>
+                        <hr class="my-4" />
+
+                        <a class="nav-link text-white" href="#">
+                            <li class="nav-item"></li>
+                            wishlist
+                            </li>
+                        </a>
+
+                        <!-- Add more sidebar items as needed -->
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Ordered Products</h1>
+                </div>
+                <div class="col-md-12 bg-light container" id="produc">
+                    <% products.forEach((row,index) => { %>
+                        <div class="row border p-5 mb-4 fs-4">
+                            <div class="col-12 col-md-3"><img style="height: 100px; width: 100px;" src="http://localhost:3000/<%= row.product.productImage %>" alt=""></div>
+                            <div class="col-md-2"><p><%= row.product.productName %></p></div>
+                            <div class="col-md-2"><p><%= row.product.productPrice %></p></div>
+                            <div class="col-md-2"><p><%= row.product.quantity %></p></div>
+                            <div class="col-md-2"><p><%= row.product.status %></p></div>
+                        </div>
+                    <% }) %>
+                    
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+
+    </script>
+
+    <%- include('head/footer') %>

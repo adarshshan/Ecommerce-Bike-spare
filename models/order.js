@@ -19,6 +19,10 @@ const orderSchema = new mongoose.Schema({
       type: String,
       required: true
     },
+    isCancelled:{
+      type:Boolean,
+      default:false
+    },
     couponType: {
       type: String
     },
@@ -43,6 +47,17 @@ const orderSchema = new mongoose.Schema({
           ref: "product",
           required: true,
         },
+        productName:{
+          type:String,
+          required:true,
+        },
+        productPrice:{
+          type:Number,
+          required:true
+        },
+        productImage:{
+          type:String,
+        },
         quantity: {
           type: Number,
           required: true,
@@ -57,13 +72,21 @@ const orderSchema = new mongoose.Schema({
         }
       }
     ],
-    address: {
-      type: mongoose.Types.ObjectId,
-      ref: 'userDetail',
-      required: true
-
-
-    }
+    address:[{
+      addressId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'userDetail',
+        required: true
+      },
+      addressName:{
+        type:String,
+        required:true
+      },
+      addressPhone:{
+        type:Number,
+        required:true,
+      }
+    }]
   }]
 })
 
