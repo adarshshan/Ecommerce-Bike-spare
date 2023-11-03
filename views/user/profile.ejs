@@ -186,7 +186,11 @@
                     </a>`
                 } else {
                     console.log(resBody.message)
-                    console.log('Iam here')
+                    document.getElementById('message').innerHTML=`
+                                <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                                        <strong>${resBody.message}</strong>
+                                </div>`
                 }
             } catch (error) {
                 console.log(error)
@@ -229,10 +233,18 @@
                                 <div class="col-sm-3">
                                     <button class="border-0 bg-light" onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')">EDIT</button>
                             </div>`
-                    alert('Phone number Changed successfully')
+                            document.getElementById('message').innerHTML=`
+                                <div class="alert alert-dismissible fade show alert-success" role="alert">
+                                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                                        <strong>${resBody.message}</strong>
+                                </div>`
                 } else {
                     console.log(resBody.message)
-                    alert('Somthing went wrong while updating phone number')
+                    document.getElementById('message').innerHTML=`
+                                <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                                        <strong>${resBody.message}</strong>
+                                </div>`
                     document.getElementById('phoneData').innerHTML = `
                             <div class="col-sm-3">
                                     <p class="mb-0">Mobile</p>
@@ -275,6 +287,11 @@
             const resBody = await response.json()
             if (resBody.success) {
                 console.log(resBody.message)
+                document.getElementById('message').innerHTML=`
+                                <div class="alert alert-dismissible fade show alert-success" role="alert">
+                                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                                        <strong>${resBody.message}</strong>
+                                </div>`
                 document.getElementById('nameData').innerHTML = `<div class="col-sm-3">
                                     <p class="mb-0">Full Name</p>
                                 </div>
@@ -289,6 +306,11 @@
                                 </div>`
             } else {
                 console.log(resBody.message)
+                document.getElementById('message').innerHTML=`
+                                <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                                        <strong>${resBody.message}</strong>
+                                </div>`
             }
 
         }

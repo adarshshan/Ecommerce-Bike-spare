@@ -43,54 +43,6 @@ async function cartHome(req, res) {
     }
 
 }
-// async function cartHome(req, res) {
-//     try {
-//         const userId = req.session.currentUserId
-//         const cartId = req.session.cartId
-//         const car = new ObjectId(cartId)
-//         const use = new ObjectId(userId)
-//         if (req.session.currentUserId) {
-//             console.log(`usertId is ${userId}`)
-//             const cartList = await Cart.findOne({ userId: userId })
-//                 .populate({
-//                     path: 'products.productId',
-//                     select: 'name price image description stock quantity'
-//                 })
-//             console.log('cartlist' + cartList)
-//             if (cartList && cartList !== null) {
-//                 console.log(`cartdfkdjflsfj${cartList}`)
-//                 console.log('it is user...')
-//                 let { totalAmount, totalProducts } = await calculateTotalAmount({ userId: use })
-//                 return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts })
-
-//             }
-//         }
-//         if (req.session.cartId) {
-//             console.log(`cartId is ${car}`)
-//             const cartList = await Cart.findOne({ _id: car })
-//                 .populate({
-//                     path: 'products.productId',
-//                     select: 'name price image description stock quantity'
-//                 })
-//             console.log(`justCart is ${cartList}`)
-//             if (cartList && cartList !== null) {
-//                 console.log('Its just user...') 
-//                 let { totalAmount, totalProducts } = await calculateTotalAmount({ _id: car })
-//                 console.log(`skldjflsdjf${totalAmount}`)
-//                 return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts })
-//             }
-//         }
-//         console.log('its here now')
-//         return res.render('user/cart.ejs', { title: 'shopping cart', cartList: '', totalAmount: 0, totalProducts: 0 })
-
-
-//     } catch (error) {
-//         console.log(`An Error occured at ...${error}`)
-//     }
-
-// }
-
-
 
 async function addCart(req, res) {
     try {
