@@ -194,7 +194,8 @@ router.get('/orders', async (req, res) => {
         const user = req.session.currentUserId
         console.log(`user id is ${user}`)
         const userId = new ObjectId(user)
-        const data = await Order.findOne({ userId: user })
+        const data = await Order.findOne({ userId: user }).sort({'orders.date':-1})
+        data.orders.sort((a, b) => b.date - a.date);
         if (data && data !== null && data !== undefined) {
             console.log(data)
             return res.render('user/orderlist.ejs', { title: 'orderList', data });
@@ -221,7 +222,7 @@ router.get('/view_order/:id', async (req, res) => {
                 },
                 {
                     $match: {
-                        'orders._id': new ObjectId(orderId) // Replace 'orderId' with the specific order's _id you want to retrieve
+                        'orders._id': new ObjectId(orderId)
                     }
                 },
                 {
@@ -237,6 +238,21 @@ router.get('/view_order/:id', async (req, res) => {
             console.log(products);
             return res.render('user/viewOrderedProducts.ejs',{products})
             // res.send(products)
+        }
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+router.get('/cancelOrder/:id',async (req,res)=>{
+    try {
+        const orderId=req.params.id
+        const cancel=await Order.findOneAndUpdate({'orders._id':orderId},{$set:{'orders.$.isCancelled':true}})
+        if(cancel){
+            console.log(cancel)
+            // await Order.findOneAndUpdate({'orders._id':orderId},{$set:{'orders.$.products.$.status':'Cancelled'}})
+            console.log('Order cancelled');
+            res.redirect('/carts/orders/')
         }
     } catch (error) {
         console.log(error)

@@ -3,7 +3,8 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-4 fw-normal border-bottom border-top" style="background: rgb(36, 108, 149);">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-4 fw-normal border-bottom border-top"
+                style="background: rgb(36, 108, 149);">
                 <div class="position-sticky">
                     <ul class="nav flex-column p-2">
                         <a class="nav-link text-white" href="#">
@@ -65,10 +66,21 @@
                                             <%= row.totalAmount %>
                                         </td>
                                         <td>
-                                            <%= row.products[0].status %>
+                                            <% if (row.isCancelled) { %>
+                                                <p class="text-danger">Cancelled</p>
+                                                <% }else{ %>
+                                                    <%= row.products[0].status %>
+                                                    <% } %>
                                         </td>
-                                        <!-- <td><button onclick="showProducts('<%= row._id %>')">view</button></td> -->
-                                        <td><a href="" class="btn btn-danger me-2">Cancel</a><a href="/carts/view_order/<%= row._id %>" class="btn btn-primary ms-2">View</a></td>
+                                        <td>
+                                            <% if (!row.isCancelled) { %>
+                                                <a href="/carts/cancelOrder/<%= row._id %>"
+                                                    class="btn btn-danger">Cancel</a>
+                                                    <!-- <button onclick="cancelOrder('<%= row._id %>')" class="btn btn-danger">Cancel</button> -->
+                                                <% } %>
+                                                    <a href="/carts/view_order/<%= row._id %>"
+                                                        class="btn btn-primary float-end">View</a>
+                                        </td>
                                     </tr>
 
                                     <% }) %>
@@ -89,7 +101,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-       
+
     </script>
 
     <%- include('head/footer') %>

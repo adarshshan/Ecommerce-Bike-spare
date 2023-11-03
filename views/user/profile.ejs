@@ -1,0 +1,235 @@
+<%- include('head/header') %>
+    <section style="background-color: #eee;">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+                                alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
+                            <h5 class="my-3">
+                                <%= user.name %>
+                            </h5>
+                            <p class="text-muted mb-1">
+                                <%= user.email %>
+                            </p>
+
+                            <p class="text-muted mb-1">
+                                <%= user.phone %>
+                            </p>
+
+                        </div>
+                    </div>
+                    <div class="card mb-4 mb-lg-0">
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush rounded-3">
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                    <a href="/user/AddressBook" style="color: black;">Address Book</a>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                    <a href="/carts/orders" style="color: black;">My order</a>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                    <a href="" style="color: black;">Change Password</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row m-5" id="nameData">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Full Name</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="text-muted mb-0">
+                                        <%= user.name %>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <button class="border-0 bg-light"
+                                        onclick="editNameForm('<%= JSON.stringify({name:user.name}) %>')">EDIT</button>
+                                    <!-- <a class="text-secondary" href="">Edit</a> -->
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row m-5" id="emailData">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Email</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="text-muted mb-0">
+                                        <%= user.email %>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <button class="border-0 bg-light"
+                                        onclick="editEmail('<%= JSON.stringify({email:user.email}) %>')">EDIT</button>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <div class="row m-5" id="phoneData">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Mobile</p>
+                                </div>
+                                <div class="col-sm-6">
+
+                                    <p class="text-muted mb-0">
+                                        <%= user.phone %>
+                                    </p>
+
+                                </div>
+                                <div class="col-sm-3">
+                                    <button class="border-0 bg-light"
+                                        onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')">EDIT</button>
+                                </div>
+                            </div>
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        async function editEmail(data) {
+            const emailData = JSON.parse(data)
+            console.log(`Your new Email is ${emailData.email}`)
+            document.getElementById('emailData').innerHTML = `
+                                        <div class="col-sm-9 mb-3 col-12" id="verify">
+                                            <p class="mb-0">Name</p>
+                                            <div class="form-outline">
+                                                <input type="text" id="email" value="${emailData.email}" placeholder="Type here"
+                                                    class="form-control p-3" />
+                                            </div>
+                                            <button onclick="updateEmail()" class="btn btn-primary px-3 float-end border-0"><i
+                                            class="fa fa-address-card mr-1"></i> save changes</button>
+                                        </div>`
+        }
+        async function updateEmail() {
+            try {
+                const email = document.getElementById('email').value
+                console.log(`Your new Email is ${email}`)
+                const response = await fetch(`/persons/changeEmail/${email}`, { method: 'get' })
+                const resBody = await response.json()
+                if (resBody.success) {
+                    console.log(resBody.message)
+                    document.getElementById('emailData').innerHTML=`
+                    <a href="/persons/verifyOtp">
+                        <div class="col-md-12 btn btn-primary">
+                        <h5>Verify Otp</h5>
+                        </div>
+                    </a>`
+                } else {
+                    console.log(resBody.message)
+                    console.log('Iam here')
+                }
+            } catch (error) {
+                console.log(error)
+                console.log(resBody.message)
+            }
+        }
+        async function editPhone(data) {
+            const phoneData = JSON.parse(data)
+            console.log(`Your new phone number is ${phoneData.phone}`)
+            document.getElementById('phoneData').innerHTML = `
+                                        <div class="col-sm-9 mb-3 col-12">
+                                            <p class="mb-0">Name</p>
+                                            <div class="form-outline">
+                                                <input type="text" id="phone" value="${phoneData.phone}" placeholder="Type here"
+                                                    class="form-control p-3" />
+                                            </div>
+                                            <button onclick="updatePhone()" class="btn btn-primary px-3 float-end border-0"><i
+                                            class="fa fa-address-card mr-1"></i> save changes</button>
+                                        </div>`
+        }
+        async function updatePhone() {
+            try {
+                const phone = document.getElementById('phone').value
+                console.log(`Your new phoneNumber is ${phone}`)
+                const response = await fetch(`/persons/changePhone/${phone}`, { method: 'get' })
+                const resBody = await response.json()
+                if (resBody.success) {
+                    console.log(resBody.message)
+                    document.getElementById('phoneData').innerHTML = `
+                            <div class="col-sm-3">
+                                    <p class="mb-0">Mobile</p>
+                                </div>
+                                <div class="col-sm-6">
+
+                                    <p class="text-muted mb-0">
+                                        ${phone}
+                                    </p>
+
+                                </div>
+                                <div class="col-sm-3">
+                                    <button class="border-0 bg-light" onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')">EDIT</button>
+                            </div>`
+                    alert('Phone number Changed successfully')
+                } else {
+                    console.log(resBody.message)
+                    alert('Somthing went wrong while updating phone number')
+                    document.getElementById('phoneData').innerHTML = `
+                            <div class="col-sm-3">
+                                    <p class="mb-0">Mobile</p>
+                                </div>
+                                <div class="col-sm-6">
+
+                                    <p class="text-muted mb-0">
+                                        <%= user.phone %>
+                                    </p>
+
+                                </div>
+                                <div class="col-sm-3">
+                                    <button class="border-0 bg-light" onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')">EDIT</button>
+                            </div>`
+                }
+            } catch (error) {
+                console.log(error)
+                console.log(resBody.message)
+            }
+        }
+        async function editNameForm(data) {
+            const nameData = JSON.parse(data);
+            console.log(`Name is ${nameData.name}`)
+            document.getElementById('nameData').innerHTML = `
+                                        <div class="col-sm-9 mb-3 col-12">
+                                                <p class="mb-0">Name</p>
+                                            <div class="form-outline">
+                                                <input type="text" id="name" value="${nameData.name}" placeholder="Type here"
+                                                    class="form-control p-3" />
+                                            </div>
+                                            <button onclick="updateName()" class="btn btn-primary px-3 float-end"><i
+                                        class="fa fa-address-card mr-1"></i> Update address</button>
+                                        </div>`
+
+        }
+        async function updateName() {
+            const name = document.getElementById('name').value
+            console.log(`Your namve is ${name}`)
+            const response = await fetch(`/persons/changeName/${name}`, { method: 'get' })
+            const resBody = await response.json()
+            if (resBody.success) {
+                console.log(resBody.message)
+                document.getElementById('nameData').innerHTML = `<div class="col-sm-3">
+                                    <p class="mb-0">Full Name</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="text-muted mb-0">
+                                        ${name}
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <button  class="border-0 bg-light" onclick="editNameForm('<%= JSON.stringify({name:user.name}) %>')">EDIT</button>
+                                    <!-- <a class="text-secondary" href="">Edit</a> -->
+                                </div>`
+            } else {
+                console.log(resBody.message)
+            }
+
+        }
+    </script>
+    <%- include('head/footer') %>
