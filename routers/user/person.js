@@ -113,21 +113,26 @@ router.get('/changePhone/:phone', async (req, res) => {
 router.get('/changeEmail/:email', async (req, res) => {
     try {
         const email = req.params.email
+        req.session.newEmail = email
         const isEmail = await User.findOne({ email: email })
+        const userId = req.session.currentUserId
+        const currentUser = await User.findById(userId)
+        const id = currentUser._id
+        const user = {
+            _id: userId,
+            email: email
+
+        }
         console.log(`there are ${isEmail} numbers`)
         if (!isEmail) {
-            const updated = await User.findByIdAndUpdate(req.session.currentUserId, { $set: { email: email } })
-            console.log(`updatedddd   is ${updated}`)
-            await User.findByIdAndUpdate(req.session.currentUserId, { $set: { verified: false } })
-            // const otpsent = await 
-            await sendOtpVerificationEmail(updated, req, res).then((result) => {
+            await sendOtpVerificationEmail(user, req, res).then((result) => {
                 try {
-                        console.log('otp has been sent to your Email')
-                        return res.json({ success: true, message: 'Otp has been sent to your Email address.' })
+                    console.log('otp has been sent to your Email')
+                    return res.json({ success: true, message: 'Otp has been sent to your Email address.' })
                 } catch (error) {
                     console.log(error)
                 }
-                
+
             })
         } else {
             console.log('You provided Email is already been using ...')
@@ -145,6 +150,7 @@ router.get('/verifyOtp', async (req, res) => {
 
 router.post('/verifyOtp', async (req, res) => {
     try {
+        const newEmail = req.session.newEmail
         let otp = req.body.otp
         let userId = req.session.uesrid
         console.log(`userId: ${userId} and otp: ${otp}`);
@@ -174,9 +180,10 @@ router.post('/verifyOtp', async (req, res) => {
                         // throw new Error('Invalid code passed. check your Inbox.')
                     } else {
                         //success
-                        await User.updateOne({ _id: userId }, { verified: true })
+                        // await User.updateOne({ _id: userId }, { verified: true })
                         await userOtpVerification.deleteMany({ userId })
-                        // alert('Email verified successfully...')
+                        const updated = await User.findByIdAndUpdate(req.session.currentUserId, { $set: { email: newEmail } })
+                        console.log(`updatedddd   is ${updated}`)
                         notifier.notify({
                             title: 'Notifications',
                             message: 'Email Verified successfully ',
@@ -195,11 +202,154 @@ router.post('/verifyOtp', async (req, res) => {
     }
 })
 
-router.get('/changePassword',async (req,res)=>{
+router.get('/changePassword/:old/:new', async (req, res) => {
+    console.log('yess iam reached here,....')
     try {
-        
+        const oldPassword = req.params.old
+        const newPassword = req.params.new
+        console.log(`oldpassword : ${oldPassword}  and new one is ${newPassword}`)
+        const currentUser = await User.findById(req.session.currentUserId)
+        const oldpass = currentUser.password
+        const isTrue = await bcrypt.compare(oldPassword, oldpass)
+        if (isTrue) {
+            const hashedpassword = await bcrypt.hash(newPassword, 10)
+            if (hashedpassword) {
+                const setpass = await User.findByIdAndUpdate(req.session.currentUserId, { $set: { password: hashedpassword } })
+                if (setpass) {
+                    console.log('password successfully updated.')
+                    return res.json({ success: true, message: 'password updated successfully' })
+                } else {
+                    console.log('Password Failed to update.')
+                    return res.json({ success: false, message: 'Password Failed to update.' })
+                }
+            } else {
+                console.log('Somthing went wrong while hashing the password.')
+                return res.json({ success: false, message: 'Somthing went wrong while hashing the password.' })
+            }
+        } else {
+            console.log("Old password doesn't match")
+            return res.json({ success: false, message: 'Old password doesn`t match.' })
+        }
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, message: 'Unknown Error' })
+    }
+})
+
+//-----forgot password------//
+
+router.get('/forgotPassword', (req, res) => {
+    try {
+        res.render('user/forgotpage.ejs', { title: 'forgot Password' })
+    } catch (error) {
+        console.log(error)
+    }
+})
+router.get('/forgotPassword/:email', async (req, res) => {
+    const userEmail = req.params.email
+    req.session.forgetpasswordEmail = userEmail
+    const isuser = await User.findOne({ email: userEmail });
+    console.log(isuser)
+    if (isuser) {
+        const userId = isuser._id
+        const user = {
+            _id: userId,
+            email: userEmail
+        }
+        console.log(`your userId is ${userId}.`)
+        await sendOtpVerificationEmail(user, req, res).then((result) => {
+            try {
+                console.log('otp has been sent to your Email')
+                return res.json({ success: true, message: 'Otp has been sent to your Email address.' })
+            } catch (error) {
+                console.log(error)
+                return res.json({ success: false, message: 'Unknown Errror' })
+            }
+
+        })
+    } else {
+        console.log('Entered Email is not exist')
+        return res.json({ success: false, message: 'Entered Email is not exist' })
+    }
+})
+
+router.get('/verifyForgot', async (req, res) => {
+    try {
+        res.render('user/otppage_forgot.ejs', { title: 'forgot' })
+    } catch (error) {
+        console.log(error)
+    } 
+})
+router.post('/verifyForgot', async (req, res) => {
+    try {
+        const newEmail = req.session.newEmail
+        let otp = req.body.otp
+        let userId = req.session.uesrid
+        console.log(`userId: ${userId} and otp: ${otp}`);
+        if (!userId || !otp) {
+            return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: 'Empty OTP details are not allowed.', type: 'danger' })
+        } else {
+            const userOtpVerificationRecords = await userOtpVerification.find({ userId })
+            if (userOtpVerificationRecords.length <= 0) {
+                return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: "Account records doesn't exist or has been verified already. Please sign up or log in", type: 'danger' })
+
+            } else {
+                const { expired_at } = userOtpVerificationRecords[0]
+                const hashedOtp = userOtpVerificationRecords[0].otp
+                if (expired_at < Date.now()) {
+                    await userOtpVerification.deleteMany({ userId })
+                    return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: 'Code has expired. please request again.', type: 'danger' })
+                } else {
+                    const validOtp = await bcrypt.compare(otp, hashedOtp)
+
+                    if (!validOtp) {
+                        return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: 'Invalid code passed. check your Inbox.', type: 'danger' })
+                    } else {
+                        await userOtpVerification.deleteMany({ userId })
+                        notifier.notify({
+                            title: 'Notifications',
+                            message: 'Email Verified successfully ',
+                            icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+                            sound: true,
+                            wait: true
+                        })
+                        return res.render('user/newpassword.ejs', { title: 'newpassword' });
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        delete req.session.uesrid
+        return res.render('user/otppage_1', { title: 'OTP Login page.', msg: 'Somthing went wrong. Try again.', type: 'danger' })
+    }
+})
+router.get('/newpassword/:password/:cpassword', async (req, res) => {
+    try {
+        const password = req.params.password
+        const cpassword = req.params.cpassword
+        console.log(`password :${password}  cpassword:${cpassword} and Email is ${req.session.forgetpasswordEmail}`)
+        if (password === cpassword) {
+            const hashedpassword = await bcrypt.hash(password, 10)
+            if (hashedpassword) {
+                const updated = await User.findOneAndUpdate({ email: req.session.forgetpasswordEmail }, { $set: { password: hashedpassword } })
+                if (updated) {
+                    console.log('password updated successfully')
+                    return res.json({ success: true, message: 'password updated successfully' })
+                } else {
+                    console.log('Somthing went wrong while updating the hashed password at newpassword/:pa.....');
+                    return res.json({ success: false, message: 'Somthing went wrong while updating the hashed password at newpassword/:pa.....' })
+                }
+            } else {
+                console.log('Somthing went wrong while hashing the password')
+                return res.json({ success: false, message: 'Somthing went wrong while hashing the password' })
+            }
+        } else {
+            console.log('passwords are not matching')
+            return res.json({ success: false, message: 'passwords are not matching' })
+        }
+    } catch (error) {
+        console.log(error)
+        return res.json({ success: false, message: 'Unknown Error' })
     }
 })
 
@@ -217,14 +367,13 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
         const otp = `${Math.floor(1000 + Math.random() * 9000)}`
 
         //mail options
-        const
-            mailOptions = {
-                from: process.env.AUTH_EMAIL,
-                to: email,
-                subject: 'Change Email Email',
-                html: `<p>Enter <b>${otp}</b> in the app to verify your email address.</p>
+        const mailOptions = {
+            from: process.env.AUTH_EMAIL,
+            to: email,
+            subject: 'Email verification',
+            html: `<p>Enter <b>${otp}</b> in the app to verify your email address.</p>
             <p>This code will <b>Expires in one hour</b></p>`
-            }
+        }
         //hash the otp
         const saltrounds = 10
         req.session.emailAddress = email

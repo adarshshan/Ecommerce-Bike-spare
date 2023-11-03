@@ -29,8 +29,9 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <a href="/carts/orders" style="color: black;">My order</a>
                                 </li>
+                                
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <a href="" style="color: black;">Change Password</a>
+                                    <button class="list-group-item d-flex justify-content-between align-items-center p-3" onclick="changePasswordForm()">Change Password</button>
                                 </li>
                             </ul>
                         </div>
@@ -38,7 +39,10 @@
                 </div>
                 <div class="col-lg-8">
                     <div class="card mb-4">
-                        <div class="card-body">
+                        <div class="card-body" id="message"></div>
+                        <div class="card-body" id="passForm1"></div>
+                            <div class="card-body" id="passForm">
+
                             <div class="row m-5" id="nameData">
                                 <div class="col-sm-3">
                                     <p class="mb-0">Full Name</p>
@@ -95,6 +99,63 @@
         </div>
     </section>
     <script>
+        
+        async function changePasswordForm() {
+            document.getElementById('passForm1').style.display='block'
+            console.log('Entered into changepassword form')
+            document.getElementById('passForm').style.display='none'
+            document.getElementById('passForm1').innerHTML = `
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="col-12">
+                                        <h2>Change Password </h2>
+                                    </div>
+                                        <div class="form-outline mb-4">
+                                            <input name="oldpassword" type="password" id="oldpassword"
+                                                class="form-control"/>
+                                            <label class="form-label">Old Password</label>
+                                        </div>
+
+                                        <div class="form-outline mb-4">
+                                            <input name="newpassword" type="password" id="newpassword"
+                                                class="form-control"/>
+                                            <label class="form-label">New Password</label>
+                                        </div>
+
+                                        <div class="pt-1 mb-4">
+                                            <button onclick="updatePass()" class="btn btn-dark btn-lg btn-block">Submit</button>
+                                        </div>
+                                </div>
+                            </div>`
+        }
+        async function updatePass() {
+            console.log('Entered into updatepass function')
+            try {
+                const oldpassword = document.getElementById('oldpassword').value
+                const newpassword = document.getElementById('newpassword').value
+                console.log(`1 :${oldpassword}  2:${newpassword}`)
+                const response = await fetch(`/persons/changePassword/${oldpassword}/${newpassword}`, { method: 'get' })
+                const resBody = await response.json()
+                if (resBody.success) {
+                    console.log('Success part')
+                    console.log(resBody.message)
+                    document.getElementById('passForm1').style.display='none'
+                    document.getElementById('passForm').style.display='block'
+                    alert('Password Changed.')
+                } else {
+                    console.log('somthing went wrong')
+                    console.log(resBody.message)
+                    document.getElementById('message').innerHTML=`
+                                    <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                                        <strong>${resBody.message}</strong>
+                                    </div>
+                    `
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
         async function editEmail(data) {
             const emailData = JSON.parse(data)
             console.log(`Your new Email is ${emailData.email}`)
@@ -117,7 +178,7 @@
                 const resBody = await response.json()
                 if (resBody.success) {
                     console.log(resBody.message)
-                    document.getElementById('emailData').innerHTML=`
+                    document.getElementById('emailData').innerHTML = `
                     <a href="/persons/verifyOtp">
                         <div class="col-md-12 btn btn-primary">
                         <h5>Verify Otp</h5>
