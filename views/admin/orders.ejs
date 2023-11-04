@@ -1,0 +1,96 @@
+<%- include('head/header') %>
+<div id="page-content-wrapper">
+    <div class="container" style="margin-left: 248px;">
+      <div class="row mt-5">
+        <div class="col-lg-12">
+          <h1>Orders</h1>
+          <% if (locals.message) { %>
+            <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
+             <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+             <strong><%= message.message %></strong>
+           </div>
+           <% } %>
+           <div class="col-md-6 container" id="select"></div>
+
+           <div style="padding-left: 20px; padding-right: 20px; margin-top: 80px;" id="inner" >
+            <table class="table table-top">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col"> Order Id</th>
+                        <th scope="col">Order date</th>
+                        <th scope="col">Customer Name</th>
+                        <th scope="col">Total Amount</th>
+                        <th scope="col">payment Method</th>
+                        <th scope="col">Order Status</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <% if (order && order!==null) { %>
+                        <% for( let i = 0; i < order.length; i++ ) { %>
+                            <tr style="height: 80px; ">
+                                <td><%= i+1 %></td>
+                                <td style="width: 200px;"><%= order[i].orders.date.toISOString().split('T')[0] %></td>
+                                <td><%= order[i].orders.address[0].addressName %></td>
+                                <td><%= order[i].orders.totalAmount %></td>
+                                <td><%= order[i].orders.paymentMethod %></td>
+                                <td><%= order[i].orders.isCancelled?'CANCELLED':order[i].orders.products.status %></td>
+                                <td class="d-flex"><button onclick="showform('<%= order[i].orders._id %>')" type="button" class="btn btn-outline-success ms-4"><i class="fa-regular fa-pen-to-square"></i></button><button type="button" class="btn btn-outline-success ms-4">view</button></td>
+                            </tr>
+                        <% } %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+            <script>
+                function showform(id){
+                    
+                    document.getElementById('inner').style.display="none"
+                    document.getElementById('select').innerHTML=`
+                    <div class=" bg-light p-5 card">
+                    <h2 class="mb-5">Change Status</h2>
+                    <div class="d-flex">
+                        <p class="fs-4">Select Status</p>
+                        <select name="" id="status" class="ms-5">
+                            <option value="">Choose</option>
+                            <option value="PENDING">PENDING</option>
+                            <option value="PLACED">PLACED</option>
+                            <option value="REJECTED">REJECTED</option>
+                            <option value="SHIPPED">SHIPPED</option>
+                            <option value="DELIVERED">DELIVERED</option>
+                        </select>
+                    </div>
+                    <div class="d-flex">
+                        <button onclick="backbutton()" type="button" class="btn btn-outline-success ms-4 px-5 mt-5">Back</button>
+                    <button onclick="updateStaus('${id}')" type="button" class="btn btn-outline-success ms-4 px-5 mt-5">Change</button>
+                    </div>
+                </div>`
+                }
+                function backbutton(){
+                    document.getElementById('select').style.display="none"
+                    document.getElementById('inner').style.display="block"
+                    
+                }
+                async function updateStaus(id){
+                    const status=document.getElementById('status').value
+                    const response=await fetch(`/carts/changeStatus/${id}/${status}`,{method:'get'})
+                    const resBody=await response.json()
+                    if(resBody.success){
+                        console.log(resBody.message)
+                        alert(resBody.message)
+                    }else{
+                        console.log(resBody.message)
+                        alert(resBody.message)
+                    }
+                }
+            </script>
+
+       
+        <%- include('head/footer') %>

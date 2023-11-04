@@ -4,7 +4,7 @@ const controller = require('../../controller/productController')
 const adminAuth = require('../../middlware/adminAuth')
 
 
-// router.use(adminAuth)
+router.use(adminAuth)
 
 router.get(`/`, controller.productHome)
 

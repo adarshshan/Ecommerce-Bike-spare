@@ -60,7 +60,7 @@
                                             <%= row.address[0].addressName %>
                                         </td>
                                         <td>
-                                            <%= row.date %>
+                                            <%= row.date.toISOString().split('T')[0] %>
                                         </td>
                                         <td>
                                             <%= row.totalAmount %>

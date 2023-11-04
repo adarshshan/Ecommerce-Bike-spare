@@ -11,7 +11,7 @@ const ObjectId = mongoose.Types.ObjectId;
 
 
 
-router.get('/', controller.userHome)
+router.get('/',adminAuth, controller.userHome)
 //to render teh login page
 router.get('/login', controller.loginPage)
 //to render the signup page
