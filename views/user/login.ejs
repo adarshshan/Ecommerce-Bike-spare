@@ -13,9 +13,9 @@
 
 <body>
   <header>
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-light border-3 border-bottom py-3">
       <div class="container-fluid">
-        <a class="navbar-brand fs-1 fw-normal ms-4 text-white" href="#">Spare<span class="text-dark">KIT</span></a>
+        <a class="navbar-brand fs-1 fw-bold ms-4 text-danger" href="/">Spare<span class="text-dark">KIT</span></a>
         <form class="d-flex ms-5">
           <input class="inp rounded-pill p-2" type="search" placeholder="Search">
           <button class="btn" type="submit"></button>
@@ -29,11 +29,11 @@
 
           <ul class="navbar-nav ms-auto fs-5 mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link active text-white" aria-current="page" href="/persons">Home</a>
+              <a class="nav-link active text-dark" aria-current="page" href="/">Home</a>
             </li>
 
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button"
+              <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button"
                 data-bs-toggle="dropdown" aria-expanded="false">
                 Brand
               </a>
@@ -51,7 +51,6 @@
                 Login
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user"></i> My Profile</a></li>
                 <li><a class="dropdown-item" href="#">Wish List</a></li>
                 <li><a class="dropdown-item" href="#">24X7 Costomer care</a></li>
             </li>
@@ -63,7 +62,7 @@
       </div>
     </nav>
   </header>
-<section class="vh-100" style="background-color: #f7efef;">
+  <section class="vh-100" style="background-color: #f7efef;">
     <div class="container h-100">
       <div class="row d-flex justify-content-center align-items-center h-100">
         <div class="col-lg-12 col-xl-11">
@@ -71,45 +70,49 @@
             <div class="card-body p-md-5">
               <div class="row justify-content-center">
                 <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
-  
+
                   <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">User Login</p>
                   <% if (locals.message) { %>
                     <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
-                     <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-                     <strong><%= message.message %></strong>
-                   </div>
-                   <% } %>
-                  <form class="mx-1 mx-md-4" action="/users/login" method="post">
-  
-                    <div class="d-flex flex-row align-items-center mb-4">
-                      <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
-                      <div class="form-outline flex-fill mb-0">
-                        <input name="email" type="email" id="form3Example3c" class="form-control" />
-                        <label class="form-label" for="form3Example3c">Your Email</label>
-                      </div>
+                      <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                      <strong>
+                        <%= message.message %>
+                      </strong>
                     </div>
+                    <% } %>
+                      <div id="alertmessage"></div>
+                      <form class="mx-1 mx-md-4" action="/users/login" method="post">
 
-                    <div class="d-flex flex-row align-items-center mb-4">
-                      <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
-                      <div class="form-outline flex-fill mb-0">
-                        <input name="password" type="password" id="form3Example4c" class="form-control" />
-                        <label class="form-label" for="form3Example4c">Password</label>
-                      </div>
-                    </div>
-                    <div class="mb-3">
-                      <a href="/persons/forgotPassword">Forgot Password?</a>
-                    </div>
-                    
-                    <input type="submit" value="Login" class="btn btn-primary p-3">
-  
-                  </form>
-                  
+                        <div class="d-flex flex-row align-items-center mb-4">
+                          <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                          <div class="form-outline flex-fill mb-0">
+                            <input name="email" type="email" id="email" class="form-control"
+                              onkeyup="validateEmail()" required/>
+                            <label class="form-label" id="email-error" for="email">Your Email</label>
+                          </div>
+                        </div>
+
+                        <div class="d-flex flex-row align-items-center mb-4">
+                          <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                          <div class="form-outline flex-fill mb-0">
+                            <input name="password" type="password" id="password" class="form-control" required/>
+                            <label class="form-label" for="password">Password</label>
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <a href="/forgotPassword">Forgot Password?</a>
+                        </div>
+
+                        <input type="submit" value="Login" class="btn btn-primary p-3" onclick="return validateForm()">
+
+                      </form>
+
                 </div>
                 <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
-  
+
                   <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
                     class="img-fluid" alt="Sample image">
-  
+
                 </div>
               </div>
             </div>
@@ -118,4 +121,35 @@
       </div>
     </div>
   </section>
-<%- include('head/footer') %>
+  <script>
+    async function validateEmail() {
+      const email = document.getElementById('email').value
+      const response = await fetch(`/users/validateEmail/${email}`, { method: 'get' })
+      const resBody = await response.json()
+      if (!resBody.success) {
+        document.getElementById('email-error').style.color = 'red'
+        document.getElementById('email-error').innerHTML = 'Email with user is not exist'
+        return false;
+      }
+      document.getElementById('email-error').style.color = 'green'
+      document.getElementById('email-error').innerHTML = 'Email is valid'
+      return true;
+    }
+    function validateForm() {
+      const email = document.getElementById('email').value
+      const password = document.getElementById('password').value
+      const alertbox = document.getElementById('alertmessage')
+      if (email.length == 0 || password.length == 0) {
+        alertbox.innerHTML = `
+              <div class="alert alert-dismissible fade show alert-danger" role="alert">
+                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                     <strong>Input fields must be filled!</strong>
+              </div>`
+        return false;
+      }
+
+
+      return true;
+    }
+  </script>
+  <%- include('head/footer') %>

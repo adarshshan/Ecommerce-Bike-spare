@@ -1,32 +1,30 @@
 <%- include('head/header') %>
-
-    <div class="container-fluid">
+<style>
+    a :hover{
+        background: rgb(97, 97, 96);
+        color: rgb(250, 249, 249);
+    }
+</style>
+    <div class="container-fluid"  style="background-color: #f7efef;">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-4 fw-normal border-bottom border-top" style="background: rgb(36, 108, 149);">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-5 fw-normal" >
                 <div class="position-sticky">
-                    <ul class="nav flex-column p-2">
-                        <a class="nav-link text-white" href="#">
-                            <li class="nav-item"></li>
+                        <a class="nav-link text-dark" href="/profile">
+                            <div class="nav-item p-3">
                             My Account
-                            </li>
+                            </div>
                         </a>
-                        <hr class="my-4" />
-                        <a class="nav-link text-white" href="/carts/orders">
-                            <li class="nav-item"></li>
+                        <a class="nav-link text-dark" href="/carts/orders">
+                            <div class="nav-item p-3">
                             Orders
-                            </li>
+                            </div>
                         </a>
-                        <hr class="my-4" />
-
-                        <a class="nav-link text-white" href="#">
-                            <li class="nav-item"></li>
+                        <a class="nav-link text-dark" href="#">
+                            <div class="nav-item p-3">
                             wishlist
-                            </li>
+                            </div>
                         </a>
-
-                        <!-- Add more sidebar items as needed -->
-                    </ul>
                 </div>
             </nav>
 
@@ -36,9 +34,9 @@
                     class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Ordered Products</h1>
                 </div>
-                <div class="col-md-12 bg-light container" id="produc">
+                <div class="col-md-12 container mb-5 pb-5" id="produc">
                     <% products.forEach((row,index) => { %>
-                        <div class="row border p-5 mb-4 fs-4">
+                        <div class="row border p-5 mb-4 fs-4 bg-light">
                             <div class="col-12 col-md-3"><img style="height: 100px; width: 100px;" src="http://localhost:3000/<%= row.product.productImage %>" alt=""></div>
                             <div class="col-md-2"><p><%= row.product.productName %></p></div>
                             <div class="col-md-2"><p><%= row.product.productPrice %></p></div>

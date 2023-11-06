@@ -11,26 +11,26 @@
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 
-<body>
+<body  style="background-color: #f7efef;">
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light">
+        <nav class="navbar navbar-expand-lg navbar-light py-3 border-bottom border-3 bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand fs-1 fw-normal ms-4 text-white" href="/persons">Spare<span
+                <a class="navbar-brand fs-1 fw-bold ms-4 text-danger" href="/">Spare<span
                         class="text-dark">KIT</span></a>
             </div>
         </nav>
     </header>
     <div class="container">
         <div class="row pt-3">
-            <div class="col-md-8">
+            <div class=" col-sm-12 col-md-12 col-lg-8 col-12">
                 <div class=" p-3">
-                    <div class="form-group col-md-12 p-3 bg-primary text-white">
-                        <h2 class="section-title position-relative text-uppercase mb-3" id="pay"><span
+                    <div class="form-group col-md-12 p-3 bg-light text-dark">
+                        <h2 class="section-title position-relative ms-4 text-uppercase mb-3" id="pay"><span
                                 class="pr-3">Payment</span></h2>
                     </div>
 
-                    <div class="bg-light p-30">
-                        <form action="" id="myForm">
+                    <div class="bg-light p-30 shadow mb-4">
+                        <form action="" id="myForm" class="ms-4">
                             <div class="form-group col-md-12 p-3">
                                 <div class="custom-control custom-radio">
                                     <input type="radio" value="COD" class="custom-control-input" name="payment" id="cod"
@@ -38,7 +38,6 @@
                                     <label class="custom-control-label" for="cod">Cash on delivery</label>
                                 </div>
                             </div>
-                            <hr class="my-4" />
                             <div class="form-group col-md-12 p-3">
                                 <div class="custom-control custom-radio">
                                     <input type="radio" value="online payment" class="custom-control-input"
@@ -46,7 +45,6 @@
                                     <label class="custom-control-label" for="onlinepayment">Online Payment</label>
                                 </div>
                             </div>
-                            <hr class="my-4" />
                             <div class="form-group col-md-12 p-3">
                                 <div class="custom-control custom-radio">
                                     <input type="radio" value="wallet + online payment" class="custom-control-input"
@@ -55,7 +53,6 @@
                                         Payment</label>
                                 </div>
                             </div>
-                            <hr class="my-4" />
                             <div class="form-group mb-4 col-md-12 p-3">
                                 <div class="custom-control custom-radio">
                                     <input type="radio" class="custom-control-input" name="payment" id="banktransfer"
@@ -64,7 +61,7 @@
                                 </div>
                             </div>
                             <hr class="my-4" />
-                            <input type="submit" class="btn btn-block btn-primary font-weight-bold py-3"
+                            <input type="submit" class="btn btn-outline-warning py-2 col-10 ms-5 mb-4"
                                 value="Place Order">
                         </form>
 
@@ -73,8 +70,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card mb-4">
+            <div class="col-sm-12 col-md-12 col-lg-4 col-12">
+                <div class="card mb-4 shadow">
                     <div class="card-header py-3">
                         <h5 class="mb-0">Summary</h5>
                     </div>
@@ -82,9 +79,9 @@
                         <ul class="list-group list-group-flush">
                             <li
                                 class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-                                Price(2 items)
+                                Price(<%= totalProducts %> items)
                                 <span id="actualamount">
-                                    100
+                                    <%= totalAmount %>
                                 </span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
@@ -103,7 +100,7 @@
                                         <p class="mb-0">(including VAT)</p>
                                     </strong>
                                 </div>
-                                <span><strong id="totalAmount">Rs.0</strong></span>
+                                <span><strong id="totalAmount">Rs.<%= totalAmount%></strong></span>
                             </li>
                         </ul>
 

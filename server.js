@@ -90,7 +90,7 @@ app.use('/userDetails', userDetailsRouter)
 app.use('/payments', paymentsRouter)
 app.use('/admin',adminRouter)
 
-app.use('/persons',personsRouter)
+app.use('/',personsRouter)
 app.use('/carts', cartsRouter)
 
 

@@ -5,11 +5,13 @@ const ObjectId = mongoose.Types.ObjectId;
 
 
 
-function paymentOptionPage (req, res) {
+async function paymentOptionPage (req, res) {
     try {
         const id = req.params.id
         const name = req.params.name
         const phone = req.params.phone
+        const userId = req.session.currentUserId
+        const user = new ObjectId(userId)
         // console.log('Id received at backend ' + id)
         req.session.selectedAddress = {
             id: id,
@@ -17,7 +19,8 @@ function paymentOptionPage (req, res) {
             phone: phone
         }
         if (req.session.selectedAddress) {
-            res.render('user/paymentOption.ejs', { title: 'payment', result: 'success' })
+            const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: user })
+            res.render('user/paymentOption.ejs', { title: 'payment', result: 'success',totalAmount,totalProducts })
         }
     } catch (error) {
         console.log('Error is at /payment_option/:id ' + error)

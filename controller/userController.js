@@ -93,7 +93,7 @@ async function userLogin(req, res) {
                             sound: true,
                             wait: true
                         })
-                        res.redirect('/persons')
+                        res.redirect('/')
                     } else {
                         req.session.message = {
                             message: 'you Entered the wrong password.!',
@@ -146,13 +146,7 @@ async function userSignup(req, res) {
         const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         const email = req.body.email
         const isuser = await User.findOne({ email: req.body.email })
-        if (!name || !email || !mobile || !password || !cpassword) {
-            req.session.message = {
-                message: 'Input fields must not be blank!!!',
-                type: 'danger'
-            }
-            return res.redirect('/users/signup')
-        } else if (isuser !== null) {
+        if (isuser !== null) {
             req.session.message = {
                 message: 'User with Entered Email address is already exists',
                 type: 'warning'
@@ -218,6 +212,24 @@ async function userSignup(req, res) {
             type: 'danger'
         }
         return res.redirect('/users/signup')
+    }
+}
+
+async function validateEmail (req, res) {
+    try {
+        const email = req.params.email
+        const isuser = await User.findOne({ email: email })
+        console.log(isuser)
+        if (isuser && isuser !== null && isuser !== undefined) {
+            console.log('Email is exist')
+            return res.json({success:true, message: 'Entered Email is already been using!' })
+        } else {
+            console.log('email is not exist')
+            return res.json({success:false ,message: 'User with Email is not exist!' })
+        }
+    } catch (error) {
+        console.log(error)
+        console.log('An errror occured at validateEmail getreq...')
     }
 }
 
@@ -390,7 +402,7 @@ async function userLogout(req, res) {
         delete req.session.currentUserId
         delete req.session.cartId
         await product.updateMany({}, { $set: { cart: false } })
-        res.redirect('/persons')
+        res.redirect('/')
     } catch (error) {
         console.log('An Error occured when logging out ' + error)
     }
@@ -405,5 +417,6 @@ module.exports = {
     resendOtp,
     blockUser,
     unBlockUser,
-    userLogout
+    userLogout,
+    validateEmail
 }

@@ -11,7 +11,7 @@ const ObjectId = mongoose.Types.ObjectId;
 
 
 
-router.get('/',adminAuth, controller.userHome)
+router.get('/', adminAuth, controller.userHome)
 //to render teh login page
 router.get('/login', controller.loginPage)
 //to render the signup page
@@ -22,6 +22,8 @@ router.get('/signup', (req, res) => {
 router.post('/login', controller.userLogin)
 
 router.post('/', controller.userSignup)
+
+router.get('/validateEmail/:email', controller.validateEmail)
 
 router.get('/logout', controller.userLogout)
 
@@ -40,12 +42,22 @@ router.get('/checkout', async (req, res) => {
     const user = new ObjectId(userId)
     if (userId) {
         const address = await addressModel.findOne({ userId: userId })
-        const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: user })
-        var addressDetails
-        if (address && address !== null) {
-            addressDetails = address.address;
+        const cart = await Cart.findOne({ userId: userId })
+        if (cart && cart !== null && cart !== undefined &&cart.products.length!==0) {
+            
+            const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: user })
+            var addressDetails
+            if (address && address !== null) {
+                addressDetails = address.address;
+            } else {
+                console.log('data not found')
+            }
+            res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts })
+        }else{
+            console.log('Cart is empty')
+            return res.redirect('/carts')
         }
-        res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts })
+
 
     } else {
         console.log('not userid')

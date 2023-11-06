@@ -17,24 +17,19 @@ async function cartHome(req, res) {
                 path: 'products.productId',
                 select: 'name price image description stock quantity'
             })
-        console.log('cartlist' + cartList)
         const justCart = await Cart.find({ _id: cartId })
             .populate({
                 path: 'products.productId',
                 select: 'name price image description stock quantity'
             })
         if (cartList && cartList.length > 0 && cartList !== undefined) {
-            console.log('it is user...')
             let { totalAmount, totalProducts } = await calculateTotalAmount({ userId: use })
             return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts })
 
         } else if (justCart && justCart.length > 0) {
-            console.log('Its just user...')
             let totalAmount = await calculateTotalAmount({ _id: car })
-            console.log(`skldjflsdjf${totalAmount}`)
             return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts })
         } else {
-            console.log('kooi')
             return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0 })
         }
 
@@ -64,7 +59,6 @@ async function addCart(req, res) {
                 })
                 if (resu) {
                     req.session.cartId = resu[0]._id
-                    console.log('Cart id is ' + req.session.cartId);
                     await product.findByIdAndUpdate(id, { $set: { cart: true } })
                     return res.redirect('/carts')
                 } else {

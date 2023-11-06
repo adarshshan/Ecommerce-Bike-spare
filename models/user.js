@@ -40,38 +40,6 @@ const userSchema =new mongoose.Schema({
     verified:{
         type:Boolean
     }
-    // tokens:[{
-    //     token:{
-    //         type:String,
-    //         required:true
-    //     }
-    // }]
-    
 })
-// //generating token
-// userSchema.methods.generateAuthToken =async function(){
-//     try{
-//         console.log(this._id);
-//         const token=jwt.sign({_id:this._id.toString()},'mynameisadarshshanuktandiamadevelopers')
-//         this.tokens=this.tokens.concat({token:token})
-//         await this.save()
-//         console.log(`Your Token is ${token}`)
-//         return token
-//     }catch(error){
-        
-//         console.log('the error part'+error)
-
-//     }
-// }
-// //converting password into hash
-// userSchema.pre('save',async function(next){
-//     if(this.isModified('password')){
-       
-//         this.password=await bcrypt.hash(this.password,10)
-//         console.log(this.password)
-//     }
-//     next()
-// })
-
 const User=mongoose.model('user',userSchema)
 module.exports=User

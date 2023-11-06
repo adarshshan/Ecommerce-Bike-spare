@@ -1,5 +1,12 @@
 <%- include('head/header') %>
-    <section style="background-color: #eee;">
+<style>
+    a :hover{
+        background: rgb(97, 97, 96);
+        color: rgb(250, 249, 249);
+        font-weight: 500;
+    }
+</style>
+    <section style="background-color: #f7efef;">
         <div class="container py-5">
             <div class="row">
                 <div class="col-lg-4">
@@ -22,9 +29,27 @@
                     </div>
                     <div class="card mb-4 mb-lg-0">
                         <div class="card-body p-0">
+                            <a href="/users/AddressBook" style="color: black; text-decoration: none; ">
+                                <div class="side p-3">
+                                    Address Book
+                                </div>
+                            </a>
+                            <a href="/carts/orders" style="color: black; text-decoration: none;">
+                                <div class="side p-3">
+                                    My order
+                                </div>
+                            </a>
+                            <a class="text-dark" onclick="changePasswordForm()" style="text-decoration: none;">
+                                <div class="side p-3">
+                                    Change Password
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- <div class="card-body p-0">
                             <ul class="list-group list-group-flush rounded-3">
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <a href="/user/AddressBook" style="color: black;">Address Book</a>
+                                    <a href="/users/AddressBook" style="color: black;">Address Book</a>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <a href="/carts/orders" style="color: black;">My order</a>
@@ -34,7 +59,7 @@
                                     <button class="list-group-item d-flex justify-content-between align-items-center p-3" onclick="changePasswordForm()">Change Password</button>
                                 </li>
                             </ul>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
                 <div class="col-lg-8">
@@ -45,50 +70,50 @@
 
                             <div class="row m-5" id="nameData">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">Full Name</p>
+                                    <p class="mb-0 fs-5"><strong>Full Name</strong></p>
                                 </div>
                                 <div class="col-sm-6">
-                                    <p class="text-muted mb-0">
+                                    <p class="mb-0">
                                         <%= user.name %>
                                     </p>
                                 </div>
                                 <div class="col-sm-3">
                                     <button class="border-0 bg-light"
-                                        onclick="editNameForm('<%= JSON.stringify({name:user.name}) %>')">EDIT</button>
+                                        onclick="editNameForm('<%= JSON.stringify({name:user.name}) %>')"><i class="fa-regular fa-pen-to-square text-primary"></i>EDIT</button>
                                     <!-- <a class="text-secondary" href="">Edit</a> -->
                                 </div>
                             </div>
                             <hr>
                             <div class="row m-5" id="emailData">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">Email</p>
+                                    <p class="mb-0 fs-5"><strong>Email Address</strong></p>
                                 </div>
                                 <div class="col-sm-6">
-                                    <p class="text-muted mb-0">
+                                    <p class=" mb-0">
                                         <%= user.email %>
                                     </p>
                                 </div>
                                 <div class="col-sm-3">
                                     <button class="border-0 bg-light"
-                                        onclick="editEmail('<%= JSON.stringify({email:user.email}) %>')">EDIT</button>
+                                        onclick="editEmail('<%= JSON.stringify({email:user.email}) %>')"><i class="fa-regular fa-pen-to-square text-primary"></i>EDIT</button>
                                 </div>
                             </div>
                             <hr>
 
                             <div class="row m-5" id="phoneData">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">Mobile</p>
+                                    <p class="mb-0 fs-5"><strong>Mobile Number</strong></p>
                                 </div>
                                 <div class="col-sm-6">
 
-                                    <p class="text-muted mb-0">
+                                    <p class="mb-0">
                                         <%= user.phone %>
                                     </p>
 
                                 </div>
                                 <div class="col-sm-3">
                                     <button class="border-0 bg-light"
-                                        onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')">EDIT</button>
+                                        onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')"><i class="fa-regular fa-pen-to-square text-primary"></i>EDIT</button>
                                 </div>
                             </div>
                             <hr>
@@ -134,7 +159,7 @@
                 const oldpassword = document.getElementById('oldpassword').value
                 const newpassword = document.getElementById('newpassword').value
                 console.log(`1 :${oldpassword}  2:${newpassword}`)
-                const response = await fetch(`/persons/changePassword/${oldpassword}/${newpassword}`, { method: 'get' })
+                const response = await fetch(`/changePassword/${oldpassword}/${newpassword}`, { method: 'get' })
                 const resBody = await response.json()
                 if (resBody.success) {
                     console.log('Success part')
@@ -174,7 +199,7 @@
             try {
                 const email = document.getElementById('email').value
                 console.log(`Your new Email is ${email}`)
-                const response = await fetch(`/persons/changeEmail/${email}`, { method: 'get' })
+                const response = await fetch(`/changeEmail/${email}`, { method: 'get' })
                 const resBody = await response.json()
                 if (resBody.success) {
                     console.log(resBody.message)
@@ -215,7 +240,7 @@
             try {
                 const phone = document.getElementById('phone').value
                 console.log(`Your new phoneNumber is ${phone}`)
-                const response = await fetch(`/persons/changePhone/${phone}`, { method: 'get' })
+                const response = await fetch(`/changePhone/${phone}`, { method: 'get' })
                 const resBody = await response.json()
                 if (resBody.success) {
                     console.log(resBody.message)
@@ -283,7 +308,7 @@
         async function updateName() {
             const name = document.getElementById('name').value
             console.log(`Your namve is ${name}`)
-            const response = await fetch(`/persons/changeName/${name}`, { method: 'get' })
+            const response = await fetch(`/changeName/${name}`, { method: 'get' })
             const resBody = await response.json()
             if (resBody.success) {
                 console.log(resBody.message)
