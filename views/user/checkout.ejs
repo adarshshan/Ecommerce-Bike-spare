@@ -311,7 +311,7 @@
                     
                     <p class="mt-3">${resBody.addressList.address[i].fullAddress},${resBody.addressList.address[i].landmark},${resBody.addressList.address[i].pinCode},${resBody.addressList.address[i].alternativePhone},${resBody.addressList.address[i].district}</p>
                     <div class="d-flex col-md-8 mb-4">
-                        <a href="/carts/payment_option/${resBody.addressList.address[i]._id}">
+                        <a href="/carts/payment_option/${resBody.addressList.address[i]._id}/${resBody.addressList.address[i].name}/${resBody.addressList.address[i].phone}">
                         <botton class="btn btn-warning p-2 me-5 fw-bold">Deliver Here</botton>
                     </a>
                         <button onclick="addressDelete('${resBody.addressList.address[i]._id}')" class="border-0"><i class="fa fa-trash mr-1 text-danger"></i>Remove</button>

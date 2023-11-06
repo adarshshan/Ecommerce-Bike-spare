@@ -57,10 +57,8 @@ async function orderPost(req, res) {
                                 quantity: products.products[i].quantity,
                                 status: status,
                             }
-                            console.log(`index${i} and data is ${data}`)
                             items.push(data)
                         }
-                        console.log('your Items is ' + items)
                         console.log(items)
                         console.log('products added to orders...')
                     } else {

@@ -10,24 +10,24 @@
         <div class="container py-5">
             <div class="row">
                 <div class="col-lg-4">
-                    <div class="card mb-4">
+                    <div class="card mb-4 shadow">
                         <div class="card-body text-center">
                             <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
                                 alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
-                            <h5 class="my-3">
+                            <h5 class="my-3" id="customer-name">
                                 <%= user.name %>
                             </h5>
-                            <p class="text-muted mb-1">
+                            <p class="text-muted mb-1" id="customer-email">
                                 <%= user.email %>
                             </p>
 
-                            <p class="text-muted mb-1">
+                            <p class="text-muted mb-1" id="customer-phone">
                                 <%= user.phone %>
                             </p>
 
                         </div>
                     </div>
-                    <div class="card mb-4 mb-lg-0">
+                    <div class="card mb-4 mb-lg-0 shadow">
                         <div class="card-body p-0">
                             <a href="/users/AddressBook" style="color: black; text-decoration: none; ">
                                 <div class="side p-3">
@@ -45,25 +45,10 @@
                                 </div>
                             </a>
                         </div>
-
-                        <!-- <div class="card-body p-0">
-                            <ul class="list-group list-group-flush rounded-3">
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <a href="/users/AddressBook" style="color: black;">Address Book</a>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <a href="/carts/orders" style="color: black;">My order</a>
-                                </li>
-                                
-                                <li class="list-group-item d-flex justify-content-between align-items-center p-3">
-                                    <button class="list-group-item d-flex justify-content-between align-items-center p-3" onclick="changePasswordForm()">Change Password</button>
-                                </li>
-                            </ul>
-                        </div> -->
                     </div>
                 </div>
                 <div class="col-lg-8">
-                    <div class="card mb-4">
+                    <div class="card mb-4 shadow">
                         <div class="card-body" id="message"></div>
                         <div class="card-body" id="passForm1"></div>
                             <div class="card-body" id="passForm">
@@ -80,7 +65,7 @@
                                 <div class="col-sm-3">
                                     <button class="border-0 bg-light"
                                         onclick="editNameForm('<%= JSON.stringify({name:user.name}) %>')"><i class="fa-regular fa-pen-to-square text-primary"></i>EDIT</button>
-                                    <!-- <a class="text-secondary" href="">Edit</a> -->
+                                    
                                 </div>
                             </div>
                             <hr>
@@ -204,7 +189,7 @@
                 if (resBody.success) {
                     console.log(resBody.message)
                     document.getElementById('emailData').innerHTML = `
-                    <a href="/persons/verifyOtp">
+                    <a href="/verifyOtp">
                         <div class="col-md-12 btn btn-primary">
                         <h5>Verify Otp</h5>
                         </div>
@@ -245,24 +230,25 @@
                 if (resBody.success) {
                     console.log(resBody.message)
                     document.getElementById('phoneData').innerHTML = `
-                            <div class="col-sm-3">
-                                    <p class="mb-0">Mobile</p>
+                    <div class="col-sm-3">
+                                    <p class="mb-0 fs-5"><strong>Mobile Number</strong></p>
                                 </div>
                                 <div class="col-sm-6">
 
-                                    <p class="text-muted mb-0">
+                                    <p class="mb-0">
                                         ${phone}
                                     </p>
 
                                 </div>
                                 <div class="col-sm-3">
-                                    <button class="border-0 bg-light" onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')">EDIT</button>
-                            </div>`
+                                    <button class="border-0 bg-light" onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')"><i class="fa-regular fa-pen-to-square text-primary"></i>EDIT</button>
+                                </div> `
                             document.getElementById('message').innerHTML=`
                                 <div class="alert alert-dismissible fade show alert-success" role="alert">
                                         <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
                                         <strong>${resBody.message}</strong>
                                 </div>`
+                                document.getElementById('customer-phone').innerHTML=phone
                 } else {
                     console.log(resBody.message)
                     document.getElementById('message').innerHTML=`
@@ -272,7 +258,7 @@
                                 </div>`
                     document.getElementById('phoneData').innerHTML = `
                             <div class="col-sm-3">
-                                    <p class="mb-0">Mobile</p>
+                                    <p class="mb-0 fs-5">Mobile</p>
                                 </div>
                                 <div class="col-sm-6">
 
@@ -282,7 +268,7 @@
 
                                 </div>
                                 <div class="col-sm-3">
-                                    <button class="border-0 bg-light" onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')">EDIT</button>
+                                    <button class="border-0 bg-light" onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')"><i class="fa-regular fa-pen-to-square text-primary"></i>EDIT</button>
                             </div>`
                 }
             } catch (error) {
@@ -317,18 +303,20 @@
                                         <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
                                         <strong>${resBody.message}</strong>
                                 </div>`
-                document.getElementById('nameData').innerHTML = `<div class="col-sm-3">
-                                    <p class="mb-0">Full Name</p>
+                document.getElementById('nameData').innerHTML = `
+                                <div class="col-sm-3">
+                                    <p class="mb-0 fs-5"><strong>Full Name</strong></p>
                                 </div>
                                 <div class="col-sm-6">
-                                    <p class="text-muted mb-0">
+                                    <p class="mb-0">
                                         ${name}
                                     </p>
                                 </div>
                                 <div class="col-sm-3">
-                                    <button  class="border-0 bg-light" onclick="editNameForm('<%= JSON.stringify({name:user.name}) %>')">EDIT</button>
-                                    <!-- <a class="text-secondary" href="">Edit</a> -->
+                                    <button class="border-0 bg-light"
+                                        onclick="editNameForm('<%= JSON.stringify({name:user.name}) %>')"><i class="fa-regular fa-pen-to-square text-primary"></i>EDIT</button>
                                 </div>`
+                                document.getElementById('customer-name').innerHTML=name
             } else {
                 console.log(resBody.message)
                 document.getElementById('message').innerHTML=`

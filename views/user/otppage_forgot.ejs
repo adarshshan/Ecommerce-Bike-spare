@@ -12,23 +12,27 @@
 
 
                                 <div class="form-floating mb-3 mt-5">
-                                    <input type="text" class="form-control" name="otp"
-                                        placeholder="">
+                                    <input type="text" class="form-control" name="otp" placeholder="">
                                     <label for="floatingInput">Enter the OTP</label>
                                 </div>
                                 <br>
                                 <% if (locals.msg) { %>
                                     <div class="alert alert-dismissible fade show alert-<%= type %>" role="alert">
-                                        <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-                                        <strong><%= msg %></strong>
-                                      </div>
-                                <% } %>
-                                <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
+                                        <button class="btn-close" type="button" data-bs-dismiss="alert"
+                                            aria-label="close"></button>
+                                        <strong>
+                                            <%= msg %>
+                                        </strong>
+                                    </div>
+                                    <% } %>
+                                        <input type="submit" class="btn btn-primary p-3 mt-3" value="submit"
+                                            onsubmit=" return clearInterval(timerInterval)">
                             </form>
-                            <form class="mt-3" action="/users/resendtpVerficationCode" method="post">
-                                <input class="btn btn-danger" type="submit" value="resend otp?">
+                            <div id="countdown"></div>
+                            <form id="resend-form" class="mt-3" action="/users/resendtpVerficationCode" method="post">
+                                <input class="btn btn-danger" type="submit" value="Resend OTP" disabled>
                             </form>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -36,5 +40,38 @@
         </div>
 
     </section>
+    <script>
+        function updateTimer() {
+            try {
+                const timerElement = document.getElementById('countdown');
+                const resendButton = document.querySelector('#resend-form input[type="submit"]');
 
+                if (countdownTime > 0) {
+                    countdownTime--;
+                    timerElement.style.color = 'green'
+                    timerElement.textContent = `Time remaining :${countdownTime} seconds`;
+                    // Store the remaining time in local storage
+                    localStorage.setItem('otpTimerRemaining', countdownTime);
+                } else {
+                    clearInterval(timerInterval); // Stop the timer when it reaches 0
+                    timerElement.style.color = 'red'
+                    timerElement.textContent = "Time's up!";
+                    // You can add additional actions when the timer expires, like disabling the submit button.
+                    document.querySelector('input[type="submit"]').disabled = true;
+                    resendButton.disabled = false; // Enable the "Resend OTP" button
+                }
+            } catch (error) {
+                console.log(error)
+                console.log('Error is here...')
+            }
+        }
+
+        // Check if there's a remaining time stored in local storage
+        let countdownTime = parseInt(localStorage.getItem('otpTimerRemaining')) || 60;
+
+        // Start the timer
+        const timerElement = document.getElementById('countdown');
+        timerElement.textContent = countdownTime;
+        const timerInterval = setInterval(updateTimer, 1000); 
+    </script>
     <%- include('head/footer') %>
