@@ -29,7 +29,7 @@ async function userHome(req, res) {
 function loginPage(req, res) {
     try {
         if (req.session.userlogin) {
-            res.redirect('/persons')
+            res.redirect('/')
         } else {
             res.render('user/login', { title: 'User Login' })
         }
@@ -287,6 +287,7 @@ async function verifyOtp(req, res) {
 
 async function resendOtp(req, res) {
     try {
+        console.log('Iam reached here...')
         let userId = req.session.uesrid
         let email = req.session.emailAddress
         console.log(`userid is ${userId} and email is ${email} checking...`)
@@ -295,7 +296,7 @@ async function resendOtp(req, res) {
         } else {
             //delete existing record and resend
             await userOtpVerification.deleteMany({ userId })
-            sendOtpVerificationEmail({ _id: userId, email }, req, res)
+            await sendOtpVerificationEmail({ _id: userId, email }, req, res)
         }
     } catch (error) {
         res.json({

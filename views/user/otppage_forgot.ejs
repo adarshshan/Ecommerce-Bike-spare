@@ -1,19 +1,17 @@
 <%- include('head/header') %>
-
+        <!-- Forgot password -->
     <section style="background-color: #f7efef;">
         <div class="container">
             <div class="row">
                 <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
                     <div class="card border-0 shadow rounded-3 my-5">
                         <div class="card-body p-4 p-sm-5">
-                            <h3 class="card-title "></h3>
+                            <h3 class="card-title"></h3>
                             <small><b>Enter your One Time password</b></small>
                             <form action="/verifyForgot" method="post">
-
-
                                 <div class="form-floating mb-3 mt-5">
-                                    <input type="text" class="form-control" name="otp" placeholder="">
-                                    <label for="floatingInput">Enter the OTP</label>
+                                    <input type="text" class="form-control" name="otp" placeholder="" id="number">
+                                    <label >Enter the OTP</label>
                                 </div>
                                 <br>
                                 <% if (locals.msg) { %>
@@ -25,22 +23,22 @@
                                         </strong>
                                     </div>
                                     <% } %>
-                                        <input type="submit" class="btn btn-primary p-3 mt-3" value="submit"
-                                            onsubmit=" return clearInterval(timerInterval)">
+                                        <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
                             </form>
                             <div id="countdown"></div>
                             <form id="resend-form" class="mt-3" action="/users/resendtpVerficationCode" method="post">
-                                <input class="btn btn-danger" type="submit" value="Resend OTP" disabled>
+                                <input class="btn btn-danger" type="submit" value="Resend OTP" id="reform" disabled>
                             </form>
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
     </section>
+
     <script>
+        let timerInterval; // Declare a variable to store the timer interval
+
         function updateTimer() {
             try {
                 const timerElement = document.getElementById('countdown');
@@ -48,30 +46,72 @@
 
                 if (countdownTime > 0) {
                     countdownTime--;
-                    timerElement.style.color = 'green'
-                    timerElement.textContent = `Time remaining :${countdownTime} seconds`;
+                    const minutes = Math.floor(countdownTime / 60);
+                    const seconds = countdownTime % 60;
+                    timerElement.style.color = 'green';
+                    timerElement.textContent = `Time remaining: ${minutes} minutes and ${seconds} seconds`;
                     // Store the remaining time in local storage
                     localStorage.setItem('otpTimerRemaining', countdownTime);
                 } else {
                     clearInterval(timerInterval); // Stop the timer when it reaches 0
-                    timerElement.style.color = 'red'
-                    timerElement.textContent = "Time's up!";
+                    timerElement.style.color = 'red';
+                    timerElement.textContent = "Time's up! Request another OTP";
                     // You can add additional actions when the timer expires, like disabling the submit button.
                     document.querySelector('input[type="submit"]').disabled = true;
                     resendButton.disabled = false; // Enable the "Resend OTP" button
                 }
             } catch (error) {
-                console.log(error)
-                console.log('Error is here...')
+                console.log(error);
+                console.log('Error is here...');
             }
         }
 
         // Check if there's a remaining time stored in local storage
         let countdownTime = parseInt(localStorage.getItem('otpTimerRemaining')) || 60;
 
-        // Start the timer
+        // Function to handle the "Resend OTP" button click
+        function resendOTP() {
+            console.log('Resend OTP button clicked')
+            const resendButton = document.querySelector('#resend-form input[type="submit"]');
+            resendButton.disabled = true; // Disable the button when clicked
+
+            // Here, you can implement the logic to trigger the OTP resend process on the server.
+            // For example, you can make an AJAX request to resend the OTP.
+
+            // Clear the existing timer interval
+            clearInterval(timerInterval);
+
+            // Reset the countdown time and start a new timer
+            countdownTime = 60; // You can set the desired initial time
+            const timerElement = document.getElementById('countdown');
+            const minutes = Math.floor(countdownTime / 60);
+            const seconds = countdownTime % 60;
+            timerElement.textContent = `Time remaining: ${minutes} minutes and ${seconds} seconds`;
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Add an event listener to the "Resend OTP" button to restart the timer
+        document.getElementById('reform').addEventListener('click', async () => {
+            await resendOTP();
+            document.querySelector('input[type="submit"]').disabled = false;
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(),
+            };
+            const response = await fetch(`/users/resendtpVerficationCode`, requestOptions)
+            const resBody = await response.json()
+        });
+
+        // Start the initial timer when the page loads
+        document.querySelector('input[type="submit"]').disabled = false;
         const timerElement = document.getElementById('countdown');
-        timerElement.textContent = countdownTime;
-        const timerInterval = setInterval(updateTimer, 1000); 
+        const minutes = Math.floor(countdownTime / 60);
+        const seconds = countdownTime % 60;
+        timerElement.textContent = `Time remaining: ${minutes} minutes and ${seconds} seconds`;
+        timerInterval = setInterval(updateTimer, 1000);
     </script>
+
     <%- include('head/footer') %>

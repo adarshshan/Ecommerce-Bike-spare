@@ -284,7 +284,7 @@ async function forgotOtpPage (req, res) {
 async function verifyForgotPost(req, res) {
     try {
         const newEmail = req.session.newEmail
-        let otp = req.body.otp
+        let {otp} = req.body
         let userId = req.session.uesrid
         console.log(`userId: ${userId} and otp: ${otp}`);
         if (!userId || !otp) {
