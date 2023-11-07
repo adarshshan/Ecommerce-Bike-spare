@@ -244,12 +244,32 @@ async function cancelOrder(req,res){
     }
 }
 
+async function changeStatus (req,res){
+    try {
+        const orderId=req.params.id
+        const status=req.params.status
+        console.log(`order id is ${orderId} and Status is ${status}`)
+        const updated=await Order.findOneAndUpdate({'orders._id':orderId},{$set:{'orders.$.products.$[].status':status}})
+        if(updated){
+            console.log('status updated')
+            return res.json({success:true,message:'Status updated'})
+        }else{
+            console.log('Status failed to update')
+            return res.json({success:false,message:'Status failed to update'})
+        }
+    } catch (error) {
+        console.log(error)
+        return res.json({success:false,message:'Unknown Error'})
+    }
+}
+
 module.exports={
     paymentOptionPage,
     orderPost,
     orderHomePage,
     viewOrder,
-    cancelOrder
+    cancelOrder,
+    changeStatus
 }
 
 

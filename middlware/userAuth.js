@@ -7,3 +7,5 @@ const isuserAuth = (req, res, next) => {
         return res.redirect('/users/login')
     }
 }
+
+module.exports=isuserAuth;

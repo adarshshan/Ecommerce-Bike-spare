@@ -192,7 +192,7 @@ async function verifyOtpPost(req, res) {
                             sound: true,
                             wait: true
                         })
-                        return res.redirect('/persons/profile')
+                        return res.redirect('/profile')
                     }
                 }
             }
