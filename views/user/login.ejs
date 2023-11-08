@@ -130,6 +130,7 @@
     const submitbtn = document.getElementById('loginButton');
 
     async function validateEmail() {
+      const email = document.getElementById('email').value
       const response = await fetch(`/users/validateEmail/${email}`, { method: 'get' })
       const resBody = await response.json()
       if (!resBody.success) {
@@ -143,6 +144,7 @@
     }
 
     async function validateForm() {
+      const email = document.getElementById('email').value
       if (email.length == 0 || password.length == 0) {
         alertbox.innerHTML = `
               <div class="alert alert-dismissible fade show alert-danger" role="alert">
