@@ -6,6 +6,8 @@ const Order=require('../../models/order')
 const userAuth=require('../../middlware/userAuth')
 const adminAuth=require('../../middlware/adminAuth')
 
+
+
 //----cart----
 router.get('/', controller.cartHome)
 router.post('/add/:id/:name/:price/:image', controller.addCart)

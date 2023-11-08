@@ -78,7 +78,6 @@ async function userLogin(req, res) {
                                 for (let i = 0; i < data.length; i++) {
                                     await cart.findOneAndUpdate({ userId: req.session.currentUserId }, { $push: { products: { productId: data[i].productId, productName: data[i].productName, productPrice: data[i].productPrice, productImage: data[i].productImage, quantity: data[i].quantity } } })
                                 }
-                                // await cart.deleteOne({_id:req.session.cartId})
                                 await cart.findByIdAndDelete(req.session.cartId)
                             }
 
@@ -134,6 +133,14 @@ async function userLogin(req, res) {
     } catch (err) {
         console.log(err)
         console.log('Somthing Error at post login')
+    }
+}
+
+function userSignupPage(req, res) {
+    try {
+        res.render('user/signup', { title: 'user signUp' })
+    } catch (error) {
+        console.log(error)
     }
 }
 
@@ -215,17 +222,17 @@ async function userSignup(req, res) {
     }
 }
 
-async function validateEmail (req, res) {
+async function validateEmail(req, res) {
     try {
         const email = req.params.email
         const isuser = await User.findOne({ email: email })
         console.log(isuser)
         if (isuser && isuser !== null && isuser !== undefined) {
             console.log('Email is exist')
-            return res.json({success:true, message: 'Entered Email is already been using!' })
+            return res.json({ success: true, message: 'Entered Email is already been using!' })
         } else {
             console.log('email is not exist')
-            return res.json({success:false ,message: 'User with Email is not exist!' })
+            return res.json({ success: false, message: 'User with Email is not exist!' })
         }
     } catch (error) {
         console.log(error)
@@ -413,6 +420,7 @@ module.exports = {
     userHome,
     loginPage,
     userLogin,
+    userSignupPage,
     userSignup,
     verifyOtp,
     resendOtp,

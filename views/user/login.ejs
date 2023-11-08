@@ -86,8 +86,8 @@
                         <div class="d-flex flex-row align-items-center mb-4">
                           <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
                           <div class="form-outline flex-fill mb-0">
-                            <input name="email" type="email" id="email" class="form-control"
-                              onkeyup="validateEmail()" required/>
+                            <input name="email" type="email" id="email" class="form-control" onkeyup="validateEmail()"
+                              required />
                             <label class="form-label" id="email-error" for="email">Your Email</label>
                           </div>
                         </div>
@@ -95,7 +95,7 @@
                         <div class="d-flex flex-row align-items-center mb-4">
                           <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
                           <div class="form-outline flex-fill mb-0">
-                            <input name="password" type="password" id="password" class="form-control" required/>
+                            <input name="password" type="password" id="password" class="form-control" required />
                             <label class="form-label" for="password">Password</label>
                           </div>
                         </div>
@@ -104,6 +104,8 @@
                         </div>
 
                         <input type="submit" value="Login" class="btn btn-primary p-3" onclick="return validateForm()">
+                        <!-- <button class="btn btn-primary p-3" id="loginButton">Login</button> -->
+
 
                       </form>
 
@@ -122,8 +124,12 @@
     </div>
   </section>
   <script>
+    const email = document.getElementById('email').value
+    const password = document.getElementById('password').value
+    const alertbox = document.getElementById('alertmessage')
+    const submitbtn = document.getElementById('loginButton');
+
     async function validateEmail() {
-      const email = document.getElementById('email').value
       const response = await fetch(`/users/validateEmail/${email}`, { method: 'get' })
       const resBody = await response.json()
       if (!resBody.success) {
@@ -135,10 +141,8 @@
       document.getElementById('email-error').innerHTML = 'Email is valid'
       return true;
     }
-    function validateForm() {
-      const email = document.getElementById('email').value
-      const password = document.getElementById('password').value
-      const alertbox = document.getElementById('alertmessage')
+
+    async function validateForm() {
       if (email.length == 0 || password.length == 0) {
         alertbox.innerHTML = `
               <div class="alert alert-dismissible fade show alert-danger" role="alert">
@@ -147,9 +151,20 @@
               </div>`
         return false;
       }
+      const result = await validateEmail();
+      console.log(`result is ${result}`)
+      if (result === false) {
+        alertbox.innerHTML = `
+              <div class="alert alert-dismissible fade show alert-danger" role="alert">
+                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                     <strong>Email is not match please make sure you entered email is correct.</strong>
+              </div>`
+        return false;
+      }
 
 
       return true;
     }
+
   </script>
   <%- include('head/footer') %>
