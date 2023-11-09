@@ -33,6 +33,10 @@ const detailSchema = new mongoose.Schema({
             },
             alternativePhone:{
                 type:Number
+            },
+            date:{
+                type:Date,
+                default:Date.now()
             }
         }
     ],
