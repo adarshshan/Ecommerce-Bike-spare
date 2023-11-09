@@ -11,6 +11,10 @@ const orderSchema = new mongoose.Schema({
       type: Date,
       default: Date.now()
     },
+    invoice:{
+      type:String,
+      required:true
+    },
     totalAmount: {
       type: Number,
       required: true
@@ -57,6 +61,9 @@ const orderSchema = new mongoose.Schema({
         },
         productImage:{
           type:String,
+        },
+        productDiscription:{
+          type:String
         },
         quantity: {
           type: Number,

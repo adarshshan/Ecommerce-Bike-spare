@@ -23,6 +23,9 @@ const cartSchema=new mongoose.Schema({
             productImage:{
                 type:String
             },
+            discription:{
+                type:String
+            },
             quantity:{
                 type:Number,
                 default:1

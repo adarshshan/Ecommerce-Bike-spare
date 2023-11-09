@@ -79,7 +79,7 @@
                 <% if (products.cart) { %>
                     <a href="/carts" class="btn btn-warning p-3 fw-bold">Go to carts</a>
                 <% }else{ %>
-                    <form action="/carts/add/<%= products._id %>/<%= products.name %>/<%= products.price %>/<%= products.image[0] %>" method="post">
+                    <form action="/carts/add/<%= products._id %>/<%= products.name %>/<%= products.price %>/<%= products.image[0] %>/<%= products.description %>" method="post">
                         <input class="btn btn-warning p-3 fw-bold" type="submit" value="Add to Cart">
                     </form>
                     <% } %>

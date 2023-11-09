@@ -10,7 +10,7 @@ const adminAuth=require('../../middlware/adminAuth')
 
 //----cart----
 router.get('/', controller.cartHome)
-router.post('/add/:id/:name/:price/:image', controller.addCart)
+router.post('/add/:id/:name/:price/:image/:disc', controller.addCart)
 router.get('/remove/:id', controller.removeCart)
 router.get('/increaseCount/:id', controller.increaseCount) 
 router.get('/decreaseCount/:id', controller.decreaseCount)
@@ -21,7 +21,7 @@ router.get('/decreaseCount/:id', controller.decreaseCount)
 router.get('/payment_option/:id/:name/:phone',userAuth,orderController.paymentOptionPage)
 router.post('/orders/:value',userAuth,orderController.orderPost)
 router.get('/orders',userAuth,orderController.orderHomePage)
-router.get('/view_order/:id',userAuth,orderController.viewOrder)
+router.get('/view_order/:id/:Tamount/:Pmethod/:aName/:aPhone/:date',userAuth,orderController.viewOrder)
 router.get('/cancelOrder/:id',userAuth,orderController.cancelOrder)
 router.get('/changeStatus/:id/:status',adminAuth,orderController.changeStatus)
 

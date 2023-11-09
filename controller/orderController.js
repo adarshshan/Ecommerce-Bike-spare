@@ -2,10 +2,11 @@ const Cart = require('../models/cart')
 const Order = require('../models/order')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
+const easyinvoice = require('easyinvoice');
 
 
 
-async function paymentOptionPage (req, res) {
+async function paymentOptionPage(req, res) {
     try {
         const id = req.params.id
         const name = req.params.name
@@ -20,7 +21,7 @@ async function paymentOptionPage (req, res) {
         }
         if (req.session.selectedAddress) {
             const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: user })
-            res.render('user/paymentOption.ejs', { title: 'payment', result: 'success',totalAmount,totalProducts })
+            res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts })
         }
     } catch (error) {
         console.log('Error is at /payment_option/:id ' + error)
@@ -38,6 +39,8 @@ async function orderPost(req, res) {
         let status = value === 'COD' ? 'PLACED' : 'PENDING'
         const cart = await Cart.findOne({ userId: userId })
         const exist = await Order.findOne({ userId: userId })
+        const invoiceNumber = generateInvoiceNumber();
+        console.log("Generated Invoice Number:", invoiceNumber);
 
         if (exist && exist !== null) {
             try {
@@ -54,6 +57,7 @@ async function orderPost(req, res) {
                                 productName: products.products[i].productName,
                                 productPrice: products.products[i].productPrice,
                                 productImage: products.products[i].productImage,
+                                productDiscription:products.products[i].discription,
                                 quantity: products.products[i].quantity,
                                 status: status,
                             }
@@ -64,11 +68,13 @@ async function orderPost(req, res) {
                     } else {
                         console.log('products not found in database...')
                     }
-
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone)
+                    // const invoicePDF = await generateInvoicePDF(invoiceData);
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
                         $push: {
                             orders: [{
                                 paymentMethod: value,
+                                invoice: invoiceNumber,
                                 totalAmount: totalAmount,
                                 products: items,
                                 address: [{
@@ -111,29 +117,29 @@ async function orderPost(req, res) {
                     const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
                     const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
                     if (products) {
-                        console.log(`your products is ${products}`)
-                        console.log(products.products.length)
                         for (let i = 0; i < products.products.length; i++) {
                             let data = {
                                 product_id: products.products[i].productId,
                                 productName: products.products[i].productName,
                                 productPrice: products.products[i].productPrice,
                                 productImage: products.products[i].productImage,
+                                productDiscription:products.products[i].discription,
                                 quantity: products.products[i].quantity,
                                 status: status,
                             }
                             items.push(data)
                         }
-                        console.log('your Items is ' + items)
-                        console.log(items)
+
                     } else {
                         console.log('products not found in database...')
                     }
-
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone)
+                    // const invoicePDF = await generateInvoicePDF(invoiceData);
                     const orderOk = await Order.insertMany({
                         userId: user,
                         orders: [{
                             paymentMethod: value,
+                            invoice: invoiceNumber,
                             totalAmount: totalAmount,
                             products: items,
                             address: [{
@@ -176,14 +182,25 @@ async function orderPost(req, res) {
 
 async function orderHomePage(req, res) {
     try {
+        const productsPerPage = 6;
         const user = req.session.currentUserId
         console.log(`user id is ${user}`)
         const userId = new ObjectId(user)
-        const data = await Order.findOne({ userId: user }).sort({'orders.date':-1})
+        const data = await Order.findOne({ userId: user }).sort({ 'orders.date': -1 })
         data.orders.sort((a, b) => b.date - a.date);
+        //pagination
+        const page = parseInt(req.query.page) || 1;
+        const start = (page - 1) * productsPerPage;
+        const end = start + productsPerPage;
+        const paginatedProducts = data.orders.slice(start, end)
         if (data && data !== null && data !== undefined) {
             console.log(data)
-            return res.render('user/orderlist.ejs', { title: 'orderList', data });
+            return res.render('user/orderlist.ejs', {
+                title: 'orderList',
+                data: paginatedProducts,
+                currenPage: page,
+                totaPages: Math.ceil(data.orders.length / productsPerPage)
+            });
         } else {
             res.send('data not found...')
             console.log('data not found...')
@@ -197,8 +214,12 @@ async function orderHomePage(req, res) {
 
 async function viewOrder(req, res) {
     try {
-        console.log(req.params.id)
         const orderId = req.params.id
+        const totalAmount=req.params.Tamount
+        const paymentMethod=req.params.Pmethod
+        const name=req.params.aName
+        const phone=req.params.aPhone
+        const date=req.params.date
         const order = await Order.findOne({ 'orders._id': orderId })
         if (order && order !== undefined && order !== null) {
             const products = await Order.aggregate([
@@ -216,24 +237,32 @@ async function viewOrder(req, res) {
                 {
                     $project: {
                         _id: 0,
-                        product: '$orders.products' 
+                        product: '$orders.products'
                     }
                 }
             ]);
+            const productsPerPage = 3;
+            const page = parseInt(req.query.page) || 1;
+            const start = (page - 1) * productsPerPage;
+            const end = start + productsPerPage;
+            const paginatedProducts = products.slice(start, end)
             console.log(products);
-            return res.render('user/viewOrderedProducts.ejs',{products})
-            // res.send(products)
+            return res.render('user/viewOrderedProducts.ejs', { products:paginatedProducts,
+                currenPage: page,
+                id:orderId,
+                totaPages: Math.ceil(products.length / productsPerPage),totalAmount,paymentMethod,name,phone,date})
         }
     } catch (error) {
         console.log(error)
     }
 }
 
-async function cancelOrder(req,res){
+async function cancelOrder(req, res) {
     try {
-        const orderId=req.params.id
-        const cancel=await Order.findOneAndUpdate({'orders._id':orderId},{$set:{'orders.$.isCancelled':true}})
-        if(cancel){
+        const orderId = req.params.id
+        await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.isCancelled': true } })
+        const cancel = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': 'CANCELLED' } })
+        if (cancel) {
             console.log(cancel)
             // await Order.findOneAndUpdate({'orders._id':orderId},{$set:{'orders.$.products.$.status':'Cancelled'}})
             console.log('Order cancelled');
@@ -244,26 +273,26 @@ async function cancelOrder(req,res){
     }
 }
 
-async function changeStatus (req,res){
+async function changeStatus(req, res) {
     try {
-        const orderId=req.params.id
-        const status=req.params.status
+        const orderId = req.params.id
+        const status = req.params.status
         console.log(`order id is ${orderId} and Status is ${status}`)
-        const updated=await Order.findOneAndUpdate({'orders._id':orderId},{$set:{'orders.$.products.$[].status':status}})
-        if(updated){
+        const updated = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': status } })
+        if (updated) {
             console.log('status updated')
-            return res.json({success:true,message:'Status updated'})
-        }else{
+            return res.json({ success: true, message: 'Status updated' })
+        } else {
             console.log('Status failed to update')
-            return res.json({success:false,message:'Status failed to update'})
+            return res.json({ success: false, message: 'Status failed to update' })
         }
     } catch (error) {
         console.log(error)
-        return res.json({success:false,message:'Unknown Error'})
+        return res.json({ success: false, message: 'Unknown Error' })
     }
 }
 
-module.exports={
+module.exports = {
     paymentOptionPage,
     orderPost,
     orderHomePage,
@@ -274,6 +303,60 @@ module.exports={
 
 
 // additional functons
+
+async function generateInvoicePDF(invoiceData) {
+    const result = await easyinvoice.createInvoice(invoiceData)
+    return result.pdf
+}
+
+function getSampleData(invoiceNumber, items, name, phone) {
+    return {
+        images: {
+            logo: 'https://public.easyinvoice.cloud/img/logo_en_original.png',
+            background: 'https://public.easyinvoice.cloud/img/watermark-draft.jpg'
+        },
+        sender: {
+            company: 'SpareKit',
+            address: 'sparekit, malappuram',
+            zip: '1234 AB',
+            city: 'Malappuram',
+            country: 'India'
+        },
+        client: {
+            name: name,
+            phone: phone,
+            address: '4567 CD',
+            city: 'calicut',
+            country: 'India'
+        },
+        information: {
+            number: invoiceNumber, // Add the invoice number here
+            date: '12-12-2021',
+            'due-date': '31-12-2021'
+        },
+        products: items,
+        'bottom-notice': 'Kindly pay your invoice within 30 days.',
+        settings: {
+            currency: 'INR'
+        }
+    };
+}
+
+
+function generateInvoiceNumber() {
+    const prefix = "SPK"; // Your desired prefix
+    const year = new Date().getFullYear(); // Get the current year
+    const uniqueIdentifier = generateUniqueIdentifier(); // You need to implement this function
+    const suffix = ""; // Optional: You can add a suffix if needed
+
+    const invoiceNumber = `${prefix}-${year}-${uniqueIdentifier}${suffix}`;
+    return invoiceNumber;
+}
+
+function generateUniqueIdentifier() {
+    const randomNumber = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
+    return randomNumber;
+}
 
 const calculateTotalAmount = async (matchCriteria) => {
     console.log('Matching criteria:', matchCriteria);

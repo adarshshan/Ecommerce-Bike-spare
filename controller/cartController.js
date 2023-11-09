@@ -45,17 +45,18 @@ async function addCart(req, res) {
         const name=req.params.name
         const price=req.params.price
         const imageUri=req.params.image
+        const discription=req.params.disc;
         const userId = req.session.currentUserId
         if (!userId) {
             const cartId = req.session.cartId
             if (cartId && cartId !== null) {
-                await Cart.findByIdAndUpdate(cartId, { $push: { products: { productId: id,productName:name,productPrice:price,productImage:imageUri } } })
+                await Cart.findByIdAndUpdate(cartId, { $push: { products: { productId: id,productName:name,productPrice:price,productImage:imageUri,discription:discription } } })
                 await product.findByIdAndUpdate(id, { $set: { cart: true } })
                 console.log('products add to existing cart...')
                 return res.redirect('/carts')
             } else {
                 const resu = await Cart.insertMany({
-                    products: [{ productId: id,productName:name,productPrice:price,productImage:imageUri }]
+                    products: [{ productId: id,productName:name,productPrice:price,productImage:imageUri,discription:discription }]
                 })
                 if (resu) {
                     req.session.cartId = resu[0]._id
@@ -69,7 +70,7 @@ async function addCart(req, res) {
         } else {
             const existCart = await Cart.findOne({ userId: userId })
             if (existCart) {
-                let push = await Cart.findOneAndUpdate({ userId: userId }, { $push: { products: { productId: id,productName:name,productPrice:price,productImage:imageUri } } })
+                let push = await Cart.findOneAndUpdate({ userId: userId }, { $push: { products: { productId: id,productName:name,productPrice:price,productImage:imageUri,discription:discription } } })
                 if (push) {
                     await product.findByIdAndUpdate(id, { $set: { cart: true } })
                     notifier.notify({
@@ -85,7 +86,7 @@ async function addCart(req, res) {
             } else {
                 const resu = await Cart.insertMany({
                     userId: userId,
-                    products: [{ productId: id,productName:name,productPrice:price,productImage:imageUri }]
+                    products: [{ productId: id,productName:name,productPrice:price,productImage:imageUri,discription:discription }]
                 })
                 if (resu) {
                     await product.findByIdAndUpdate(id, { $set: { cart: true } })

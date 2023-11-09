@@ -37,33 +37,24 @@
                     <table class="table table-bordered mb-5 shadow">
                         <thead class="bg-dark text-white">
                             <tr>
-                                <th>Order ID</th>
                                 <th>Customer Name</th>
                                 <th>Order Date</th>
                                 <th>Total Amount</th>
+                                <th>Payment Method</th>
                                 <th>Status</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             <% if (data) { %>
-                                <% data.orders.forEach((row,index)=> { %>
+                                <% data.forEach((row,index)=> { %>
                                     <tr>
-                                        <td>
-                                            <%= index+1 %>
-                                        </td>
-                                        <td>
-                                            <%= row.address[0].addressName %>
-                                        </td>
-                                        <td>
-                                            <%= row.date.toISOString().split('T')[0] %>
-                                        </td>
-                                        <td>
-                                            <%= row.totalAmount %>
-                                        </td>
-                                        <td>
-                                            <% if (row.isCancelled) { %>
-                                                <p class="text-danger">Cancelled</p>
+                                        <td><%= row.address[0].addressName %></td>
+                                        <td><%= row.date.toISOString().split('T')[0] %></td>
+                                        <td><%= row.totalAmount %></td>
+                                        <td><%= row.paymentMethod %></td>
+                                        <td><% if (row.isCancelled) { %>
+                                                <p class="text-danger">CANCELLED</p>
                                                 <% }else{ %>
                                                     <%= row.products[0].status %>
                                                     <% } %>
@@ -74,7 +65,7 @@
                                                     class="btn btn-danger">Cancel</a>
                                                     <!-- <button onclick="cancelOrder('<%= row._id %>')" class="btn btn-danger">Cancel</button> -->
                                                 <% } %>
-                                                    <a href="/carts/view_order/<%= row._id %>"
+                                                    <a href="/carts/view_order/<%= row._id %>/<%= row.totalAmount %>/<%= row.paymentMethod %>/<%= row.address[0].addressName %>/<%= row.address[0].addressPhone %>/<%= row.date.toISOString().split('T')[0] %>"
                                                         class="btn btn-primary float-end">View</a>
                                         </td>
                                     </tr>
@@ -91,6 +82,15 @@
             </main>
         </div>
     </div>
+    <ul class="pagination " style="margin-left: 47%;">
+        <% for (let i=1; i <=totaPages; i++) { %>
+            <li class="page-item <%= i === currenPage ? 'active' : '' %> m-1">
+                <a class="page-link" href="/carts/orders/?page=<%= i %>">
+                    <%= i %>
+                </a>
+            </li>
+            <% } %>
+    </ul>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>

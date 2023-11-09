@@ -68,7 +68,7 @@
                                         <% if (row.cart) { %>
                                             <a href="/carts" class="btn btn-warning py-3 fw-bold">Go to carts</a>
                                             <% }else{ %>
-                                                <form action="/carts/add/<%= row._id %>/<%= row.name %>/<%= row.price %>/<%= row.image[0] %>" method="post">
+                                                <form action="/carts/add/<%= row._id %>/<%= row.name %>/<%= row.price %>/<%= row.image[0] %>/<%= row.description %>" method="post">
                                                     <input class="btn btn-warning py-3 fw-bold" type="submit"
                                                         value="Add to Cart">
                                                 </form>
