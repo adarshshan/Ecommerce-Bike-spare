@@ -33,20 +33,19 @@
                                         <% if (order && order!==null) { %>
                                             <% for( let i=0; i < order.length; i++ ) { %>
                                                 <tr style="height: 80px; ">
-                                                    <td><%= order[i].orders._id %></td>
-                                                    <td style="width: 200px;"> <%= order[i].orders.date.toISOString().split('T')[0] %></td>
-                                                    <td><%= order[i].orders.totalAmount %></td>
-                                                    <td><%= order[i].orders.paymentMethod %></td>
-                                                    <td><%= order[i].orders.products.status %></td>
+                                                    <td><%= order[i]._id %></td>
+                                                    <td style="width: 200px;"> <%= order[i].date.toISOString().split('T')[0] %></td>
+                                                    <td><%= order[i].totalAmount %></td>
+                                                    <td><%= order[i].paymentMethod %></td>
+                                                    <td><%= order[i].products[0].status %></td>
                                                     <td class="d-flex">
-                                                        <% if (order[i].orders.products.status!=='CANCELLED') { %>
+                                                        <button class="btn btn-success float-end" onclick="viewOrders(`<%= JSON.stringify({id:order[i]._id,totalAmount:order[i].totalAmount,paymentMethod:order[i].paymentMethod,addressName:order[i].address[0].addressName,addressPhone:order[i].address[0].addressPhone,date:order[i].date.toISOString().split('T')[0]}) %>`)">View</button>
+                                                        <% if (order[i].products[0].status!=='CANCELLED') { %>
                                                             <button
-                                                            onclick="showform('<%= order[i].orders._id %>')"
+                                                            onclick="showform('<%= order[i]._id %>')"
                                                             type="button" class="btn btn-outline-success ms-4"><i
                                                                 class="fa-regular fa-pen-to-square"></i></button>
                                                         <% } %>
-                                                        <button class="btn btn-success float-end" onclick="viewOrders(`<%= JSON.stringify({id:order[i].orders._id,totalAmount:order[i].orders.totalAmount,paymentMethod:order[i].orders.paymentMethod,addressName:order[i].orders.address[0].addressName,addressPhone:order[i].orders.address[0].addressPhone,date:order[i].orders.date.toISOString().split('T')[0]}) %>`)">View</button>
-                                                        
                                                         </td>
                                                 </tr>
                                                 <% } %>
@@ -104,7 +103,6 @@
         }
     
         function showform(id) {
-
             document.getElementById('inner').style.display = "none"
             document.getElementById('select').innerHTML = `
                     <div class=" bg-light p-5 card">
@@ -133,8 +131,9 @@
         }
         async function updateStaus(id) {
             const status = document.getElementById('status').value
-            const response = await fetch(`/carts/changeStatus/${id}/${status}`, { method: 'get' })
+            const response = await fetch(`/carts/changeStatus/${id}/${status}`, {method:'get'})
             const resBody = await response.json()
+            console.log(resBody)
             if (resBody.success) {
                 console.log(resBody.message)
                 alert(resBody.message)
