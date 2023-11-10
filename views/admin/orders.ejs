@@ -18,7 +18,7 @@
                                 <table class="table table-top">
                                     <thead class="thead-dark">
                                         <tr>
-                                            <th scope="col"> Order Id</th>
+                                            <th scope="col"> Invoice Number</th>
                                             <th scope="col">Order date</th>
                                             <th scope="col">Total Amount</th>
                                             <th scope="col">payment Method</th>
@@ -33,7 +33,7 @@
                                         <% if (order && order!==null) { %>
                                             <% for( let i=0; i < order.length; i++ ) { %>
                                                 <tr style="height: 80px; ">
-                                                    <td><%= order[i]._id %></td>
+                                                    <td><%= order[i].invoice %></td>
                                                     <td style="width: 200px;"> <%= order[i].date.toISOString().split('T')[0] %></td>
                                                     <td><%= order[i].totalAmount %></td>
                                                     <td><%= order[i].paymentMethod %></td>

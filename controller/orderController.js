@@ -1,5 +1,6 @@
 const Cart = require('../models/cart')
 const Order = require('../models/order')
+const User=require('../models/user')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
 const easyinvoice = require('easyinvoice');
@@ -40,6 +41,11 @@ async function orderPost(req, res) {
         const cart = await Cart.findOne({ userId: userId })
         const exist = await Order.findOne({ userId: userId })
         const invoiceNumber = generateInvoiceNumber();
+        const userData=await User.findById(user)
+        const userName=userData.name
+        const userEmail=userData.email
+        const userPhone=userData.phone
+        const date=Date.now()
 
         if (exist && exist !== null) {
             try {
@@ -66,7 +72,8 @@ async function orderPost(req, res) {
                     } else {
                         console.log('products not found in database...')
                     }
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone)
+                    
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone,userName,userPhone,userEmail,value,date)
                     // console.log(invoiceData)
                     // const invoicePDF = await generateInvoicePDF(invoiceData);
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
@@ -132,7 +139,7 @@ async function orderPost(req, res) {
                     } else {
                         console.log('products not found in database...')
                     }
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone)
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone,userName,userPhone,userEmail,value,date)
                     // const invoicePDF = await generateInvoicePDF(invoiceData);
                     const orderOk = await Order.insertMany({
                         userId: user,
@@ -376,16 +383,13 @@ module.exports = {
 
 // additional functons
 
-async function generateInvoicePDF(invoiceData) {
-    const result = await easyinvoice.createInvoice(invoiceData)
-    return result.pdf
-}
 
-function getSampleData(invoiceNumber, items, name, phone) {
+function getSampleData(invoiceNumber, items, name, phone,userName,userPhone,userEmail,paymentMethod,date) {
     return {
-        images: {
-            logo: 'https://public.easyinvoice.cloud/img/logo_en_original.png',
-            background: 'https://public.easyinvoice.cloud/img/watermark-draft.jpg'
+        BilledTo:{
+            name:userName,
+            phone:userPhone,
+            email:userEmail
         },
         sender: {
             company: 'SpareKit',
@@ -395,16 +399,18 @@ function getSampleData(invoiceNumber, items, name, phone) {
             country: 'India'
         },
         client: {
-            name: name,
+            client: name,
             phone: phone,
             address: '4567 CD',
             city: 'calicut',
             country: 'India'
         },
         information: {
-            number: invoiceNumber, // Add the invoice number here
-            date: '12-12-2021',
-            'due-date': '31-12-2021'
+            number: invoiceNumber,
+            method:paymentMethod,
+            date:new Date().toLocaleString('en-GB', {
+                hour12: false,
+              })
         },
         products: items,
         'bottom-notice': 'Kindly pay your invoice within 30 days.',

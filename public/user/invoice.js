@@ -1,31 +1,40 @@
 
 function renderInvoice(invoiceData) {
+    let products=''
+    let subtotal=0;
+    for(let i=0;i<invoiceData.products.length;i++){
+        products+=`
+    <tr>
+        <td>${invoiceData.products[i].productName}</td>
+        <td class="text-center">${invoiceData.products[i].productPrice}</td>
+        <td class="text-center">${invoiceData.products[i].quantity}</td>
+        <td class="text-right">${invoiceData.products[i].quantity*invoiceData.products[i].productPrice}</td>
+    </tr>`
+    subtotal+=invoiceData.products[i].quantity*invoiceData.products[i].productPrice;
+    }
     // Use invoiceData to dynamically generate the invoice HTML
     const invoiceHtml = `
     <div class="row">
             <div class="col-xs-12">
                 <div class="invoice-title">
                     <h2>Invoice</h2>
-                    <h3 class="pull-right">Order # 12345</h3>
+                    <h3 class="pull-right">${invoiceData.information.number}</h3>
                 </div>
                 <hr>
                 <div class="row">
                     <div class="col-md-6 col-lg-6 col-12">
                         <address>
                             <strong>Billed To:</strong><br>
-                            John Smith<br>
-                            1234 Main<br>
-                            Apt. 4B<br>
-                            Springfield, ST 54321
+                            ${invoiceData.BilledTo.name}<br>
+                            ${invoiceData.BilledTo.phone}<br>
+                            ${invoiceData.BilledTo.email}<br>
                         </address>
                     </div>
                     <div class="col-md-6 col-lg-6 col-12 text-right">
                         <address>
                             <strong>Shipped To:</strong><br>
-                            Jane Smith<br>
-                            1234 Main<br>
-                            Apt. 4B<br>
-                            Springfield, ST 54321
+                            ${invoiceData.client.client}<br>
+                            Mobile: ${invoiceData.client.phone}<br>
                         </address>
                     </div>
                 </div>
@@ -33,14 +42,14 @@ function renderInvoice(invoiceData) {
                     <div class="col-md-6">
                         <address>
                             <strong>Payment Method:</strong><br>
-                            Visa ending **** 4242<br>
-                            jsmith@email.com
+                            ${invoiceData.information.method}<br>
+                            ${invoiceData.BilledTo.email}
                         </address>
                     </div>
                     <div class="col-md-6 text-right">
                         <address>
                             <strong>Order Date:</strong><br>
-                            March 7, 2014<br><br>
+                            ${invoiceData.information.date}<br><br>
                         </address>
                     </div>
                 </div>
@@ -66,41 +75,26 @@ function renderInvoice(invoiceData) {
                                 </thead>
                                 <tbody>
                                     <!-- foreach ($order->lineItems as $line) or some such thing here -->
-                                    <tr>
-                                        <td>BS-200</td>
-                                        <td class="text-center">$10.99</td>
-                                        <td class="text-center">1</td>
-                                        <td class="text-right">$10.99</td>
-                                    </tr>
-                                    <tr>
-                                        <td>BS-400</td>
-                                        <td class="text-center">$20.00</td>
-                                        <td class="text-center">3</td>
-                                        <td class="text-right">$60.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>BS-1000</td>
-                                        <td class="text-center">$600.00</td>
-                                        <td class="text-center">1</td>
-                                        <td class="text-right">$600.00</td>
-                                    </tr>
+                                    
+                                    ${products}
+
                                     <tr>
                                         <td class="thick-line"></td>
                                         <td class="thick-line"></td>
                                         <td class="thick-line text-center"><strong>Subtotal</strong></td>
-                                        <td class="thick-line text-right">$670.99</td>
+                                        <td class="thick-line text-right">Rs.${subtotal}</td>
                                     </tr>
                                     <tr>
                                         <td class="no-line"></td>
                                         <td class="no-line"></td>
                                         <td class="no-line text-center"><strong>Shipping</strong></td>
-                                        <td class="no-line text-right">$15</td>
+                                        <td class="no-line text-right">Rs.00</td>
                                     </tr>
                                     <tr>
                                         <td class="no-line"></td>
                                         <td class="no-line"></td>
                                         <td class="no-line text-center"><strong>Total</strong></td>
-                                        <td class="no-line text-right">$685.99</td>
+                                        <td class="no-line text-right">Rs.${subtotal}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -111,6 +105,7 @@ function renderInvoice(invoiceData) {
         </div>`;
 
     // Append the generated HTML to the "invoice-container" div
+    document.getElementById('invoice-container').style.border='2px solid black'
     document.getElementById('invoice-container').innerHTML = invoiceHtml;
 }
 
@@ -124,14 +119,14 @@ async function placeOrder(val) {
         if (resBody.success) {
             document.getElementById('pay').style.display = 'none'
             document.getElementById('myForm').innerHTML = `
-            <div class="bg light col-md-8 col-12 text-success d-flex">
+            <div class="bg-light col-md-8 col-12 text-success d-flex">
                 <div>
                     <h1>Order placed successfully </h1> <br>
-                    <a href="/carts/orders" class="btn btn-success px-2">Go to Orders</a>
+                    <a href="/carts/orders" class="btn btn-success">Go to Orders</a>
                 </div>
-                <button class="btn btn-success" onclick="downloadInvoice()">Download Invoice</button>
+                <p class="btn border-0 fw-bold py-3 float-end" onclick="downloadInvoice()">Download Invoice  <i class="fa-solid fa-download fs-5"></i></p>
             </div>
-            <div class="bg light col-md-8 col-12 p-5" id="invoice-container"></div>`
+            <div class="col-md-8 col-12 p-5 ms-5 mt-3 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
             const receivedInvoiceData = resBody.invoiceData;
             renderInvoice(receivedInvoiceData);
         }
