@@ -37,6 +37,7 @@
                 <div class="col-md-12 container mb-5 pb-5" id="produc">
                     <% products.forEach((row,index) => { %>
                         <div class="row border p-5 mb-4 fs-4 bg-light shadow">
+                            <p><strong>INVOICE : </strong><%= invoice %></p>
                             <div class="col-12 col-md-4"><img style=" width: 100%;" src="http://localhost:3000/<%= row.product.productImage %>" alt=""></div>
                             <div class="col-md-4">
                                 <p class="fs-3 fw-bold"><%= row.product.productName %></p>
@@ -62,7 +63,7 @@
         <ul class="pagination " style="margin-left: 47%;">
             <% for (let i=1; i <=totaPages; i++) { %>
                 <li class="page-item <%= i === currenPage ? 'active' : '' %> m-1">
-                    <a class="page-link" href="/carts/view_order/<%= id %>/?page=<%= i %>">
+                    <a class="page-link" href="/carts/view_order/<%= id %>/<%= totalAmount %>/<%= paymentMethod %>/<%= name %>/<%= phone %>/<%= date %>/<%= invoice %>/?page=<%= i %>">
                         <%= i %>
                     </a>
                 </li>

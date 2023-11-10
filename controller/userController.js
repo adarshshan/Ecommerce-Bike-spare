@@ -41,9 +41,9 @@ function loginPage(req, res) {
 
 async function userLogin(req, res) {
     try {
-        let password = req.body.password
-        if (req.body.email && password) {
-            let mail = await User.findOne({ email: req.body.email })
+        let {email,password} = req.body
+        if (email && password) {
+            let mail = await User.findOne({ email: email })
             if (mail) {
                 if (!mail.isDeleted) {
                     const isuser = await bcrypt.compare(password, mail.password)
@@ -68,7 +68,6 @@ async function userLogin(req, res) {
                                         quantity: data[i].quantity
                                     }
                                 }
-                                console.log(array)
                                 await cart.insertMany({
                                     userId: req.session.currentUserId,
                                     products: array
@@ -80,9 +79,6 @@ async function userLogin(req, res) {
                                 }
                                 await cart.findByIdAndDelete(req.session.cartId)
                             }
-
-
-
                         }
                         await product.updateMany({}, { $set: { cart: false } })
                         notifier.notify({
@@ -92,13 +88,9 @@ async function userLogin(req, res) {
                             sound: true,
                             wait: true
                         })
-                        res.redirect('/')
+                        return res.json({success:true,message:'User logined successfully...'});
                     } else {
-                        req.session.message = {
-                            message: 'you Entered the wrong password.!',
-                            type: 'warning'
-                        }
-                        return res.redirect('/users/login')
+                        return res.json({success:false,message:'you Entered the wrong password.!'});
                     }
                 } else {
                     notifier.notify({
@@ -108,26 +100,14 @@ async function userLogin(req, res) {
                         sound: true,
                         wait: true
                     })
-                    req.session.message = {
-                        message: 'You were Blocked!',
-                        type: 'danger'
-                    }
-                    return res.redirect('/users/login')
+                    return res.json({success:false,message:'Your were Blocked by the admin.'});
 
                 }
             } else {
-                req.session.message = {
-                    message: 'Email is not matching',
-                    type: 'warning'
-                }
-                return res.redirect('/users/login')
+                return res.json({success:false,message:'Email is not matching'});
             }
         } else {
-            req.session.message = {
-                message: 'Input details must not be blank!',
-                type: 'warning'
-            }
-            return res.redirect('/users/login')
+            return res.json({success:false,message:'Input details must not be blank!'});
         }
 
     } catch (err) {

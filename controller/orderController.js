@@ -14,7 +14,6 @@ async function paymentOptionPage(req, res) {
         const phone = req.params.phone
         const userId = req.session.currentUserId
         const user = new ObjectId(userId)
-        // console.log('Id received at backend ' + id)
         req.session.selectedAddress = {
             id: id,
             name: name,
@@ -55,7 +54,6 @@ async function orderPost(req, res) {
                     const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
                     const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
                     if (products) {
-                        // console.log(`your products is ${products}`)
                         for (let i = 0; i < products.products.length; i++) {
                             let data = {
                                 product_id: products.products[i].productId,
@@ -74,8 +72,7 @@ async function orderPost(req, res) {
                     }
                     
                     const invoiceData = getSampleData(invoiceNumber, items, name, phone,userName,userPhone,userEmail,value,date)
-                    // console.log(invoiceData)
-                    // const invoicePDF = await generateInvoicePDF(invoiceData);
+                    
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
                         $push: {
                             orders: [{
@@ -102,7 +99,6 @@ async function orderPost(req, res) {
                         }
                         delete req.session.selectedAddress
                         return res.json({ success: true, message: 'order placed successfully...',invoiceData: invoiceData  })
-                        // return res.redirect('/carts/orders')
                     } else {
                         console.log('somthing trouble while push the orders into the ordermodel..')
                         return res.json({ success: false, message: 'somthing trouble while push the orders into the ordermodel..',invoiceData: '' })
@@ -140,7 +136,6 @@ async function orderPost(req, res) {
                         console.log('products not found in database...')
                     }
                     const invoiceData = getSampleData(invoiceNumber, items, name, phone,userName,userPhone,userEmail,value,date)
-                    // const invoicePDF = await generateInvoicePDF(invoiceData);
                     const orderOk = await Order.insertMany({
                         userId: user,
                         orders: [{
@@ -166,7 +161,6 @@ async function orderPost(req, res) {
                             console.log('somthing trouble while deleting the cart')
                         }
                         return res.json({ success: true, message: 'success part',invoiceData: invoiceData })
-                        // return res.redirect('/carts/orders')
                     } else {
                         console.log('Order FAiled at "OrderOk"')
                         return res.json({ success: false, message: 'Order Failed!',invoiceData: '' })
@@ -226,6 +220,7 @@ async function viewOrder(req, res) {
         const name=req.params.aName
         const phone=req.params.aPhone
         const date=req.params.date
+        const invoice=req.params.invoice;
         const order = await Order.findOne({ 'orders._id': orderId })
         if (order && order !== undefined && order !== null) {
             const products = await Order.aggregate([
@@ -256,7 +251,7 @@ async function viewOrder(req, res) {
             return res.render('user/viewOrderedProducts.ejs', { products:paginatedProducts,
                 currenPage: page,
                 id:orderId,
-                totaPages: Math.ceil(products.length / productsPerPage),totalAmount,paymentMethod,name,phone,date})
+                totaPages: Math.ceil(products.length / productsPerPage),totalAmount,paymentMethod,name,phone,date,invoice})
         }
     } catch (error) {
         console.log(error)
@@ -280,11 +275,9 @@ async function cancelOrder(req, res) {
 }
 
 async function changeStatus(req, res) {
-    console.log('Signal reached...')
     try {
         const orderId = req.params.id
         const status = req.params.status
-        console.log(`order id is ${orderId} and Status is ${status}`)
         const updated = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': status } })
         if (updated) {
             console.log('status updated')
@@ -347,18 +340,13 @@ async function adminViewOrder(req, res) {
                     }
                 }
             ]);
-            const productsPerPage = 3;
-            const page = parseInt(req.query.page) || 1;
-            const start = (page - 1) * productsPerPage;
-            const end = start + productsPerPage;
-            const paginatedProducts = products.slice(start, end)
-            console.log(products[0].product);
+            
             return res.json({
                 success: true,
-                products: paginatedProducts,
-                currenPage: page,
+                products: products,
                 id: orderId,
-                totaPages: Math.ceil(products.length / productsPerPage), totalAmount, paymentMethod, name, phone, date
+                totalAmount, 
+                paymentMethod, name, phone, date
             })
 
         } else {
@@ -422,10 +410,10 @@ function getSampleData(invoiceNumber, items, name, phone,userName,userPhone,user
 
 
 function generateInvoiceNumber() {
-    const prefix = "SPK"; // Your desired prefix
-    const year = new Date().getFullYear(); // Get the current year
-    const uniqueIdentifier = generateUniqueIdentifier(); // You need to implement this function
-    const suffix = ""; // Optional: You can add a suffix if needed
+    const prefix = "SPK";
+    const year = new Date().getFullYear(); 
+    const uniqueIdentifier = generateUniqueIdentifier();
+    const suffix = "";
 
     const invoiceNumber = `${prefix}-${year}-${uniqueIdentifier}${suffix}`;
     return invoiceNumber;
@@ -474,6 +462,6 @@ const calculateTotalAmount = async (matchCriteria) => {
         return { totalAmount, totalProducts };
     } else {
         console.log('No results found.');
-        return 0; // Return 0 if no results
+        return 0; 
     }
 };

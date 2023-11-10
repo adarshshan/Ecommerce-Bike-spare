@@ -65,7 +65,7 @@
                                                     class="btn btn-danger">Cancel</a>
                                                     <!-- <button onclick="cancelOrder('<%= row._id %>')" class="btn btn-danger">Cancel</button> -->
                                                 <% } %>
-                                                    <a href="/carts/view_order/<%= row._id %>/<%= row.totalAmount %>/<%= row.paymentMethod %>/<%= row.address[0].addressName %>/<%= row.address[0].addressPhone %>/<%= row.date.toISOString().split('T')[0] %>"
+                                                    <a href="/carts/view_order/<%= row._id %>/<%= row.totalAmount %>/<%= row.paymentMethod %>/<%= row.address[0].addressName %>/<%= row.address[0].addressPhone %>/<%= row.date.toISOString().split('T')[0] %>/<%= row.invoice %>"
                                                         class="btn btn-primary float-end">View</a>
                                         </td>
                                     </tr>

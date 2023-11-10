@@ -81,7 +81,6 @@
                     </div>
                     <% } %>
                       <div id="alertmessage"></div>
-                      <form class="mx-1 mx-md-4" action="/users/login" method="post">
 
                         <div class="d-flex flex-row align-items-center mb-4">
                           <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
@@ -103,11 +102,8 @@
                           <a href="/forgotPassword">Forgot Password?</a>
                         </div>
 
-                        <input type="submit" value="Login" class="btn btn-primary p-3" onclick="return validateForm()">
-                        <!-- <button class="btn btn-primary p-3" id="loginButton">Login</button> -->
+                        <button class="btn btn-primary p-3" onclick="return validateForm()" id="loginButton">Login</button>
 
-
-                      </form>
 
                 </div>
                 <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
@@ -144,7 +140,10 @@
     }
 
     async function validateForm() {
+      const alertbox = document.getElementById('alertmessage')
       const email = document.getElementById('email').value
+      const password = document.getElementById('password').value
+
       if (email.length == 0 || password.length == 0) {
         alertbox.innerHTML = `
               <div class="alert alert-dismissible fade show alert-danger" role="alert">
@@ -153,18 +152,22 @@
               </div>`
         return false;
       }
-      const result = await validateEmail();
-      console.log(`result is ${result}`)
-      if (result === false) {
+      const response=await fetch(`/users/login`,{
+        method:'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({email:email,password:password})
+      })
+      const resBody=await response.json()
+      if(resBody.success){
+        window.location="/"
+      }else{
         alertbox.innerHTML = `
               <div class="alert alert-dismissible fade show alert-danger" role="alert">
                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-                     <strong>Email is not match please make sure you entered email is correct.</strong>
+                     <strong>${resBody.message}</strong>
               </div>`
-        return false;
+          return false;
       }
-
-
       return true;
     }
 

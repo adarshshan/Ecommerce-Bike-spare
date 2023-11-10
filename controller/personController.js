@@ -178,7 +178,6 @@ async function verifyOtpPost(req, res) {
                     if (!validOtp) {
                         //supplied otp is wrong
                         return res.render('user/otppage_1', { title: 'OTP Login page.', msg: 'Invalid code passed. check your Inbox.', type: 'danger' })
-                        // throw new Error('Invalid code passed. check your Inbox.')
                     } else {
                         //success
                         // await User.updateOne({ _id: userId }, { verified: true })
