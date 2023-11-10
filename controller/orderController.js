@@ -40,7 +40,6 @@ async function orderPost(req, res) {
         const cart = await Cart.findOne({ userId: userId })
         const exist = await Order.findOne({ userId: userId })
         const invoiceNumber = generateInvoiceNumber();
-        console.log("Generated Invoice Number:", invoiceNumber);
 
         if (exist && exist !== null) {
             try {
@@ -50,7 +49,7 @@ async function orderPost(req, res) {
                     const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
                     const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
                     if (products) {
-                        console.log(`your products is ${products}`)
+                        // console.log(`your products is ${products}`)
                         for (let i = 0; i < products.products.length; i++) {
                             let data = {
                                 product_id: products.products[i].productId,
@@ -63,12 +62,12 @@ async function orderPost(req, res) {
                             }
                             items.push(data)
                         }
-                        console.log(items)
                         console.log('products added to orders...')
                     } else {
                         console.log('products not found in database...')
                     }
                     const invoiceData = getSampleData(invoiceNumber, items, name, phone)
+                    // console.log(invoiceData)
                     // const invoicePDF = await generateInvoicePDF(invoiceData);
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
                         $push: {
@@ -95,11 +94,11 @@ async function orderPost(req, res) {
                             console.log('somthing trouble while deleting the cart')
                         }
                         delete req.session.selectedAddress
-                        return res.json({ success: true, message: 'order placed successfully...' })
+                        return res.json({ success: true, message: 'order placed successfully...',invoiceData: invoiceData  })
                         // return res.redirect('/carts/orders')
                     } else {
                         console.log('somthing trouble while push the orders into the ordermodel..')
-                        return res.json({ success: false, message: 'somthing trouble while push the orders into the ordermodel..' })
+                        return res.json({ success: false, message: 'somthing trouble while push the orders into the ordermodel..',invoiceData: '' })
                     }
 
                 } else {
@@ -159,11 +158,11 @@ async function orderPost(req, res) {
                         } else {
                             console.log('somthing trouble while deleting the cart')
                         }
-                        return res.json({ success: true, message: 'success part' })
+                        return res.json({ success: true, message: 'success part',invoiceData: invoiceData })
                         // return res.redirect('/carts/orders')
                     } else {
                         console.log('Order FAiled at "OrderOk"')
-                        return res.json({ success: false, message: 'Order Failed!' })
+                        return res.json({ success: false, message: 'Order Failed!',invoiceData: '' })
                     }
 
                 } else {
@@ -293,13 +292,85 @@ async function changeStatus(req, res) {
     }
 }
 
+async function adminOrderList(req, res) {
+    try {
+        const orderList = await Order.find()
+        orderList[0].orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+        let order = orderList[0].orders
+        const productsPerPage = 9
+        const page = parseInt(req.query.page) || 1;
+        const start = (page - 1) * productsPerPage;
+        const end = start + productsPerPage;
+        const paginatedProducts = order.slice(start, end)
+        res.render('admin/orders.ejs', {
+            title: 'orders', order: paginatedProducts, currenPage: page,
+            totaPages: Math.ceil(order.length / productsPerPage)
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function adminViewOrder(req, res) {
+    try {
+        const orderId = req.params.id
+        const totalAmount = req.params.Tamount
+        const paymentMethod = req.params.Pmethod
+        const name = req.params.aName
+        const phone = req.params.aPhone
+        const date = req.params.date
+        const order = await Order.findOne({ 'orders._id': orderId })
+        if (order && order !== undefined && order !== null) {
+            const products = await Order.aggregate([
+                {
+                    $unwind: '$orders'
+                },
+                {
+                    $match: {
+                        'orders._id': new ObjectId(orderId)
+                    }
+                },
+                {
+                    $unwind: '$orders.products'
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        product: '$orders.products'
+                    }
+                }
+            ]);
+            const productsPerPage = 3;
+            const page = parseInt(req.query.page) || 1;
+            const start = (page - 1) * productsPerPage;
+            const end = start + productsPerPage;
+            const paginatedProducts = products.slice(start, end)
+            console.log(products[0].product);
+            return res.json({
+                success: true,
+                products: paginatedProducts,
+                currenPage: page,
+                id: orderId,
+                totaPages: Math.ceil(products.length / productsPerPage), totalAmount, paymentMethod, name, phone, date
+            })
+
+        } else {
+            console.log('Couldn`t find the details.')
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     paymentOptionPage,
     orderPost,
     orderHomePage,
     viewOrder,
     cancelOrder,
-    changeStatus
+    changeStatus,
+    adminOrderList,
+    adminViewOrder
 }
 
 
