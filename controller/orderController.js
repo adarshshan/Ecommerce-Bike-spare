@@ -274,6 +274,7 @@ async function cancelOrder(req, res) {
 }
 
 async function changeStatus(req, res) {
+    console.log('Signal reached...')
     try {
         const orderId = req.params.id
         const status = req.params.status
