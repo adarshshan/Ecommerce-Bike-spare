@@ -3,7 +3,7 @@
         <div class="container" style="margin-left: 248px;">
             <div class="row mt-5">
                 <div class="col-lg-12">
-                    <h1>Orders</h1>
+                    <h1 class="shadow">Orders</h1>
                     <% if (locals.message) { %>
                         <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
                             <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
@@ -15,7 +15,7 @@
                             <div class="col-md-6 container" id="select"></div>
 
                             <div style="padding-left: 20px; padding-right: 20px; margin-top: 80px;" id="inner">
-                                <table class="table table-top">
+                                <table class="table table-top shadow">
                                     <thead class="thead-dark">
                                         <tr>
                                             <th scope="col"> Invoice Number</th>

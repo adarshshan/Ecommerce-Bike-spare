@@ -17,7 +17,7 @@ let timerInterval;
                     clearInterval(timerInterval); // Stop the timer when it reaches 0
                     timerElement.style.color = 'red';
                     timerElement.textContent = "Time's up! Request another OTP";
-                    // You can add additional actions when the timer expires, like disabling the submit button.
+                    
                     document.querySelector('input[type="submit"]').disabled = true;
                     resendButton.disabled = false; // Enable the "Resend OTP" button
                 }

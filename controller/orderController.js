@@ -1,6 +1,7 @@
 const Cart = require('../models/cart')
 const Order = require('../models/order')
 const User=require('../models/user')
+const Product=require('../models/product')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
 const easyinvoice = require('easyinvoice');
@@ -97,6 +98,12 @@ async function orderPost(req, res) {
                         } else {
                             console.log('somthing trouble while deleting the cart')
                         }
+                        //Stock Deduction
+                        for (let i = 0; i < products.products.length; i++) {
+                            let proid=products.products[i].productId
+                            let qty=products.products[i].quantity
+                            await Product.findByIdAndUpdate(proid,{$inc:{stock:-qty}});
+                        }
                         delete req.session.selectedAddress
                         return res.json({ success: true, message: 'order placed successfully...',invoiceData: invoiceData  })
                     } else {
@@ -153,6 +160,14 @@ async function orderPost(req, res) {
                     })
                     if (orderOk) {
                         console.log('Order placed successfully')
+                        
+                        //Stock Deduction
+                        for (let i = 0; i < products.products.length; i++) {
+                            let proid=products.products[i].productId
+                            let qty=products.products[i].quantity
+                            await Product.findByIdAndUpdate(proid,{$inc:{stock:-qty}});
+                        }
+
                         delete req.session.selectedAddress
                         const deleted = await Cart.findOneAndDelete({ userId: user })
                         if (deleted) {
@@ -370,6 +385,8 @@ module.exports = {
 
 
 // additional functons
+
+
 
 
 function getSampleData(invoiceNumber, items, name, phone,userName,userPhone,userEmail,paymentMethod,date) {

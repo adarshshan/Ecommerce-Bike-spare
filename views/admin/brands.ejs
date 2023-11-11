@@ -3,7 +3,7 @@
         <div class="container" style="margin-left: 248px;">
             <div class="row mt-5">
                 <div class="col-lg-7 col-md-12">
-                    <h1>BRANDS</h1>
+                    <h1 class="shadow">BRANDS</h1>
                     <a href="/brands/add"><button type="button" class="btn btn-outline-success float-end mb-2">Add Brands</button></a>
                     <% if (locals.message) { %>
                         <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
@@ -13,7 +13,7 @@
              
                        <% } %>
                     <% if (data!='') { %>
-                     <table class="table border">
+                     <table class="table border shadow">
                         <thead>
                             <tr>
                                 <th scope="col">sl.no</th>

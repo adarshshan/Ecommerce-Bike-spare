@@ -61,7 +61,9 @@
                                         <%= row.name %>
                                     </h5>
                                     <i class="fas fa-heart float-end fs-1 text-danger pb-5"></i>
-
+                                    <% if (row.stock==0) { %>
+                                     <p class="text-danger">out of stock</p>
+                                    <% } %>
                                     <p class="card-text">RS. <%= row.price %>
                                     </p>
                                     <div class="d-flex mt-3">

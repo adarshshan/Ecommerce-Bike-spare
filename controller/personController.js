@@ -283,14 +283,17 @@ async function forgotOtpPage (req, res) {
 async function verifyForgotPost(req, res) {
     try {
         const newEmail = req.session.newEmail
-        let {otp} = req.body
+        const {otp}=req.body
+        // const otp=req.params.otp
         let userId = req.session.uesrid
         console.log(`userId: ${userId} and otp: ${otp}`);
         if (!userId || !otp) {
+            // return res.json({success:false,message:'Empty OTP details are not allowed.'})
             return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: 'Empty OTP details are not allowed.', type: 'danger' })
         } else {
             const userOtpVerificationRecords = await userOtpVerification.find({ userId })
             if (userOtpVerificationRecords.length <= 0) {
+                // return res.json({success:false,message:'Account records doesn`t exist or has been verified already. Please sign up or log in'})
                 return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: "Account records doesn't exist or has been verified already. Please sign up or log in", type: 'danger' })
 
             } else {
@@ -298,11 +301,13 @@ async function verifyForgotPost(req, res) {
                 const hashedOtp = userOtpVerificationRecords[0].otp
                 if (expired_at < Date.now()) {
                     await userOtpVerification.deleteMany({ userId })
+                    // return res.json({success:false,message:'Code has expired. please request again.'})
                     return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: 'Code has expired. please request again.', type: 'danger' })
                 } else {
                     const validOtp = await bcrypt.compare(otp, hashedOtp)
 
                     if (!validOtp) {
+                        // return res.json({success:false,message:'Invalid code passed. check your Inbox.'})
                         return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: 'Invalid code passed. check your Inbox.', type: 'danger' })
                     } else {
                         await userOtpVerification.deleteMany({ userId })
@@ -313,6 +318,7 @@ async function verifyForgotPost(req, res) {
                             sound: true,
                             wait: true
                         })
+                        // return res.json({success:true,message:'Email verified successfully.'})
                         return res.render('user/newpassword.ejs', { title: 'newpassword' });
                     }
                 }
@@ -320,6 +326,7 @@ async function verifyForgotPost(req, res) {
         }
     } catch (error) {
         delete req.session.uesrid
+        // return res.json({success:false,message:'Somthing went wrong. Try again.'})
         return res.render('user/otppage_1', { title: 'OTP Login page.', msg: 'Somthing went wrong. Try again.', type: 'danger' })
     }
 }

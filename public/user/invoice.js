@@ -104,7 +104,7 @@ function renderInvoice(invoiceData) {
             </div>
         </div>`;
 
-    // Append the generated HTML to the "invoice-container" div
+    
     document.getElementById('invoice-container').style.border='2px solid black'
     document.getElementById('invoice-container').innerHTML = invoiceHtml;
 }
@@ -128,6 +128,7 @@ async function placeOrder(val) {
             </div>
             <div class="col-md-8 col-12 p-5 ms-5 mt-3 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
             const receivedInvoiceData = resBody.invoiceData;
+            openPopup();
             renderInvoice(receivedInvoiceData);
         }
     } catch (error) {
@@ -136,10 +137,16 @@ async function placeOrder(val) {
     }
 }
 
+function openPopup(){
+    popup.classList.add('open-popup');
+}
+function closePopup(){
+    popup.classList.remove('open-popup');
+}
+
 async function downloadInvoice() {
     // Assume you have a function to convert HTML to a Blob
     const containerHtml =await  document.getElementById('invoice-container').innerHTML;
-    // const blob = htmlToBlob(document.getElementById('invoice-container').innerHTML);
 
     htmlToBlob(containerHtml, function (blob) {
         // Create a download link and trigger the download
@@ -172,7 +179,6 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
     if (selectedOption) {
         try {
             var selectedValue = selectedOption.value;
-            alert("Selected Option: " + selectedValue);
             placeOrder(selectedValue);
         } catch (error) {
             console.log(`Somthing went wrong ${error}`)
