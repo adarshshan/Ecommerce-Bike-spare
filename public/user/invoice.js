@@ -137,6 +137,8 @@ async function placeOrder(val) {
     }
 }
 
+
+// Alert Popup
 function openPopup(){
     popup.classList.add('open-popup');
 }

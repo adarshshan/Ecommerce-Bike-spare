@@ -112,3 +112,39 @@ function validateName() {
   return true;
 
 }
+
+function validateForm() {
+  // Get the form elements by their IDs
+  var name = document.getElementById("name").value;
+  var email = document.getElementById("email").value;
+  var phone = document.getElementById("phone").value;
+  var password = document.getElementById("password").value;
+  var cpassword = document.getElementById("cpassword").value;
+
+  // Basic validation (you can add more specific checks)
+  if (name === "" || email === "" || phone === "" || password === "" || cpassword === "") {
+    document.getElementById('submessage').innerHTML = `
+                  <div class="alert alert-dismissible fade show alert-danger" role="alert">
+                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                    <strong>
+                      All fields must be filled out
+                    </strong>
+                  </div>`
+    return false; // Prevent form submission
+  }
+  if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || ! /[!@#$%^&*]/.test(password)) {
+    document.getElementById('submessage').innerHTML = `
+                  <div class="alert alert-dismissible fade show alert-danger" role="alert">
+                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                    <strong>
+                      password is weak. please make a strong password.
+                    </strong>
+                  </div>`
+    return false;
+  }
+
+  // You can add more specific validation checks here (e.g., email format, password strength, etc.)
+
+  // If all checks pass, allow the form submission
+  return true;
+}

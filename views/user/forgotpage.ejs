@@ -114,7 +114,8 @@
                 const resBody = await response.json()
                 if (resBody.success) {
                     console.log(resBody.message)
-                    document.getElementById('bttn').innerHTML=`<a href="/verifyForgot" class="btn btn-success">Continue</a>`
+                    location='/verifyForgot';
+                    // document.getElementById('bttn').innerHTML=`<a href="/verifyForgot" class="btn btn-success">Continue</a>`
                 } else {
                     console.log(resBody.message)
                     document.getElementById('message').innerHTML=`
