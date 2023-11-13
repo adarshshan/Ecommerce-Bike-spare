@@ -1,10 +1,12 @@
 const Cart = require('../models/cart')
 const Order = require('../models/order')
-const User=require('../models/user')
-const Product=require('../models/product')
+const User = require('../models/user')
+const Product = require('../models/product')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
-const easyinvoice = require('easyinvoice');
+const Razorpay = require('razorpay')
+const Promise = require('promise')
+var instance = new Razorpay({ key_id: 'rzp_test_kxpY9d3K4xgnJt', key_secret: 'NH5mIiVcgS7yf9zr0iwQisAQ' })
 
 
 
@@ -41,11 +43,11 @@ async function orderPost(req, res) {
         const cart = await Cart.findOne({ userId: userId })
         const exist = await Order.findOne({ userId: userId })
         const invoiceNumber = generateInvoiceNumber();
-        const userData=await User.findById(user)
-        const userName=userData.name
-        const userEmail=userData.email
-        const userPhone=userData.phone
-        const date=Date.now()
+        const userData = await User.findById(user)
+        const userName = userData.name
+        const userEmail = userData.email
+        const userPhone = userData.phone
+        const date = Date.now()
 
         if (exist && exist !== null) {
             try {
@@ -61,7 +63,7 @@ async function orderPost(req, res) {
                                 productName: products.products[i].productName,
                                 productPrice: products.products[i].productPrice,
                                 productImage: products.products[i].productImage,
-                                productDiscription:products.products[i].discription,
+                                productDiscription: products.products[i].discription,
                                 quantity: products.products[i].quantity,
                                 status: status,
                             }
@@ -71,9 +73,9 @@ async function orderPost(req, res) {
                     } else {
                         console.log('products not found in database...')
                     }
-                    
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone,userName,userPhone,userEmail,value,date)
-                    
+
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date)
+
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
                         $push: {
                             orders: [{
@@ -100,15 +102,27 @@ async function orderPost(req, res) {
                         }
                         //Stock Deduction
                         for (let i = 0; i < products.products.length; i++) {
-                            let proid=products.products[i].productId
-                            let qty=products.products[i].quantity
-                            await Product.findByIdAndUpdate(proid,{$inc:{stock:-qty}});
+                            let proid = products.products[i].productId
+                            let qty = products.products[i].quantity
+                            await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
                         }
                         delete req.session.selectedAddress
-                        return res.json({ success: true, message: 'order placed successfully...',invoiceData: invoiceData  })
+                        if (value === 'COD') {
+                            return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
+                        } else {
+                            generateRazorpay(totalAmount, invoiceNumber).then((result)=>{
+                                console.log(`response is ${result}`)
+                                console.log(result);
+                                return res.json({ online: true, message: 'Online Payment...',result });
+                            }).catch((err)=>{
+                                console.log(`error is ${err}`);
+                            })
+                            
+                            
+                        }
                     } else {
                         console.log('somthing trouble while push the orders into the ordermodel..')
-                        return res.json({ success: false, message: 'somthing trouble while push the orders into the ordermodel..',invoiceData: '' })
+                        return res.json({ success: false, message: 'somthing trouble while push the orders into the ordermodel..', invoiceData: '' })
                     }
 
                 } else {
@@ -132,7 +146,7 @@ async function orderPost(req, res) {
                                 productName: products.products[i].productName,
                                 productPrice: products.products[i].productPrice,
                                 productImage: products.products[i].productImage,
-                                productDiscription:products.products[i].discription,
+                                productDiscription: products.products[i].discription,
                                 quantity: products.products[i].quantity,
                                 status: status,
                             }
@@ -142,7 +156,7 @@ async function orderPost(req, res) {
                     } else {
                         console.log('products not found in database...')
                     }
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone,userName,userPhone,userEmail,value,date)
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date)
                     const orderOk = await Order.insertMany({
                         userId: user,
                         orders: [{
@@ -160,12 +174,12 @@ async function orderPost(req, res) {
                     })
                     if (orderOk) {
                         console.log('Order placed successfully')
-                        
+
                         //Stock Deduction
                         for (let i = 0; i < products.products.length; i++) {
-                            let proid=products.products[i].productId
-                            let qty=products.products[i].quantity
-                            await Product.findByIdAndUpdate(proid,{$inc:{stock:-qty}});
+                            let proid = products.products[i].productId
+                            let qty = products.products[i].quantity
+                            await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
                         }
 
                         delete req.session.selectedAddress
@@ -175,10 +189,10 @@ async function orderPost(req, res) {
                         } else {
                             console.log('somthing trouble while deleting the cart')
                         }
-                        return res.json({ success: true, message: 'success part',invoiceData: invoiceData })
+                        return res.json({ success: true, message: 'success part', invoiceData: invoiceData })
                     } else {
                         console.log('Order FAiled at "OrderOk"')
-                        return res.json({ success: false, message: 'Order Failed!',invoiceData: '' })
+                        return res.json({ success: false, message: 'Order Failed!', invoiceData: '' })
                     }
 
                 } else {
@@ -209,7 +223,6 @@ async function orderHomePage(req, res) {
         const end = start + productsPerPage;
         const paginatedProducts = data.orders.slice(start, end)
         if (data && data !== null && data !== undefined) {
-            console.log(data)
             return res.render('user/orderlist.ejs', {
                 title: 'orderList',
                 data: paginatedProducts,
@@ -230,12 +243,12 @@ async function orderHomePage(req, res) {
 async function viewOrder(req, res) {
     try {
         const orderId = req.params.id
-        const totalAmount=req.params.Tamount
-        const paymentMethod=req.params.Pmethod
-        const name=req.params.aName
-        const phone=req.params.aPhone
-        const date=req.params.date
-        const invoice=req.params.invoice;
+        const totalAmount = req.params.Tamount
+        const paymentMethod = req.params.Pmethod
+        const name = req.params.aName
+        const phone = req.params.aPhone
+        const date = req.params.date
+        const invoice = req.params.invoice;
         const order = await Order.findOne({ 'orders._id': orderId })
         if (order && order !== undefined && order !== null) {
             const products = await Order.aggregate([
@@ -262,11 +275,12 @@ async function viewOrder(req, res) {
             const start = (page - 1) * productsPerPage;
             const end = start + productsPerPage;
             const paginatedProducts = products.slice(start, end)
-            console.log(products);
-            return res.render('user/viewOrderedProducts.ejs', { products:paginatedProducts,
+            return res.render('user/viewOrderedProducts.ejs', {
+                products: paginatedProducts,
                 currenPage: page,
-                id:orderId,
-                totaPages: Math.ceil(products.length / productsPerPage),totalAmount,paymentMethod,name,phone,date,invoice})
+                id: orderId,
+                totaPages: Math.ceil(products.length / productsPerPage), totalAmount, paymentMethod, name, phone, date, invoice
+            })
         }
     } catch (error) {
         console.log(error)
@@ -355,12 +369,12 @@ async function adminViewOrder(req, res) {
                     }
                 }
             ]);
-            
+
             return res.json({
                 success: true,
                 products: products,
                 id: orderId,
-                totalAmount, 
+                totalAmount,
                 paymentMethod, name, phone, date
             })
 
@@ -387,14 +401,33 @@ module.exports = {
 // additional functons
 
 
+function generateRazorpay(total, invoice) {
+    return new Promise((resolve, reject) => {
+        var options = {
+            amount: total,
+            currency: "INR",
+            receipt: '' + invoice
+        };
+        instance.orders.create(options, function (err, order) {
+            if (err) {
+                console.log('error is here.')
+                console.log(err)
+            } else {
+                console.log('new Order : ', order);
+                resolve(order);
+            }
+        });
+    })
+}
 
 
-function getSampleData(invoiceNumber, items, name, phone,userName,userPhone,userEmail,paymentMethod,date) {
+
+function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, paymentMethod, date) {
     return {
-        BilledTo:{
-            name:userName,
-            phone:userPhone,
-            email:userEmail
+        BilledTo: {
+            name: userName,
+            phone: userPhone,
+            email: userEmail
         },
         sender: {
             company: 'SpareKit',
@@ -412,10 +445,10 @@ function getSampleData(invoiceNumber, items, name, phone,userName,userPhone,user
         },
         information: {
             number: invoiceNumber,
-            method:paymentMethod,
-            date:new Date().toLocaleString('en-GB', {
+            method: paymentMethod,
+            date: new Date().toLocaleString('en-GB', {
                 hour12: false,
-              })
+            })
         },
         products: items,
         'bottom-notice': 'Kindly pay your invoice within 30 days.',
@@ -428,7 +461,7 @@ function getSampleData(invoiceNumber, items, name, phone,userName,userPhone,user
 
 function generateInvoiceNumber() {
     const prefix = "SPK";
-    const year = new Date().getFullYear(); 
+    const year = new Date().getFullYear();
     const uniqueIdentifier = generateUniqueIdentifier();
     const suffix = "";
 
@@ -479,6 +512,6 @@ const calculateTotalAmount = async (matchCriteria) => {
         return { totalAmount, totalProducts };
     } else {
         console.log('No results found.');
-        return 0; 
+        return 0;
     }
 };

@@ -130,6 +130,11 @@ async function placeOrder(val) {
             const receivedInvoiceData = resBody.invoiceData;
             openPopup();
             renderInvoice(receivedInvoiceData);
+        }else if(resBody.online){
+            alert('Its here')
+            console.log(resBody.result)
+            razorpayPayment(resBody.result)
+
         }
     } catch (error) {
       console.log(error)
@@ -137,6 +142,53 @@ async function placeOrder(val) {
     }
 }
 
+function razorpayPayment(order){
+    alert('entered in to razorpaypayment method.')
+    var options = {
+        "key": "rzp_test_kxpY9d3K4xgnJt", // Enter the Key ID generated from the Dashboard
+        "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "currency": "INR",
+        "name": "SpareKit",
+        "description": "Test Transaction",
+        "image": "https://example.com/your_logo",
+        "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        "handler": function (response){
+            veryfyPayment(response,order);
+        },
+        "prefill": {
+            "name": "Gaurav Kumar",
+            "email": "gaurav.kumar@example.com",
+            "contact": "9000090000"
+        },
+        "notes": {
+            "address": "Razorpay Corporate Office"
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+}
+function veryfyPayment(payment,order){
+    $.ajax({
+        url:'/carts/veryfy-payment',
+        method:'post',
+        data:{
+            payment,
+            order
+        }
+    })
+}
+// async function veryfyPayment(payment,order){
+//     alert('entered into veryfypayment method.')
+//     const response=await fetch('/carts/veryfy-payment',{method:'post',data:JSON.stringify(payment,order)})
+//     const resBody=await response.json()
+//     // if(resBody.success){
+//     //     alert{resBody.message}
+//     // }
+    
+// }
 
 // Alert Popup
 function openPopup(){

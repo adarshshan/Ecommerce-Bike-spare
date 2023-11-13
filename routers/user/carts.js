@@ -24,5 +24,9 @@ router.get('/orders',userAuth,orderController.orderHomePage)
 router.get('/view_order/:id/:Tamount/:Pmethod/:aName/:aPhone/:date/:invoice',userAuth,orderController.viewOrder)
 router.get('/cancelOrder/:id',userAuth,orderController.cancelOrder)
 router.get('/changeStatus/:id/:status',adminAuth,orderController.changeStatus)
+router.post('/veryfy-payment',(req,res)=>{
+    console.log(`req.body result is `)
+    console.log(req.body);
+})
 
 module.exports = router
