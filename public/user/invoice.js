@@ -1,16 +1,16 @@
 
 function renderInvoice(invoiceData) {
-    let products=''
-    let subtotal=0;
-    for(let i=0;i<invoiceData.products.length;i++){
-        products+=`
+    let products = ''
+    let subtotal = 0;
+    for (let i = 0; i < invoiceData.products.length; i++) {
+        products += `
     <tr>
         <td>${invoiceData.products[i].productName}</td>
         <td class="text-center">${invoiceData.products[i].productPrice}</td>
         <td class="text-center">${invoiceData.products[i].quantity}</td>
-        <td class="text-right">${invoiceData.products[i].quantity*invoiceData.products[i].productPrice}</td>
+        <td class="text-right">${invoiceData.products[i].quantity * invoiceData.products[i].productPrice}</td>
     </tr>`
-    subtotal+=invoiceData.products[i].quantity*invoiceData.products[i].productPrice;
+        subtotal += invoiceData.products[i].quantity * invoiceData.products[i].productPrice;
     }
     // Use invoiceData to dynamically generate the invoice HTML
     const invoiceHtml = `
@@ -104,8 +104,8 @@ function renderInvoice(invoiceData) {
             </div>
         </div>`;
 
-    
-    document.getElementById('invoice-container').style.border='2px solid black'
+
+    document.getElementById('invoice-container').style.border = '2px solid black'
     document.getElementById('invoice-container').innerHTML = invoiceHtml;
 }
 
@@ -130,20 +130,17 @@ async function placeOrder(val) {
             const receivedInvoiceData = resBody.invoiceData;
             openPopup();
             renderInvoice(receivedInvoiceData);
-        }else if(resBody.online){
-            alert('Its here')
-            console.log(resBody.result)
-            razorpayPayment(resBody.result)
-
+        } else if (resBody.online) {
+            const receivedInvoiceData = resBody.invoiceData;
+            razorpayPayment(resBody.result,receivedInvoiceData)
         }
     } catch (error) {
-      console.log(error)
+        console.log(error)
         console.log('Error is at resBody')
     }
 }
 
-function razorpayPayment(order){
-    alert('entered in to razorpaypayment method.')
+function razorpayPayment(order,receivedInvoiceData) {
     var options = {
         "key": "rzp_test_kxpY9d3K4xgnJt", // Enter the Key ID generated from the Dashboard
         "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
@@ -151,9 +148,9 @@ function razorpayPayment(order){
         "name": "SpareKit",
         "description": "Test Transaction",
         "image": "https://example.com/your_logo",
-        "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-        "handler": function (response){
-            veryfyPayment(response,order);
+        "order_id": order.id,
+        "handler": function (response) {
+            veryfyPayment(response, order,receivedInvoiceData);
         },
         "prefill": {
             "name": "Gaurav Kumar",
@@ -170,37 +167,48 @@ function razorpayPayment(order){
     var rzp1 = new Razorpay(options);
     rzp1.open();
 }
-function veryfyPayment(payment,order){
+function veryfyPayment(payment, order,receivedInvoiceData) {
     $.ajax({
-        url:'/carts/veryfy-payment',
-        method:'post',
-        data:{
+        url: '/carts/veryfy-payment',
+        method: 'post',
+        data: {
             payment,
             order
+        },
+        success: (response) => {
+            if (response.status) {
+                document.getElementById('pay').style.display = 'none'
+                document.getElementById('myForm').innerHTML = `
+            <div class="bg-light col-md-8 col-12 text-success d-flex">
+                <div>
+                    <h1>Order placed successfully </h1> <br>
+                    <a href="/carts/orders" class="btn btn-success">Go to Orders</a>
+                </div>
+                <p class="btn border-0 fw-bold py-3 float-end" onclick="downloadInvoice()">Download Invoice  <i class="fa-solid fa-download fs-5"></i></p>
+            </div>
+            <div class="col-md-8 col-12 p-5 ms-5 mt-3 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
+                
+                openPopup();
+                renderInvoice(receivedInvoiceData);
+            }else{
+                alert(`payment failed`);
+                rzp1.open();
+            }
         }
     })
 }
-// async function veryfyPayment(payment,order){
-//     alert('entered into veryfypayment method.')
-//     const response=await fetch('/carts/veryfy-payment',{method:'post',data:JSON.stringify(payment,order)})
-//     const resBody=await response.json()
-//     // if(resBody.success){
-//     //     alert{resBody.message}
-//     // }
-    
-// }
 
 // Alert Popup
-function openPopup(){
+function openPopup() {
     popup.classList.add('open-popup');
 }
-function closePopup(){
+function closePopup() {
     popup.classList.remove('open-popup');
 }
 
 async function downloadInvoice() {
     // Assume you have a function to convert HTML to a Blob
-    const containerHtml =await  document.getElementById('invoice-container').innerHTML;
+    const containerHtml = await document.getElementById('invoice-container').innerHTML;
 
     htmlToBlob(containerHtml, function (blob) {
         // Create a download link and trigger the download

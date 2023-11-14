@@ -94,31 +94,30 @@ async function orderPost(req, res) {
                     })
                     if (orderOk) {
                         console.log('order success pushed successfully into the existing order model..')
-                        const deleted = await Cart.findOneAndDelete({ userId: user })
-                        if (deleted) {
-                            console.log('The cart is no more....')
-                        } else {
-                            console.log('somthing trouble while deleting the cart')
-                        }
+                        // const deleted = await Cart.findOneAndDelete({ userId: user })
+                        // if (deleted) {
+                        //     console.log('The cart is no more....')
+                        // } else {
+                        //     console.log('somthing trouble while deleting the cart')
+                        // }
                         //Stock Deduction
                         for (let i = 0; i < products.products.length; i++) {
                             let proid = products.products[i].productId
                             let qty = products.products[i].quantity
                             await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
                         }
-                        delete req.session.selectedAddress
+                        const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
+                        console.log(`orderElement is ${orderElem}`);
                         if (value === 'COD') {
                             return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
                         } else {
-                            generateRazorpay(totalAmount, invoiceNumber).then((result)=>{
-                                console.log(`response is ${result}`)
-                                console.log(result);
-                                return res.json({ online: true, message: 'Online Payment...',result });
-                            }).catch((err)=>{
+                            generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
+                                return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
+                            }).catch((err) => {
                                 console.log(`error is ${err}`);
                             })
-                            
-                            
+
+
                         }
                     } else {
                         console.log('somthing trouble while push the orders into the ordermodel..')
@@ -182,14 +181,17 @@ async function orderPost(req, res) {
                             await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
                         }
 
-                        delete req.session.selectedAddress
-                        const deleted = await Cart.findOneAndDelete({ userId: user })
-                        if (deleted) {
-                            console.log('The cart is no more....')
+                        const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
+                        if (value === 'COD') {
+                            return res.json({ success: true, message: 'success part', invoiceData: invoiceData })
                         } else {
-                            console.log('somthing trouble while deleting the cart')
+                            generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
+                                return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
+                            }).catch((err) => {
+                                console.log(`error is ${err}`);
+                            })
                         }
-                        return res.json({ success: true, message: 'success part', invoiceData: invoiceData })
+
                     } else {
                         console.log('Order FAiled at "OrderOk"')
                         return res.json({ success: false, message: 'Order Failed!', invoiceData: '' })
@@ -401,19 +403,18 @@ module.exports = {
 // additional functons
 
 
-function generateRazorpay(total, invoice) {
+function generateRazorpay(total, orderId) {
     return new Promise((resolve, reject) => {
         var options = {
-            amount: total,
+            amount: total * 100,
             currency: "INR",
-            receipt: '' + invoice
+            receipt: orderId
         };
         instance.orders.create(options, function (err, order) {
             if (err) {
                 console.log('error is here.')
                 console.log(err)
             } else {
-                console.log('new Order : ', order);
                 resolve(order);
             }
         });
@@ -503,7 +504,6 @@ const calculateTotalAmount = async (matchCriteria) => {
         }
     ]);
 
-    console.log('Aggregation result:', result);
 
     if (result.length > 0) {
         console.log('Total Amount:', result[0].totalAmount);
