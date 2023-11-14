@@ -1,0 +1,172 @@
+<%- include('head/header') %>
+<link rel="stylesheet" href="/static/user/popup.css">
+    <!-- popup  -->
+    <div class="popup shadow" id="popup">
+        <img src="https://cdn.pixabay.com/photo/2014/04/02/11/01/tick-305245_640.png" alt="">
+        <h2>Success</h2>
+        <p id="message-alert">Password changed successfully!</p>
+        <button class="bttn" type="button" onclick="closePopup()">Ok</button>
+    </div>
+
+    <div id="page-content-wrapper">
+        <div class="container" style="margin-left: 248px;">
+            <div class="row mt-5">
+                <div class="col-lg-12">
+
+                    <div class="container">
+                        <div style="display: flex;
+                        justify-content: space-between;">
+                            <h1>Coupon Management</h1>
+                            <button id="myButton" class="btn btn-outline-dark mb-5"><i
+                                    class="fa-solid fa-plus fs-2"></i></button>
+                        </div>
+                        <div id="error"></div>
+
+
+
+                        <!-- Coupon Listing -->
+                        <div class="card row shadow mt-5" id="couponlist">
+                            <div class="card-body col-12">
+                                <h2>Coupon List</h2>
+
+
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Coupon Code</th>
+                                            <th scope="col">Amount/Discount</th>
+                                            <th scope="col">Expiration Date</th>
+                                            <th scope="col"></th>
+                                            <!-- Add more columns if needed -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (couponList && couponList!==null && couponList.length) { %>
+                                            <% couponList.forEach((row,index)=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <%= row.code %>
+                                                    </td>
+                                                    <td>
+                                                        <%= row.amount %>
+                                                    </td>
+                                                    <td>
+                                                        <%= row.expireDate %>
+                                                    </td>
+                                                    <td><i class="fa-regular fa-pen-to-square"
+                                                            onclick="couponEditForm('<%= JSON.stringify({id:row._id,amount:row.amount,expireDate:row.expireDate}) %>')"></i>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% }else{ %>
+                                                        <div class="alert alert-dismissible fade show alert-warning"
+                                                            role="alert">
+                                                            <button class="btn-close" type="button"
+                                                                data-bs-dismiss="alert" aria-label="close"></button>
+                                                            <strong>
+                                                                Coupon is Empty!
+                                                            </strong>
+                                                        </div>
+                                                        <% } %>
+
+
+                                                            <!-- Add more rows for other coupons -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Add Coupon Form -->
+                        <div class="card mb-4 mt-5" id="couponform" style="display: none;">
+                            <div class="card-body">
+                                <h2>Add Coupon</h2>
+                                <form action="/coupons" method="POST">
+                                    <div class="form-group">
+                                        <label for="amount">Amount/Discount</label>
+                                        <input type="number" class="form-control" id="amount" name="amount"
+                                            placeholder="" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="expireDate">Expiration Date</label>
+                                        <input type="date" class="form-control" id="expireDate" name="expireDate"
+                                            required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Add Coupon</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+                    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+                    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const errorMsg = document.getElementById('error');
+        function couponEditForm(data) {
+            const couponData = JSON.parse(data);
+            const editform = document.getElementById('couponlist')
+            editform.innerHTML = `
+                            <div class="card-body">
+                                <h2>Edit Coupon</h2>
+                                    <div class="form-group">
+                                        <label for="amount">Amount/Discount</label>
+                                        <input type="number" class="form-control" id="amount" value="${couponData.amount}" name="amount"
+                                            placeholder="" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="expireDate">Expiration Date</label>
+                                        <input type="date" class="form-control" id="expireDate" value="${couponData.expireDate}" name="expireDate"
+                                            required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" onclick="couponEdit('${couponData.id}')">Update changes</button>
+                            </div>`
+        }
+        async function couponEdit(couponId) {
+            const amount = document.getElementById('amount').value
+            const expireDate = document.getElementById('expireDate').value
+            const response = await fetch(`/coupons/edit-coupon/${couponId}/${amount}/${expireDate}`, { method: 'get' })
+            const resbody = await response.json();
+            if (resbody.success) {
+                alert(resbody.message)
+                location.reload()
+            } else {
+                alert(resbody.message)
+                errorMsg.innerHTML = `
+                <div class="alert alert-dismissible fade show alert-danger" role="alert">
+                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                     <strong>${resbody.message}</strong>
+              </div>`
+            }
+        }
+        const button = document.getElementById('myButton')
+        button.addEventListener('click', function () {
+            if (button.innerHTML === '<i class="fa-solid fa-plus fs-2"></i>') {
+                button.innerHTML = '<i class="fa-solid fa-minus fs-2"></i>';
+                document.getElementById('couponform').style.display = 'block'
+                document.getElementById('couponlist').style.display = 'none'
+                // You can add other actions or styles for the 'Off' state here
+            } else {
+                button.innerHTML = '<i class="fa-solid fa-plus fs-2"></i>';
+                document.getElementById('couponform').style.display = 'none'
+                document.getElementById('couponlist').style.display = 'block'
+                // You can add other actions or styles for the 'On' state here
+            }
+        });
+
+        function showForm() {
+            document.getElementById('couponform').style.display = 'block'
+            document.getElementById("myButton").innerHTML = `<i class="fa-solid fa-minus fs-2"></i>`
+            document.getElementById("myButton").onclick = function () {
+                document.getElementById("myButton").innerHTML = `<i class="fa-solid fa-plus fs-2"></i>`
+                document.getElementById('couponform').style.display = 'none'
+            }
+        }
+
+    </script>
+    <%- include('head/footer') %>
