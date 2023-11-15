@@ -123,39 +123,22 @@ router.get('/verify-coupon/:total/:code', async (req, res) => {
     const couponCode = req.params.code
     console.log(`your coupon code is ${couponCode} and total amount is ${totalAmount}`)
     const coupon = await Coupon.findOne({ code: couponCode })
-    if(!coupon || coupon===null) return res.json({success:false,message:'Entered Coupon Code is Wrong'});
-    console.log(`your coupon details is ${coupon}`);
     const currentDate = new Date().toISOString().split('T')[0];
-    if (!coupon.isDeleted) {
-        if (coupon.isActive) {
-            if (coupon.expireDate > currentDate) {
-                if (coupon.used_count < coupon.maxusage) {
-                    const discountAmount = coupon.amount;
-                    const actualAmount = totalAmount - discountAmount
-                    console.log(`Discount amount is ${discountAmount} and ActualAmount is ${actualAmount}`)
-                    req.session.discount = {
-                        discount: discountAmount,
-                        total: actualAmount,
-                        code:couponCode
-                    }
-                    return res.json({ success: true, message: 'Coupon approved...', discountAmount, actualAmount })
-                } else {
-                    console.log('No more coupons left')
-                    return res.json({ success: false, message: 'No more coupons left' })
-                }
-            } else {
-                console.log('coupon is Expired.')
-                return res.json({ success: false, message: 'coupon is Expired.' })
-            }
-        } else {
-            console.log('Coupon is Deactivated by the admin.')
-            return res.json({ success: false, message: 'Not available. Coupon is Deactivated by the admin.' })
-        }
-    } else {
-        console.log('Coupon is No longer Available');
-        return res.json({ success: false, message: 'Coupon is No longer Available' })
-    }
+    if (!coupon || coupon === null) return res.json({ success: false, message: 'Entered Coupon Code is Wrong' });
+    if (coupon.isDeleted) return res.json({ success: false, message: 'Coupon is No longer Available' })
+    if (!coupon.isActive) return res.json({ success: false, message: 'Not available. Coupon is Deactivated by the admin.' })
+    if (coupon.expireDate < currentDate) return res.json({ success: false, message: 'coupon is Expired.' })
+    if (coupon.used_count > coupon.maxusage) return res.json({ success: false, message: 'No more coupons left' })
 
+    const discountAmount = coupon.amount;
+    const actualAmount = totalAmount - discountAmount
+    console.log(`Discount amount is ${discountAmount} and ActualAmount is ${actualAmount}`)
+    req.session.discount = {
+        discount: discountAmount,
+        total: actualAmount,
+        code: couponCode
+    }
+    return res.json({ success: true, message: 'Coupon approved...', discountAmount, actualAmount })
 })
 
 module.exports = router;
