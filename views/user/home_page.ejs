@@ -60,7 +60,7 @@
                                     <h5 class="card-title">
                                         <%= row.name %>
                                     </h5>
-                                    <i class="fas fa-heart float-end fs-1 text-danger pb-5"></i>
+                                    <i class="fas fa-heart float-end fs-1 text-danger pb-5" onclick="addToWishlist('<%= row._id %>'); return false;"></i>
                                     <% if (row.stock==0) { %>
                                      <p class="text-danger">out of stock</p>
                                     <% } %>
@@ -96,8 +96,16 @@
                 </li>
                 <% } %>
         </ul>
-
-
-
     </section>
+    <script>
+        async function addToWishlist(id){
+            const response=await fetch(`/add-wishlist/${id}`,{method:'get'})
+            const resBody=await response.json()
+            if(resBody.success){
+                alert(resBody.message)
+            }else{
+                alert(resBody.message)
+            }
+        }
+    </script>
     <%- include('head/footer') %>
