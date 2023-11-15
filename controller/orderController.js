@@ -2,6 +2,7 @@ const Cart = require('../models/cart')
 const Order = require('../models/order')
 const User = require('../models/user')
 const Product = require('../models/product')
+const Coupon = require('../models/coupon')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
 const Razorpay = require('razorpay')
@@ -48,13 +49,25 @@ async function orderPost(req, res) {
         const userEmail = userData.email
         const userPhone = userData.phone
         const date = Date.now()
+        const coupon = req.session.discount;
 
         if (exist && exist !== null) {
             try {
                 console.log('already have an order collection...')
                 if (cart && cart !== null) {
                     let items = []
-                    const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
+                    var totalAmount;
+                    var discount;
+                    var couponCode
+                    if (coupon && coupon !== null && coupon !== undefined) {
+                        console.log('Coupon Detected')
+                        totalAmount = coupon.total
+                        discount = coupon.discount
+                        couponCode = coupon.code
+                    } else {
+                        console.log('There is no coupon')
+                        var { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
+                    }
                     const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
                     if (products) {
                         for (let i = 0; i < products.products.length; i++) {
@@ -74,7 +87,7 @@ async function orderPost(req, res) {
                         console.log('products not found in database...')
                     }
 
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date)
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount)
 
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
                         $push: {
@@ -94,12 +107,7 @@ async function orderPost(req, res) {
                     })
                     if (orderOk) {
                         console.log('order success pushed successfully into the existing order model..')
-                        // const deleted = await Cart.findOneAndDelete({ userId: user })
-                        // if (deleted) {
-                        //     console.log('The cart is no more....')
-                        // } else {
-                        //     console.log('somthing trouble while deleting the cart')
-                        // }
+
                         //Stock Deduction
                         for (let i = 0; i < products.products.length; i++) {
                             let proid = products.products[i].productId
@@ -109,9 +117,13 @@ async function orderPost(req, res) {
                         const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
                         console.log(`orderElement is ${orderElem}`);
                         if (value === 'COD') {
+                            await Cart.findOneAndDelete({ userId: user })//to Delete the order completed cart
+                            await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
                             return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
                         } else {
                             generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
+                                Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
+                                Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
                             }).catch((err) => {
                                 console.log(`error is ${err}`);
@@ -136,7 +148,19 @@ async function orderPost(req, res) {
                 console.log('new in orderlist...')
                 if (cart && cart !== null) {
                     let items = []
-                    const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
+
+                    var totalAmount;
+                    var discount;
+                    var couponCode;
+                    if (coupon && coupon !== null && coupon !== undefined) {
+                        console.log('Coupon Detected')
+                        totalAmount = coupon.total
+                        discount = coupon.discount
+                        couponCode = coupon.code
+                    } else {
+                        console.log('There is no coupon')
+                        var { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
+                    }
                     const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
                     if (products) {
                         for (let i = 0; i < products.products.length; i++) {
@@ -155,7 +179,7 @@ async function orderPost(req, res) {
                     } else {
                         console.log('products not found in database...')
                     }
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date)
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount)
                     const orderOk = await Order.insertMany({
                         userId: user,
                         orders: [{
@@ -183,9 +207,13 @@ async function orderPost(req, res) {
 
                         const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
                         if (value === 'COD') {
+                            await Cart.findOneAndDelete({ userId: user })//to Delete the order completed cart
+                            await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
                             return res.json({ success: true, message: 'success part', invoiceData: invoiceData })
                         } else {
                             generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
+                                Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
+                                Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
                             }).catch((err) => {
                                 console.log(`error is ${err}`);
@@ -423,7 +451,7 @@ function generateRazorpay(total, orderId) {
 
 
 
-function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, paymentMethod, date) {
+function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, paymentMethod, date, discount, totalAmount) {
     return {
         BilledTo: {
             name: userName,
@@ -447,6 +475,8 @@ function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, u
         information: {
             number: invoiceNumber,
             method: paymentMethod,
+            discount: parseInt(discount),
+            totalAmount: parseInt(totalAmount),
             date: new Date().toLocaleString('en-GB', {
                 hour12: false,
             })

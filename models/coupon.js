@@ -14,10 +14,32 @@ const couponSchema = new mongoose.Schema({
         type: String,
         require: true
     },
+    maxusage:{
+        type:Number,
+        required:true
+    },
+    used_count:{
+        type:Number,
+        default:0
+    },
     isActive: {
         type: Boolean,
         require: true,
         default: true
+    },
+    isDeleted:{
+        type:Boolean,
+        default:false
+    },
+    created_at:{
+        type:Date,
+        default:Date.now()
+    },
+    deleted_at:{
+        type:Date
+    },
+    modified_at:{
+        type:Date
     }
 })
 

@@ -85,6 +85,12 @@ function renderInvoice(invoiceData) {
                                         <td class="thick-line text-right">Rs.${subtotal}</td>
                                     </tr>
                                     <tr>
+                                        <td class="thick-line"></td>
+                                        <td class="thick-line"></td>
+                                        <td class="thick-line text-center"><strong>Discount</strong></td>
+                                        <td class="thick-line text-right">Rs.${invoiceData.information.discount}</td>
+                                    </tr>
+                                    <tr>
                                         <td class="no-line"></td>
                                         <td class="no-line"></td>
                                         <td class="no-line text-center"><strong>Shipping</strong></td>
@@ -94,7 +100,7 @@ function renderInvoice(invoiceData) {
                                         <td class="no-line"></td>
                                         <td class="no-line"></td>
                                         <td class="no-line text-center"><strong>Total</strong></td>
-                                        <td class="no-line text-right">Rs.${subtotal}</td>
+                                        <td class="no-line text-right">Rs.${invoiceData.information.totalAmount}</td>
                                     </tr>
                                 </tbody>
                             </table>

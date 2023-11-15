@@ -1,10 +1,16 @@
 <%- include('head/header') %>
-<link rel="stylesheet" href="/static/user/popup.css">
+    <link rel="stylesheet" href="/static/user/popup.css">
+    <style>
+        .dropdown-menu li:hover {
+            background: rgb(43, 43, 39);
+            color: #fff;
+        }
+    </style>
     <!-- popup  -->
     <div class="popup shadow" id="popup">
         <img src="https://cdn.pixabay.com/photo/2014/04/02/11/01/tick-305245_640.png" alt="">
         <h2>Success</h2>
-        <p id="message-alert">Password changed successfully!</p>
+        <p id="message-alert"></p>
         <button class="bttn" type="button" onclick="closePopup()">Ok</button>
     </div>
 
@@ -35,7 +41,11 @@
                                         <tr>
                                             <th scope="col">Coupon Code</th>
                                             <th scope="col">Amount/Discount</th>
-                                            <th scope="col">Expiration Date</th>
+                                            <th scope="col">Max.Usage</th>
+                                            <th scope="col">Current Usage</th>
+                                            <th scope="col">Created Date</th>
+                                            <th scope="col">Expire Date</th>
+                                            <th scope="col">Status</th>
                                             <th scope="col"></th>
                                             <!-- Add more columns if needed -->
                                         </tr>
@@ -51,10 +61,49 @@
                                                         <%= row.amount %>
                                                     </td>
                                                     <td>
-                                                        <%= row.expireDate %>
+                                                        <%= row.maxusage %>
                                                     </td>
-                                                    <td><i class="fa-regular fa-pen-to-square"
-                                                            onclick="couponEditForm('<%= JSON.stringify({id:row._id,amount:row.amount,expireDate:row.expireDate}) %>')"></i>
+                                                    <td>
+                                                        <%= row.used_count %>
+                                                    </td>
+                                                    <td>
+                                                        <%= row.created_at.toISOString().split('T')[0] %>
+                                                    </td>
+                                                    <!-- <td>
+                                                        <%= row.expireDate %>
+                                                    </td> -->
+                                                    <td>
+                                                        <% const currentDate = new Date().toISOString().split('T')[0]; %>
+                                                        <% if (row.expireDate < currentDate) { %>
+                                                            <p class="text-danger">coupon Expired <br> (<%= row.expireDate %>)</p>
+                                                            <% }else{ %>
+                                                                <%= row.expireDate %>
+                                                                <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <% if (row.isActive) { %>
+                                                            <p class="text-success">Active</p>
+                                                            <% }else{ %>
+                                                                <p class="text-danger">Deactivated</p>
+                                                                <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <i class="fa-solid fa-ellipsis-vertical dropdown-toggle-split"
+                                                            data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                                        <ul class="dropdown-menu shadow">
+                                                            <% if (row.isActive) { %>
+                                                                <li onclick="deactivate('<%= row._id %>')">Deactivate
+                                                                </li>
+                                                                <% }else{ %>
+                                                                    <li onclick="Activate('<%= row._id %>')">Activate
+                                                                    </li>
+                                                                    <% } %>
+                                                                        <li onclick="deleteCoupon('<%= row._id %>')">
+                                                                            Delete</li>
+                                                                        <li
+                                                                            onclick="couponEditForm('<%= JSON.stringify({id:row._id,amount:row.amount,maxusage:row.maxusage,expireDate:row.expireDate}) %>')">
+                                                                            Edit</li>
+                                                        </ul>
                                                     </td>
                                                 </tr>
                                                 <% }) %>
@@ -74,27 +123,65 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <!-- pagination -->
+                            <div class="container">
+                                <div class="col-12 ms-4 ps-5">
+                                    <nav aria-label="Page navigation example">
+                                        <ul class="pagination">
+                                            <% if (prevPage) { %>
+                                                <li class="page-item"><a class="page-link"
+                                                        href="/coupons/?page=<%= prevPage %>">Previous</a></li>
+                                                <% } %>
+                                                    <% for (let i=1; i <=pages; i++) { %>
+                                                        <% if (i===currentPage) { %>
+                                                            <li class="page-item active"><span class="page-link">
+                                                                    <%= i %>
+                                                                </span></li>
+                                                            <% } else { %>
+                                                                <li class="page-item"><a class="page-link"
+                                                                        href="/coupons/?page=<%= i %>">
+                                                                        <%= i %>
+                                                                    </a></li>
+                                                                <% } %>
+                                                                    <% } %>
+                                                                        <% if (nextPage) { %>
+                                                                            <li class="page-item"><a class="page-link"
+                                                                                    href="/coupons/?page=<%= nextPage %>">Next</a>
+                                                                            </li>
+                                                                            <% } %>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                            <!-- /pagination -->
                         </div>
 
+
                         <!-- Add Coupon Form -->
-                        <div class="card mb-4 mt-5" id="couponform" style="display: none;">
+                        <div class="card mb-4 mt-5 col-12 col-md-8 shadow" id="couponform" style="display: none;">
                             <div class="card-body">
                                 <h2>Add Coupon</h2>
-                                <form action="/coupons" method="POST">
-                                    <div class="form-group">
-                                        <label for="amount">Amount/Discount</label>
-                                        <input type="number" class="form-control" id="amount" name="amount"
-                                            placeholder="" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="expireDate">Expiration Date</label>
-                                        <input type="date" class="form-control" id="expireDate" name="expireDate"
-                                            required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Add Coupon</button>
-                                </form>
+                                <!-- <form action="/coupons" method="POST"> -->
+                                <div class="form-group">
+                                    <label for="amount">Amount/Discount</label>
+                                    <input type="number" class="form-control" id="amount" name="amount" placeholder=""
+                                        required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="amount">Maximum usage</label>
+                                    <input type="number" class="form-control" id="maxusage" name="maxusage"
+                                        placeholder="" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="expireDate">Expiration Date</label>
+                                    <input type="date" class="form-control" id="expireDate" name="expireDate" required>
+                                </div>
+                                <button onclick="addCoupon()" class="btn btn-primary">Add Coupon</button>
+                                <!-- </form> -->
                             </div>
                         </div>
+
+
                     </div>
                     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
                     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -107,11 +194,89 @@
         </div>
     </div>
     <script>
+        async function Activate(id) {
+            const response = await fetch(`/coupons/coupon-activate/${id}`, { method: 'get' })
+            const resbody = await response.json()
+            if (resbody.success) {
+                console.log(resbody.message)
+                document.getElementById('message-alert').innerText = resbody.message
+                openPopup()
+            } else {
+                alert(resbody.message)
+            }
+        }
+        async function deactivate(id) {
+            try {
+                const response = await fetch(`/coupons/coupon-deactivate/${id}`, { method: 'get' })
+                const resbody = await response.json()
+                if (resbody.success) {
+                    console.log(resbody.message)
+                    document.getElementById('message-alert').innerText = resbody.message
+                    openPopup()
+                } else {
+                    alert(resbody.message);
+                }
+            } catch (error) {
+                console.log(error)
+                alert(error)
+            }
+        }
+        async function deleteCoupon(id) {
+            try {
+                const response = await fetch(`/coupons/delete-coupon/${id}`, { method: 'get' })
+                const resbody = await response.json()
+                if (resbody.success) {
+                    document.getElementById('message-alert').innerText = resbody.message
+                    openPopup();
+                } else {
+                    alert(resbody.message)
+                }
+            } catch (error) {
+                alert(error)
+            }
+        }
+        async function addCoupon() {
+            try {
+                const amount = document.getElementById('amount').value
+                const maxusage = document.getElementById('maxusage').value
+                const expireDate = document.getElementById('expireDate').value
+                const response = await fetch(`/coupons`, {
+                    method: 'post',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: amount,
+                        maxusage: maxusage,
+                        expireDate: expireDate
+                    })
+                })
+                const resbody = await response.json()
+                if (resbody.success) {
+                    document.getElementById('message-alert').innerText = resbody.message
+                    openPopup();
+                } else {
+                    alert('failed to add coupon...');
+                    alert(resbody.message)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        function openPopup() {
+            popup.classList.add('open-popup');
+
+        }
+        function closePopup() {
+            window.location.reload()
+            popup.classList.remove('open-popup');
+            location.reload()
+        }
         const errorMsg = document.getElementById('error');
+
         function couponEditForm(data) {
-            const couponData = JSON.parse(data);
-            const editform = document.getElementById('couponlist')
-            editform.innerHTML = `
+            try {
+                const couponData = JSON.parse(data);
+                const editform = document.getElementById('couponlist')
+                editform.innerHTML = `
                             <div class="card-body">
                                 <h2>Edit Coupon</h2>
                                     <div class="form-group">
@@ -120,28 +285,44 @@
                                             placeholder="" required>
                                     </div>
                                     <div class="form-group">
+                                    <label for="amount">Maximum usage</label>
+                                    <input type="number" class="form-control" id="maxusage" value="${couponData.maxusage}" name="maxusage" placeholder=""
+                                        required>
+                                     </div>
+                                    <div class="form-group">
                                         <label for="expireDate">Expiration Date</label>
                                         <input type="date" class="form-control" id="expireDate" value="${couponData.expireDate}" name="expireDate"
                                             required>
                                     </div>
                                     <button type="submit" class="btn btn-primary" onclick="couponEdit('${couponData.id}')">Update changes</button>
                             </div>`
+            } catch (error) {
+                console.log(error)
+                alert('Somthing trouble at function couponEditForm()');
+            }
         }
+
         async function couponEdit(couponId) {
-            const amount = document.getElementById('amount').value
-            const expireDate = document.getElementById('expireDate').value
-            const response = await fetch(`/coupons/edit-coupon/${couponId}/${amount}/${expireDate}`, { method: 'get' })
-            const resbody = await response.json();
-            if (resbody.success) {
-                alert(resbody.message)
-                location.reload()
-            } else {
-                alert(resbody.message)
-                errorMsg.innerHTML = `
+            try {
+                const amount = document.getElementById('amount').value
+                const maxusage = document.getElementById('maxusage').value
+                const expireDate = document.getElementById('expireDate').value
+                const response = await fetch(`/coupons/edit-coupon/${couponId}/${amount}/${expireDate}/${maxusage}`, { method: 'get' })
+                const resbody = await response.json();
+                if (resbody.success) {
+                    document.getElementById('message-alert').innerText = resbody.message
+                    openPopup();
+                } else {
+                    alert(resbody.message)
+                    errorMsg.innerHTML = `
                 <div class="alert alert-dismissible fade show alert-danger" role="alert">
                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
                      <strong>${resbody.message}</strong>
               </div>`
+                }
+            } catch (error) {
+                console.log(error)
+                alert('Somthing went wrong at function couponEdit()');
             }
         }
         const button = document.getElementById('myButton')
@@ -150,22 +331,21 @@
                 button.innerHTML = '<i class="fa-solid fa-minus fs-2"></i>';
                 document.getElementById('couponform').style.display = 'block'
                 document.getElementById('couponlist').style.display = 'none'
-                // You can add other actions or styles for the 'Off' state here
             } else {
                 button.innerHTML = '<i class="fa-solid fa-plus fs-2"></i>';
                 document.getElementById('couponform').style.display = 'none'
                 document.getElementById('couponlist').style.display = 'block'
-                // You can add other actions or styles for the 'On' state here
             }
         });
 
-        function showForm() {
-            document.getElementById('couponform').style.display = 'block'
-            document.getElementById("myButton").innerHTML = `<i class="fa-solid fa-minus fs-2"></i>`
-            document.getElementById("myButton").onclick = function () {
-                document.getElementById("myButton").innerHTML = `<i class="fa-solid fa-plus fs-2"></i>`
-                document.getElementById('couponform').style.display = 'none'
-            }
+        function openPopup() {
+            popup.classList.add('open-popup');
+        }
+        function closePopup() {
+            popup.classList.remove('open-popup');
+            setTimeout(() => {
+                location.reload()
+            }, 500)
         }
 
     </script>
