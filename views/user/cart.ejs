@@ -47,7 +47,9 @@
                                 <% if (!locals.NoUser) { %>
                                     <li><a class="dropdown-item" href="/users/signup">Sign Up</a></li>
                                     <% } %>
-                                        <li><a class="dropdown-item" href="#">Wish List</a></li>
+                                        <% if (locals.NoUser) { %>
+                                            <li><a class="dropdown-item" href="/wishlist">Wish List</a></li>
+                                        <% } %>
                                         <% if (locals.NoUser) { %>
                                             <li><a class="dropdown-item" href="carts/orders">Orders</a></li>
                                         <% } %>

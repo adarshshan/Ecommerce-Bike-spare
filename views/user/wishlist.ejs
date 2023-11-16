@@ -1,0 +1,71 @@
+<%- include('head/header') %>
+    <style>
+        .position-sticky a :hover {
+            background: rgb(97, 97, 96);
+            color: rgb(250, 249, 249);
+        }
+    </style>
+    <div class="container-fluid" style="background-color: #f7efef;">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-3 d-md-block sidebar fs-5 fw-normal">
+                <div class="position-sticky">
+                    <a class="nav-link text-dark" href="/profile">
+                        <div class="nav-item p-3">
+                            My Account
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="/carts/orders">
+                        <div class="nav-item p-3">
+                            Orders
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="/wishlist">
+                        <div class="nav-item p-3">
+                            wishlist
+                        </div>
+                    </a>
+                </div>
+            </nav>
+            <div class="col-lg-7 col-md-9 ms-5">
+                <% if (wishlist && wishlist!==null && wishlist.length) { %>
+                    <% wishlist.forEach((row,index)=> { %>
+                        <a style="text-decoration: none; color: black;" href="/productDetails/<%= row.productId._id %>">
+                        <div class="row shadow bg-light mt-4 mb-4">
+                            <div class="col-12 col-md-3"><img
+                                    src="<%= row.productId.image[0] %>" alt="Image will load..."
+                                    style="width: 100%;"></div>
+                            <div class="col-12 col-md-9">
+                                <i class="fa-solid fa-trash float-end mt-5 me-5 fs-4" onclick="removeWishlist('<%= row._id %>')"></i>
+                                <h3 class="mt-5"><%= row.productId.name %></h3>
+                                <p class="fw-bold">Rs <%= row.productId.price %></p>
+                            </div>
+                        </div>
+                    </a>
+                        <% }) %>
+                            <% }else{ %>
+                                <div class="bg-light w-100 p-5 shadow mt-5 mb-5">
+                                    <h2 class="p-5 border shadow">Wishlist is Empty!</h2>
+                                </div>
+                                <% } %>
+
+            </div>
+
+
+        </div>
+    </div>
+
+<script>
+    async function removeWishlist(id){
+        const response=await fetch(`/remove-wishlist/${id}`,{method:'get'})
+        const resBody=await response.json()
+        if(resBody.success){
+            location.reload()
+        }else{
+            alert(resBody.message)
+        }
+    }
+</script>
+
+
+    <%- include('head/footer') %>

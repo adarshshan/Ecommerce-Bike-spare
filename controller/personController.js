@@ -10,11 +10,12 @@ const path = require('path');
 
 
 
-async function personHome (req, res) {
+async function personHome(req, res) {
     try {
         if (req.session.uesrid) {
             delete req.session.uesrid
         }
+        const userId = req.session.currentUserId;
         const productsPerPage = 9
         let productList = await Products.find({ isDeleted: false }).sort({ created_at: -1 })
         const page = parseInt(req.query.page) || 1;
@@ -24,12 +25,18 @@ async function personHome (req, res) {
         if (!productList) {
             res.status(500).json({ success: false })
         } else {
-            res.render('user/home_page', {
-                title: 'home_page',
-                products: paginatedProducts,
-                currenPage: page,
-                totaPages: Math.ceil(productList.length / productsPerPage)
-            })
+            if (userId && userId !== null && userId !== undefined){
+                const user=await User.findById(userId)
+                var wishlist=user.wishlist
+
+            }
+                res.render('user/home_page', {
+                    title: 'home_page',
+                    products: paginatedProducts,
+                    currenPage: page,
+                    totaPages: Math.ceil(productList.length / productsPerPage),
+                    wishlist
+                })
         }
     } catch (error) {
         console.log("An Error occured at rendering the user home page..." + error)
@@ -38,7 +45,7 @@ async function personHome (req, res) {
 
 }
 
-async function userDetailHome (req, res) {
+async function userDetailHome(req, res) {
     try {
         let id = req.params.id;
         imgUri = process.env.IMG_URI
@@ -62,7 +69,7 @@ async function userDetailHome (req, res) {
     }
 }
 
-async function profilePage (req, res) {
+async function profilePage(req, res) {
     const userId = req.session.currentUserId
     if (userId) {
         const user = await User.findById(userId)
@@ -92,7 +99,7 @@ async function changeName(req, res) {
     }
 }
 
-async function changePhone (req, res) {
+async function changePhone(req, res) {
     try {
         const phone = req.params.phone
         const ph = parseInt(phone)
@@ -145,7 +152,7 @@ async function changeEmail(req, res) {
     }
 }
 
-function otpPage (req, res) {
+function otpPage(req, res) {
     res.render('user/otppage_1', { title: 'OTP Change password.', msg: '', type: '' })
 }
 
@@ -236,7 +243,7 @@ async function changePassword(req, res) {
     }
 }
 
-function forgotPasswordPage (req, res) {
+function forgotPasswordPage(req, res) {
     try {
         res.render('user/forgotpage.ejs', { title: 'forgot Password' })
     } catch (error) {
@@ -272,18 +279,18 @@ async function forgotPasswordOtpSent(req, res) {
     }
 }
 
-async function forgotOtpPage (req, res) {
+async function forgotOtpPage(req, res) {
     try {
         res.render('user/otppage_forgot.ejs', { title: 'forgot' })
     } catch (error) {
         console.log(error)
-    } 
+    }
 }
 
 async function verifyForgotPost(req, res) {
     try {
         const newEmail = req.session.newEmail
-        const {otp}=req.body
+        const { otp } = req.body
         // const otp=req.params.otp
         let userId = req.session.uesrid
         console.log(`userId: ${userId} and otp: ${otp}`);
@@ -361,7 +368,7 @@ async function newPasswordUpdate(req, res) {
     }
 }
 
-module.exports={
+module.exports = {
     personHome,
     userDetailHome,
     profilePage,

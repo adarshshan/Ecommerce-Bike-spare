@@ -1,6 +1,6 @@
 <%- include('head/header') %>
 
-    <section >
+    <section>
         <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
                 <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active"
@@ -45,7 +45,7 @@
             </button>
         </div>
     </section>
-    <section  style="background-color: #f7efef;">
+    <section style="background-color: #f7efef;">
         <div class="container">
             <div class="row mt-4">
                 <h2 class="text-center">POPULAR PRODUCTS</h2>
@@ -60,23 +60,45 @@
                                     <h5 class="card-title">
                                         <%= row.name %>
                                     </h5>
-                                    <i class="fas fa-heart float-end fs-1 text-danger pb-5" onclick="addToWishlist('<%= row._id %>'); return false;"></i>
-                                    <% if (row.stock==0) { %>
-                                     <p class="text-danger">out of stock</p>
-                                    <% } %>
-                                    <p class="card-text">RS. <%= row.price %>
-                                    </p>
-                                    <div class="d-flex mt-3">
-                                        <% if (row.cart) { %>
-                                            <a href="/carts" class="btn btn-warning py-3 fw-bold">Go to carts</a>
-                                            <% }else{ %>
-                                                <form action="/carts/add/<%= row._id %>/<%= row.name %>/<%= row.price %>/<%= row.image[0] %>/<%= row.description %>" method="post">
-                                                    <input class="btn btn-warning py-3 fw-bold" type="submit"
-                                                        value="Add to Cart">
-                                                </form>
+
+                                    <% let wishlistItem=wishlist.find(item=> item.productId === row._id); %>
+
+                                        <% if (wishlistItem) { %>
+                                            <!-- Product is in the wishlist, execute your code here -->
+                                            <i style="color: #b62020;" class="fas fa-heart float-end fs-1 pb-5"
+                                                onclick="addToWishlist('<%= row._id %>'); return false;"
+                                                id="heart<%= row._id %>"></i>
+                                            <% } else { %>
+                                                <!-- Product is not in the wishlist, execute other code here -->
+                                                <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                                                    onclick="addToWishlist('<%= row._id %>'); return false;"
+                                                    id="heart<%= row._id %>"></i>
                                                 <% } %>
-                                                    <a href="#" class="btn btn-danger ms-3 py-3 fw-bold">Buy Now</a>
-                                    </div>
+
+
+
+                                                    <% if (row.stock==0) { %>
+                                                        <p class="text-danger">out of stock</p>
+                                                        <% } %>
+                                                            <p class="card-text">RS. <%= row.price %>
+                                                            </p>
+                                                            <div class="d-flex mt-3">
+                                                                <% if (row.cart) { %>
+                                                                    <a href="/carts"
+                                                                        class="btn btn-warning py-3 fw-bold">Go
+                                                                        to carts</a>
+                                                                    <% }else{ %>
+                                                                        <form
+                                                                            action="/carts/add/<%= row._id %>/<%= row.name %>/<%= row.price %>/<%= row.image[0] %>/<%= row.description %>"
+                                                                            method="post">
+                                                                            <input class="btn btn-warning py-3 fw-bold"
+                                                                                type="submit" value="Add to Cart">
+                                                                        </form>
+                                                                        <% } %>
+                                                                            <a href="#"
+                                                                                class="btn btn-danger ms-3 py-3 fw-bold">Buy
+                                                                                Now</a>
+                                                            </div>
                                 </div>
                             </div>
                         </a>
@@ -98,12 +120,12 @@
         </ul>
     </section>
     <script>
-        async function addToWishlist(id){
-            const response=await fetch(`/add-wishlist/${id}`,{method:'get'})
-            const resBody=await response.json()
-            if(resBody.success){
-                alert(resBody.message)
-            }else{
+        async function addToWishlist(id) {
+            const response = await fetch(`/add-wishlist/${id}`, { method: 'get' })
+            const resBody = await response.json()
+            if (resBody.success) {
+                document.getElementById(`heart${id}`).style.color = 'red'
+            } else {
                 alert(resBody.message)
             }
         }

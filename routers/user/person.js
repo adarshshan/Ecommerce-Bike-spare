@@ -45,27 +45,54 @@ router.get('/newpassword/:password/:cpassword', controller.newPasswordUpdate)
 router.get('/wishlist', async (req, res) => {
     try {
         const userId = req.session.currentUserId
-        const users = await User.findById(userId)
-        console.log(`userDetails is ${users}`)
-        const wishlist = users.wishlist
-        console.log(`Wishlist is ${wishlist}`)
+        const users = await User.findById(userId).populate('wishlist.productId')
+        console.log('users')
+        // console.log(users.wishlist[1].productId.image[0])
+        const wishlist=users.wishlist.sort((a, b) => b.date - a.date)
+        console.log(wishlist)  
+        return res.render('user/wishlist.ejs',{title:'wishlist',wishlist})
     } catch (error) {
         console.log(error)
     }
 })
 router.get('/add-wishlist/:id', async (req, res) => {
     try {
-        const productId = req.params.id
-        const userId = req.session.currentUserId
-        const exist = await User.find({ _id: userId, 'wishlist.productId':productId });
-        console.log(`exist is ${exist}`);
-        if (exist && exist !== null && exist !== undefined) return res.json({ success: false, message: 'The product is already exist in wishlist...' });
-        const inserted = await User.findByIdAndUpdate(userId, { $addToSet: { wishlist: { productId: productId } } })
-        if (!inserted) return res.json({ success: false, message: 'The product is already exist in wishlist or occured another error' });
+        const productId = req.params.id;
+        const userId = req.session.currentUserId;
+        if(!userId) return res.json({success:false,message:'user not logined...'});
+        // Check if the product already exists in the user's wishlist
+        const user = await User.findOneAndUpdate(
+            { _id: userId, 'wishlist.productId': { $ne: productId } }, 
+            { $push: { wishlist: { productId: productId } } },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.json({ success: false, message: 'The product is already in the wishlist.' });
+        }
+
         console.log('Product added to wishlist');
         return res.json({ success: true, message: 'Product added to wishlist.' });
     } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'An error occurred while adding the product to wishlist.' });
+    }
+});
+router.get('/remove-wishlist/:id',async (req,res)=>{
+    try {
+        const Id=req.params.id
+        const userId=req.session.currentUserId;
+        const removed=await User.findByIdAndUpdate(userId,{$pull:{wishlist:{_id:Id}}})
+        if(removed && removed!==null && removed!==undefined){
+            console.log('product removed from the wishlist.')
+            return res.json({success:true,message:'product removed from the wishlist.'});
+        }else{
+            console.log('Somthing went wrong...');
+            return res.json({success:false,message:'Failed to remove the product from the wishlist.'});
+        }
+    } catch (error) {
         console.log(error)
+        return res.json({success:false,message:'Unknown Error'});
     }
 })
 
