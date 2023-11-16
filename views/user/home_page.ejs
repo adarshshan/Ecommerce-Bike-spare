@@ -61,44 +61,31 @@
                                         <%= row.name %>
                                     </h5>
 
-                                    <% let wishlistItem=wishlist.find(item=> item.productId === row._id); %>
 
-                                        <% if (wishlistItem) { %>
-                                            <!-- Product is in the wishlist, execute your code here -->
-                                            <i style="color: #b62020;" class="fas fa-heart float-end fs-1 pb-5"
-                                                onclick="addToWishlist('<%= row._id %>'); return false;"
-                                                id="heart<%= row._id %>"></i>
-                                            <% } else { %>
-                                                <!-- Product is not in the wishlist, execute other code here -->
-                                                <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
-                                                    onclick="addToWishlist('<%= row._id %>'); return false;"
-                                                    id="heart<%= row._id %>"></i>
-                                                <% } %>
+                                    <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                                        onclick="addToWishlist('<%= row._id %>'); return false;"
+                                        id="heart<%= row._id %>"></i>
 
-
-
-                                                    <% if (row.stock==0) { %>
-                                                        <p class="text-danger">out of stock</p>
+                                    <% if (row.stock==0) { %>
+                                        <p class="text-danger">out of stock</p>
+                                        <% } %>
+                                            <p class="card-text">RS. <%= row.price %>
+                                            </p>
+                                            <div class="d-flex mt-3">
+                                                <% if (row.cart) { %>
+                                                    <a href="/carts" class="btn btn-warning py-3 fw-bold">Go
+                                                        to carts</a>
+                                                    <% }else{ %>
+                                                        <form
+                                                            action="/carts/add/<%= row._id %>/<%= row.name %>/<%= row.price %>/<%= row.image[0] %>/<%= row.description %>"
+                                                            method="post">
+                                                            <input class="btn btn-warning py-3 fw-bold" type="submit"
+                                                                value="Add to Cart">
+                                                        </form>
                                                         <% } %>
-                                                            <p class="card-text">RS. <%= row.price %>
-                                                            </p>
-                                                            <div class="d-flex mt-3">
-                                                                <% if (row.cart) { %>
-                                                                    <a href="/carts"
-                                                                        class="btn btn-warning py-3 fw-bold">Go
-                                                                        to carts</a>
-                                                                    <% }else{ %>
-                                                                        <form
-                                                                            action="/carts/add/<%= row._id %>/<%= row.name %>/<%= row.price %>/<%= row.image[0] %>/<%= row.description %>"
-                                                                            method="post">
-                                                                            <input class="btn btn-warning py-3 fw-bold"
-                                                                                type="submit" value="Add to Cart">
-                                                                        </form>
-                                                                        <% } %>
-                                                                            <a href="#"
-                                                                                class="btn btn-danger ms-3 py-3 fw-bold">Buy
-                                                                                Now</a>
-                                                            </div>
+                                                            <a href="#" class="btn btn-danger ms-3 py-3 fw-bold">Buy
+                                                                Now</a>
+                                            </div>
                                 </div>
                             </div>
                         </a>
@@ -125,8 +112,6 @@
             const resBody = await response.json()
             if (resBody.success) {
                 document.getElementById(`heart${id}`).style.color = 'red'
-            } else {
-                alert(resBody.message)
             }
         }
     </script>

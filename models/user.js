@@ -36,6 +36,23 @@ const userSchema =new mongoose.Schema({
             default:Date.now()
         }
     }],
+    wallet:{
+        balance:{
+            type:Number,
+            default:0
+        },
+        currency:{
+            type:String,
+            default:'INR'
+        },transactions:[
+            {
+            type:{type:String,},
+            amount:{type:Number},
+            description:{type:String},
+            time:{type:Date,default:Date.now()}
+        }
+    ]
+    },
     created_at:{
         type:Date,
         default:Date.now()

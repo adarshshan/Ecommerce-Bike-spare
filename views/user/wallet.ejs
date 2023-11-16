@@ -1,0 +1,165 @@
+<%- include('head/header') %>
+    <style>
+        .position-sticky a :hover {
+            background: rgb(97, 97, 96);
+            color: rgb(250, 249, 249);
+        }
+    </style>
+    <div class="container-fluid" style="background-color: #f7efef;">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-3 d-md-block sidebar fs-5 fw-normal shadow">
+                <div class="position-sticky">
+                    <a class="nav-link text-dark" href="/profile">
+                        <div class="nav-item p-3">
+                            My Account
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="/carts/orders">
+                        <div class="nav-item p-3">
+                            Orders
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="/wishlist">
+                        <div class="nav-item p-3">
+                            wishlist
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="/wallet">
+                        <div class="nav-item p-3">
+                            Your Wallet
+                        </div>
+                    </a>
+                </div>
+            </nav>
+            <div class="col-lg-9 col-md-12 mb-5">
+                <!-- start -->
+
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+                    integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+z0I5tuz5ydIOStE2KfxU5DSr7Q4iQqNXOYO8Zi"
+                    crossorigin="anonymous">
+                <!-- Font Awesome -->
+                <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+                    rel="stylesheet">
+                <style>
+                    /* Custom styles */
+                    .wallet-card {
+                        background-color: #f8f9fa;
+                        border-radius: 15px;
+                        padding: 20px;
+                        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+                        transition: all 0.3s ease-in-out;
+                    }
+
+                    .wallet-card:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+                    }
+
+                    .balance {
+                        font-size: 2rem;
+                    }
+
+                    .transaction-history li {
+                        border: none;
+                        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+                    }
+
+                    .transaction-time {
+                        font-size: 0.8rem;
+                        color: #888;
+                    }
+                </style>
+                <div class="container pt-4">
+                    <h1 class="text-center mb-4">Your Wallet</h1>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="wallet-card">
+                                <h5 class="card-title">Balance</h5>
+                                <p class="balance">$500</p>
+                                <a href="#" class="btn btn-primary">Withdraw</a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 wallet-card">
+
+                            <h3>Add Funds</h3>
+                            <!-- <form> -->
+                                <div class="mb-3">
+                                    <input type="number" class="form-control" id="amount" name="amount"
+                                        placeholder="Enter amount">
+                                </div>
+                                <button type="" class="btn btn-primary" onclick="addFunds()">Add Funds</button>
+                            <!-- </form> -->
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mt-5 ms-4">
+                                <div class="wallet-card">
+                                    <h5 class="card-title">Transaction History</h5>
+                                    <ul class="list-group transaction-history">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="fas fa-arrow-circle-up text-success me-2"></i>
+                                                <span>Payment received - $100</span>
+                                                <p class="transaction-desc">Product purchase</p>
+                                            </div>
+                                            <span class="transaction-time">Nov 10, 2023 - 10:30 AM</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="fas fa-arrow-circle-down text-danger me-2"></i>
+                                                <span>Payment sent - $50</span>
+                                                <p class="transaction-desc">Refund for damaged item</p>
+                                            </div>
+                                            <span class="transaction-time">Nov 9, 2023 - 03:15 PM</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="fas fa-arrow-circle-up text-success me-2"></i>
+                                                <span>Payment received - $200</span>
+                                                <p class="transaction-desc">Bonus reward</p>
+                                            </div>
+                                            <span class="transaction-time">Nov 8, 2023 - 08:00 AM</span>
+                                        </li>
+                                        <!-- Add more transaction items here -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+                <!-- Bootstrap JS Bundle -->
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+                    integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+                    crossorigin="anonymous">
+                    </script>
+
+
+
+                <!-- end -->
+            </div>
+
+
+        </div>
+    </div>
+
+    <script>
+        async function addFunds(){
+            const amount=document.getElementById('amount').value
+            const response=await fetch(`/add-walletfund/${amount}`,{method:'get'})
+            const resBody=await response.json()
+            if(resBody.success){
+                alert(resBody.message)
+            }else{
+                alert(resBody.message)
+            }
+        }
+    </script>
+
+
+    <%- include('head/footer') %>

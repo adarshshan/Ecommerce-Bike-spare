@@ -65,11 +65,13 @@
                                 <% if (locals.NoUser) { %>
                                     <li><a class="dropdown-item" href="/wishlist">Wish List</a></li>
                                 <% } %>
+
                                 <% if (locals.NoUser) { %>
                                     <li><a class="dropdown-item" href="/carts/orders">Orders</a></li>
                                 <% } %>
                                 
                                 <li><a class="dropdown-item" href="#">contact</a></li>
+                                <li><a class="dropdown-item" href="/wallet">My Wallet</a></li>
                                 <% if (locals.NoUser) { %>
                                     <li><a class="dropdown-item" href="/users/logout"
                                         onclick="return confirm('are you sure ?')">logout</a></li>

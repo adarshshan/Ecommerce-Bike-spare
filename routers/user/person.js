@@ -4,6 +4,8 @@ const controller = require('../../controller/personController')
 const userAuth = require('../../middlware/userAuth')
 const Address = require('../../models/userDetail')
 const User = require('../../models/user')
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId;
 
 router.get('/', controller.personHome)
 router.get('/productDetails/:id', controller.userDetailHome)
@@ -47,10 +49,9 @@ router.get('/wishlist', async (req, res) => {
         const userId = req.session.currentUserId
         const users = await User.findById(userId).populate('wishlist.productId')
         console.log('users')
-        // console.log(users.wishlist[1].productId.image[0])
-        const wishlist=users.wishlist.sort((a, b) => b.date - a.date)
-        console.log(wishlist)  
-        return res.render('user/wishlist.ejs',{title:'wishlist',wishlist})
+        const wishlist = users.wishlist.sort((a, b) => b.date - a.date)
+        console.log(wishlist)
+        return res.render('user/wishlist.ejs', { title: 'wishlist', wishlist })
     } catch (error) {
         console.log(error)
     }
@@ -59,10 +60,10 @@ router.get('/add-wishlist/:id', async (req, res) => {
     try {
         const productId = req.params.id;
         const userId = req.session.currentUserId;
-        if(!userId) return res.json({success:false,message:'user not logined...'});
+        if (!userId) return res.json({ success: false, message: 'user not logined...' });
         // Check if the product already exists in the user's wishlist
         const user = await User.findOneAndUpdate(
-            { _id: userId, 'wishlist.productId': { $ne: productId } }, 
+            { _id: userId, 'wishlist.productId': { $ne: productId } },
             { $push: { wishlist: { productId: productId } } },
             { new: true }
         );
@@ -78,23 +79,79 @@ router.get('/add-wishlist/:id', async (req, res) => {
         return res.status(500).json({ success: false, message: 'An error occurred while adding the product to wishlist.' });
     }
 });
-router.get('/remove-wishlist/:id',async (req,res)=>{
+router.get('/remove-wishlist/:id', async (req, res) => {
     try {
-        const Id=req.params.id
-        const userId=req.session.currentUserId;
-        const removed=await User.findByIdAndUpdate(userId,{$pull:{wishlist:{_id:Id}}})
-        if(removed && removed!==null && removed!==undefined){
+        const Id = req.params.id
+        const userId = req.session.currentUserId;
+        const removed = await User.findByIdAndUpdate(userId, { $pull: { wishlist: { _id: Id } } })
+        if (removed && removed !== null && removed !== undefined) {
             console.log('product removed from the wishlist.')
-            return res.json({success:true,message:'product removed from the wishlist.'});
-        }else{
+            return res.json({ success: true, message: 'product removed from the wishlist.' });
+        } else {
             console.log('Somthing went wrong...');
-            return res.json({success:false,message:'Failed to remove the product from the wishlist.'});
+            return res.json({ success: false, message: 'Failed to remove the product from the wishlist.' });
         }
     } catch (error) {
         console.log(error)
-        return res.json({success:false,message:'Unknown Error'});
+        return res.json({ success: false, message: 'Unknown Error' });
     }
 })
 
+
+//wallet
+
+router.get('/wallet', async (req, res) => {
+    try {
+        const userId = req.session.currentUserId
+        const id = new ObjectId(userId)
+
+        const wallet=await User.aggregate([
+            { $match: { _id: id } },
+            { $unwind: "$wallet.transactions" },
+            { $sort: { "wallet.transactions.time": -1 } },
+            { 
+              $group: {
+                _id: "$_id",
+                wallet: { $push: "$wallet.transactions" }
+              }
+            },
+            { $project: { _id: 0, wallet: 1 } }
+          ])
+        // console.log(wallet[0].wallet);
+        res.render('user/wallet.ejs', { title: 'wallet',wallet});
+    } catch (error) {
+        console.log(error)
+    }
+})
+router.get('/add-walletfund/:amount', async (req, res) => {
+    try {
+        const amount = req.params.amount
+        const userId = req.session.currentUserId
+        console.log(`amount is ${amount}`);
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                $inc: { 'wallet.balance': amount },
+                $push: {
+                    'wallet.transactions': {
+                        type: 'debited',
+                        amount: amount,
+                        description: 'fund add by the user',
+                        time: Date.now()
+                    }
+                }
+            },
+            { new: true, upsert: true }
+        )
+        if (updatedUser) {
+            console.log(updatedUser.wallet.transactions)
+            console.log('Amount added to your wallet account...')
+        } else {
+            console.log('Amount Failed to add to the wallet...')
+        }
+    } catch (error) {
+        console.log(error)
+    }
+})
 
 module.exports = router
