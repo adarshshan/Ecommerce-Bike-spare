@@ -54,6 +54,7 @@ async function orderPost(req, res) {
         if (exist && exist !== null) {
             try {
                 console.log('already have an order collection...')
+
                 if (cart && cart !== null) {
                     let items = []
                     var totalAmount;
@@ -87,7 +88,21 @@ async function orderPost(req, res) {
                         console.log('products not found in database...')
                     }
 
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount)
+                    if (value === 'online payment + wallet') {
+                        console.log('Its online payment + wallet methodd')
+                        const userDetails = await User.findById(user)
+                        if (!userDetails.wallet.balance) return res.json({ success: false, message: 'Wallet is Empty!' })
+                        if (userDetails.wallet.balance == 0) return res.json({ success: false, message: 'Wallet is Empty!!' })
+                        if (userDetails.wallet.balance < totalAmount) {
+                            var totalAmount = totalAmount - userDetails.wallet.balance;
+                            var wallet = userDetails.wallet.balance
+                        } else {
+                            var wallet = totalAmount;
+                            var totalAmount = 0;
+                        }
+                    }
+
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, wallet)
 
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
                         $push: {
@@ -121,6 +136,15 @@ async function orderPost(req, res) {
                             await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
                             return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
                         } else {
+                            if (totalAmount === 0 && value === 'online payment + wallet') {
+                                await Cart.findOneAndDelete({ userId: user })//to Delete the order completed cart
+                                await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
+                                console.log('order placed using wallet balance')
+                                changePaymentStatus(invoiceNumber)
+                                decreaseWalletBalance(user,wallet);
+                                return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
+                            }
+                            if(value === 'online payment + wallet') decreaseWalletBalance(user,wallet);
                             generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
                                 Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
@@ -128,8 +152,6 @@ async function orderPost(req, res) {
                             }).catch((err) => {
                                 console.log(`error is ${err}`);
                             })
-
-
                         }
                     } else {
                         console.log('somthing trouble while push the orders into the ordermodel..')
@@ -430,6 +452,45 @@ module.exports = {
 
 // additional functons
 
+async function decreaseWalletBalance(userId,amount){
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                $inc: { 'wallet.balance': -amount },
+                $push: {
+                    'wallet.transactions': {
+                        type: 'credited',
+                        amount: amount,
+                        description: 'Products purchased.',
+                        time: Date.now()
+                    }
+                }
+            },
+            { new: true, upsert: true }
+        )
+        if(updatedUser){
+            console.log('amount deducted from the wallet...');
+        }else{
+            console.log('failed to deduct the balance.');
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function changePaymentStatus(invoice) {
+    try {
+        const updated = await Order.findOneAndUpdate({ 'orders.invoice': invoice }, { $set: { 'orders.$.products.$[].status': 'PLACED' } })
+        if (updated) {
+            console.log('order status updated...');
+        } else {
+            console.log('Order status Failed to update...');
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 function generateRazorpay(total, orderId) {
     return new Promise((resolve, reject) => {
@@ -451,7 +512,7 @@ function generateRazorpay(total, orderId) {
 
 
 
-function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, paymentMethod, date, discount, totalAmount) {
+function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, paymentMethod, date, discount, totalAmount, wallet) {
     return {
         BilledTo: {
             name: userName,
@@ -475,8 +536,9 @@ function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, u
         information: {
             number: invoiceNumber,
             method: paymentMethod,
-            discount: parseInt(discount),
+            discount: parseInt(discount) || 0,
             totalAmount: parseInt(totalAmount),
+            wallet: parseInt(wallet) || 0,
             date: new Date().toLocaleString('en-GB', {
                 hour12: false,
             })

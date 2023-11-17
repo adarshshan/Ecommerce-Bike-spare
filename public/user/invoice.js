@@ -87,6 +87,12 @@ function renderInvoice(invoiceData) {
                                     <tr>
                                         <td class="thick-line"></td>
                                         <td class="thick-line"></td>
+                                        <td class="thick-line text-center"><strong>Paid from wallet balance </strong></td>
+                                        <td class="thick-line text-right">Rs.${invoiceData.information.wallet}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="thick-line"></td>
+                                        <td class="thick-line"></td>
                                         <td class="thick-line text-center"><strong>Discount</strong></td>
                                         <td class="thick-line text-right">Rs.${invoiceData.information.discount}</td>
                                     </tr>
@@ -139,6 +145,8 @@ async function placeOrder(val) {
         } else if (resBody.online) {
             const receivedInvoiceData = resBody.invoiceData;
             razorpayPayment(resBody.result,receivedInvoiceData)
+        }else{
+            alert(resBody.message)
         }
     } catch (error) {
         console.log(error)

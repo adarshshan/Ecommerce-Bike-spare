@@ -104,7 +104,8 @@ router.get('/wallet', async (req, res) => {
     try {
         const userId = req.session.currentUserId
         const id = new ObjectId(userId)
-
+        const userwallet=await User.findById(userId,{_id:0,wallet:1})
+        const balance=userwallet.wallet.balance
         const wallet=await User.aggregate([
             { $match: { _id: id } },
             { $unwind: "$wallet.transactions" },
@@ -118,7 +119,8 @@ router.get('/wallet', async (req, res) => {
             { $project: { _id: 0, wallet: 1 } }
           ])
         // console.log(wallet[0].wallet);
-        res.render('user/wallet.ejs', { title: 'wallet',wallet});
+        // console.log(wallet[0]);
+        res.render('user/wallet.ejs', { title: 'wallet',wallet,balance});
     } catch (error) {
         console.log(error)
     }
@@ -144,10 +146,14 @@ router.get('/add-walletfund/:amount', async (req, res) => {
             { new: true, upsert: true }
         )
         if (updatedUser) {
-            console.log(updatedUser.wallet.transactions)
-            console.log('Amount added to your wallet account...')
+            // console.log(updatedUser.wallet.transactions)
+            console.log(`updateddddd...`)
+            console.log(updatedUser.wallet)
+            let walletDetails=updatedUser.wallet;
+            return res.json({success:true,message:'Amouont added successfully.',walletDetails});
         } else {
             console.log('Amount Failed to add to the wallet...')
+            return res.json({success:false,message:'Amount Failed to add to the wallet...'});
         }
     } catch (error) {
         console.log(error)

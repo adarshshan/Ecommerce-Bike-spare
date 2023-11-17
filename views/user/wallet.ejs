@@ -77,7 +77,8 @@
                         <div class="col-md-6">
                             <div class="wallet-card">
                                 <h5 class="card-title">Balance</h5>
-                                <p class="balance">$500</p>
+                                <p class="balance">Rs. <%= balance %>
+                                </p>
                                 <a href="#" class="btn btn-primary">Withdraw</a>
                             </div>
                         </div>
@@ -86,43 +87,37 @@
 
                             <h3>Add Funds</h3>
                             <!-- <form> -->
-                                <div class="mb-3">
-                                    <input type="number" class="form-control" id="amount" name="amount"
-                                        placeholder="Enter amount">
-                                </div>
-                                <button type="" class="btn btn-primary" onclick="addFunds()">Add Funds</button>
+                            <div class="mb-3">
+                                <input type="number" class="form-control" id="amount" name="amount"
+                                    placeholder="Enter amount">
+                            </div>
+                            <button type="" class="btn btn-primary" onclick="addFunds()">Add Funds</button>
                             <!-- </form> -->
                         </div>
                         <div class="row">
                             <div class="col-md-12 mt-5 ms-4">
                                 <div class="wallet-card">
                                     <h5 class="card-title">Transaction History</h5>
-                                    <ul class="list-group transaction-history">
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <i class="fas fa-arrow-circle-up text-success me-2"></i>
-                                                <span>Payment received - $100</span>
-                                                <p class="transaction-desc">Product purchase</p>
-                                            </div>
-                                            <span class="transaction-time">Nov 10, 2023 - 10:30 AM</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <i class="fas fa-arrow-circle-down text-danger me-2"></i>
-                                                <span>Payment sent - $50</span>
-                                                <p class="transaction-desc">Refund for damaged item</p>
-                                            </div>
-                                            <span class="transaction-time">Nov 9, 2023 - 03:15 PM</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <i class="fas fa-arrow-circle-up text-success me-2"></i>
-                                                <span>Payment received - $200</span>
-                                                <p class="transaction-desc">Bonus reward</p>
-                                            </div>
-                                            <span class="transaction-time">Nov 8, 2023 - 08:00 AM</span>
-                                        </li>
-                                        <!-- Add more transaction items here -->
+                                    <ul class="list-group transaction-history" id="transactions">
+                                        <% if (wallet[0].wallet.length) { %>
+
+                                            <% wallet[0].wallet.forEach((row,index)=> { %>
+                                                <li
+                                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <i class="fas fa-arrow-circle-up text-success me-2"></i>
+                                                        <span>Payment received - Rs. <%= row.amount %></span>
+                                                        <p class="transaction-desc">
+                                                            <%= row.description %>
+                                                        </p>
+                                                    </div>
+                                                    <span class="transaction-time">Nov 10, 2023 - 10:30 AM</span>
+                                                </li>
+                                                <% }) %>
+
+                                                    <% }else{ %>
+                                                        <h3>No transactions</h3>
+                                                        <% } %>
                                     </ul>
                                 </div>
                             </div>
@@ -149,13 +144,33 @@
     </div>
 
     <script>
-        async function addFunds(){
-            const amount=document.getElementById('amount').value
-            const response=await fetch(`/add-walletfund/${amount}`,{method:'get'})
-            const resBody=await response.json()
-            if(resBody.success){
-                alert(resBody.message)
-            }else{
+        async function addFunds() {
+            const amount = document.getElementById('amount').value
+            const response = await fetch(`/add-walletfund/${amount}`, { method: 'get' })
+            const resBody = await response.json()
+            if (resBody.success) {
+                
+                document.querySelector('.balance').innerHTML = `Rs. ${resBody.walletDetails.balance}`
+                document.getElementById('amount').value = .00
+                let x='';
+                for (let i = 0; i < resBody.walletDetails.transactions.length; i++) {
+                    x += ` <li class="list-group-item d-flex justify-content-between align-items-center">
+                              <div>
+                                  <i class="fas fa-arrow-circle-up text-success me-2"></i>
+                                  <span>Payment received - Rs. ${resBody.walletDetails.transactions[i].amount}</span>
+                                  <p class="transaction-desc">${resBody.walletDetails.transactions[i].description}</p>
+                              </div>
+                                  <span class="transaction-time">${resBody.walletDetails.transactions[i].time}</span>
+                          </li>`
+                }
+                // document.getElementById('transactions').innerHTML = x;
+                setTimeout(() => {
+                    document.getElementById('transactions').innerHTML = x;
+                    alert(resBody.message)
+                }, 500);
+
+
+            } else {
                 alert(resBody.message)
             }
         }
@@ -163,3 +178,11 @@
 
 
     <%- include('head/footer') %>
+        <!-- <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-arrow-circle-up text-success me-2"></i>
+            <span>Payment received - $200</span>
+            <p class="transaction-desc">Bonus reward</p>
+        </div>
+        <span class="transaction-time">Nov 8, 2023 - 08:00 AM</span>
+    </li> -->
