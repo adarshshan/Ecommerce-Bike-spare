@@ -1,5 +1,6 @@
 const Products = require('../models/product')
 const User = require('../models/user')
+const Address=require('../models/userDetail')
 const Brand = require('../models/brand')
 const categorie = require('../models/categorie')
 const bcrypt = require('bcrypt')
@@ -7,6 +8,8 @@ const nodemailer = require('nodemailer')
 const userOtpVerification = require('../models/userOtpVerification')
 const notifier = require('node-notifier');
 const path = require('path');
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId;
 
 
 
@@ -16,8 +19,8 @@ async function personHome(req, res) {
             delete req.session.uesrid
         }
         const userId = req.session.currentUserId;
-        const productsPerPage = 9
-        let productList = await Products.find({ isDeleted: false }).sort({ created_at: -1 })
+        const productsPerPage = 12
+        let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 })
         const page = parseInt(req.query.page) || 1;
         const start = (page - 1) * productsPerPage;
         const end = start + productsPerPage;
@@ -243,6 +246,23 @@ async function changePassword(req, res) {
     }
 }
 
+async function addressBook(req, res) {
+    try {
+        const addressBook = await Address.find({ userId: req.session.currentUserId })
+        if (addressBook && addressBook !== null && addressBook !== undefined) {
+            console.log(`data is here`);
+            return res.json({ success: true, message: 'success part', addressBook });
+        } else {
+            console.log('failed to find data...')
+            return res.json({ success: false, message: 'Data not found', addressBook: '' });
+        }
+    } catch (error) {
+        console.log('Error occured at catch block...')
+        console.log(error)
+    }
+}
+
+//////Forgot password//////
 function forgotPasswordPage(req, res) {
     try {
         res.render('user/forgotpage.ejs', { title: 'forgot Password' })
@@ -368,6 +388,125 @@ async function newPasswordUpdate(req, res) {
     }
 }
 
+///////////wishlist-Controller////////
+
+async function wishlistHome (req, res) {
+    try {
+        const userId = req.session.currentUserId
+        const users = await User.findById(userId).populate('wishlist.productId')
+        console.log('users')
+        const wishlist = users.wishlist.sort((a, b) => b.date - a.date)
+        console.log(wishlist)
+        return res.render('user/wishlist.ejs', { title: 'wishlist', wishlist })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function addToWishlist (req, res) {
+    try {
+        const productId = req.params.id;
+        const userId = req.session.currentUserId;
+        if (!userId) return res.json({ success: false, message: 'user not logined...' });
+        // Check if the product already exists in the user's wishlist
+        const user = await User.findOneAndUpdate(
+            { _id: userId, 'wishlist.productId': { $ne: productId } },
+            { $push: { wishlist: { productId: productId } } },
+            { new: true }
+        );
+
+        if (!user) {
+            return res.json({ success: false, message: 'The product is already in the wishlist.' });
+        }
+
+        console.log('Product added to wishlist');
+        return res.json({ success: true, message: 'Product added to wishlist.' });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'An error occurred while adding the product to wishlist.' });
+    }
+}
+
+async function removeWishlist(req, res) {
+    try {
+        const Id = req.params.id
+        const userId = req.session.currentUserId;
+        const removed = await User.findByIdAndUpdate(userId, { $pull: { wishlist: { _id: Id } } })
+        if (removed && removed !== null && removed !== undefined) {
+            console.log('product removed from the wishlist.')
+            return res.json({ success: true, message: 'product removed from the wishlist.' });
+        } else {
+            console.log('Somthing went wrong...');
+            return res.json({ success: false, message: 'Failed to remove the product from the wishlist.' });
+        }
+    } catch (error) {
+        console.log(error)
+        return res.json({ success: false, message: 'Unknown Error' });
+    }
+}
+
+//////////Wallet controller/////////
+async function walletHome(req, res) {
+    try {
+        const userId = req.session.currentUserId
+        const id = new ObjectId(userId)
+        const userwallet=await User.findById(userId,{_id:0,wallet:1})
+        const balance=userwallet.wallet.balance
+        const wallet=await User.aggregate([
+            { $match: { _id: id } },
+            { $unwind: "$wallet.transactions" },
+            { $sort: { "wallet.transactions.time": -1 } },
+            { 
+              $group: {
+                _id: "$_id",
+                wallet: { $push: "$wallet.transactions" }
+              }
+            },
+            { $project: { _id: 0, wallet: 1 } }
+          ])
+        // console.log(wallet[0].wallet);
+        // console.log(wallet[0]);
+        res.render('user/wallet.ejs', { title: 'wallet',wallet,balance});
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function addWalletFund (req, res) {
+    try {
+        const amount = req.params.amount
+        const userId = req.session.currentUserId
+        console.log(`amount is ${amount}`);
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                $inc: { 'wallet.balance': amount },
+                $push: {
+                    'wallet.transactions': {
+                        type: 'debited',
+                        amount: amount,
+                        description: 'fund add by the user',
+                        time: Date.now()
+                    }
+                }
+            },
+            { new: true, upsert: true }
+        )
+        if (updatedUser) {
+            // console.log(updatedUser.wallet.transactions)
+            console.log(`updateddddd...`)
+            console.log(updatedUser.wallet)
+            let walletDetails=updatedUser.wallet;
+            return res.json({success:true,message:'Amouont added successfully.',walletDetails});
+        } else {
+            console.log('Amount Failed to add to the wallet...')
+            return res.json({success:false,message:'Amount Failed to add to the wallet...'});
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     personHome,
     userDetailHome,
@@ -382,7 +521,13 @@ module.exports = {
     forgotPasswordOtpSent,
     forgotOtpPage,
     verifyForgotPost,
-    newPasswordUpdate
+    newPasswordUpdate,
+    wishlistHome,
+    addToWishlist,
+    removeWishlist,
+    walletHome,
+    addWalletFund,
+    addressBook
 }
 
 //Functionss//

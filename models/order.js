@@ -27,22 +27,16 @@ const orderSchema = new mongoose.Schema({
       type:Boolean,
       default:false
     },
-    couponType: {
-      type: String
-    },
-    couponAmount: {
+    couponDiscount: {
       type: Number
     },
     walletAmount: {
       type: Number,
       default: 0
     },
-    offer: {
-      type: Number,
-      default: 0
-    },
-    reason: {
-      type: String
+    refund: {
+      type: Boolean,
+      default:false
     },
     products: [
       {

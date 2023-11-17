@@ -4,9 +4,22 @@
             background: rgb(97, 97, 96);
             color: rgb(250, 249, 249);
         }
+
+        .wallet-card {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .wallet-card:hover {
+            transform: translateY(-9px);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+        }
     </style>
     <div class="container-fluid" style="background-color: #f7efef;">
-        <div class="row">
+        <div class="row px-3">
             <!-- Sidebar -->
             <nav id="sidebar" class="col-md-3 col-lg-3 d-md-block sidebar fs-5 fw-normal">
                 <div class="position-sticky">
@@ -32,21 +45,24 @@
                     </a>
                 </div>
             </nav>
-            <div class="col-lg-7 col-md-9 ms-5">
+            <div class="col-lg-7 col-md-9">
                 <% if (wishlist && wishlist!==null && wishlist.length) { %>
                     <% wishlist.forEach((row,index)=> { %>
                         <a style="text-decoration: none; color: black;" href="/productDetails/<%= row.productId._id %>">
-                        <div class="row shadow bg-light mt-4 mb-4">
-                            <div class="col-12 col-md-3"><img
-                                    src="<%= row.productId.image[0] %>" alt="Image will load..."
-                                    style="width: 100%;"></div>
-                            <div class="col-12 col-md-9">
-                                <i class="fa-solid fa-trash float-end mt-5 me-5 fs-4" onclick="removeWishlist('<%= row._id %>')"></i>
-                                <h3 class="mt-5"><%= row.productId.name %></h3>
-                                <p class="fw-bold">Rs <%= row.productId.price %></p>
+                            <div class="row shadow bg-light mt-4 mb-4 wallet-card">
+                                <div class="col-12 col-md-3"><img src="<%= row.productId.image[0] %>"
+                                        alt="Image will load..." style="width: 100%;"></div>
+                                <div class="col-12 col-md-9">
+                                    <i class="fa-solid fa-trash float-end mt-5 me-5 fs-4"
+                                        onclick="removeWishlist('<%= row._id %>')"></i>
+                                    <h3 class="mt-5">
+                                        <%= row.productId.name %>
+                                    </h3>
+                                    <p class="fw-bold">Rs <%= row.productId.price %>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    </a>
+                        </a>
                         <% }) %>
                             <% }else{ %>
                                 <div class="bg-light w-100 p-5 shadow mt-5 mb-5">
@@ -60,17 +76,17 @@
         </div>
     </div>
 
-<script>
-    async function removeWishlist(id){
-        const response=await fetch(`/remove-wishlist/${id}`,{method:'get'})
-        const resBody=await response.json()
-        if(resBody.success){
-            location.reload()
-        }else{
-            alert(resBody.message)
+    <script>
+        async function removeWishlist(id) {
+            const response = await fetch(`/remove-wishlist/${id}`, { method: 'get' })
+            const resBody = await response.json()
+            if (resBody.success) {
+                location.reload()
+            } else {
+                alert(resBody.message)
+            }
         }
-    }
-</script>
+    </script>
 
 
     <%- include('head/footer') %>

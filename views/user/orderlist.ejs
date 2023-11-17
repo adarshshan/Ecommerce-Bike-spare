@@ -44,6 +44,8 @@
                             <tr>
                                 <th>Customer Name</th>
                                 <th>Order Date</th>
+                                <th>Coupon Discount</th>
+                                <th>wallet Amount</th>
                                 <th>Total Amount</th>
                                 <th>Payment Method</th>
                                 <th>Status</th>
@@ -51,12 +53,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% if (data) { %>
+                            <% if (data && data.length) { %>
                                 <% data.forEach((row,index)=> { %>
                                     <tr>
                                         <td><%= row.address[0].addressName %></td>
                                         <td><%= row.date.toISOString().split('T')[0] %></td>
-                                        <td><%= row.totalAmount %></td>
+                                        <td><%= row.couponDiscount %></td>
+                                        <td><%= row.walletAmount %></td>
+                                        <td><%= row.totalAmount+row.couponDiscount+row.walletAmount %></td>
                                         <td><%= row.paymentMethod %></td>
                                         <td><% if (row.isCancelled) { %>
                                                 <p class="text-danger">CANCELLED</p>
@@ -67,11 +71,11 @@
                                         <td>
                                             <% if (!row.isCancelled) { %>
                                                 <a href="/carts/cancelOrder/<%= row._id %>"
-                                                    class="btn btn-danger">Cancel</a>
+                                                    class="btn btn-outline-danger"><i class="fa-solid fa-ban"></i></a>
                                                     <!-- <button onclick="cancelOrder('<%= row._id %>')" class="btn btn-danger">Cancel</button> -->
                                                 <% } %>
                                                     <a href="/carts/view_order/<%= row._id %>/<%= row.totalAmount %>/<%= row.paymentMethod %>/<%= row.address[0].addressName %>/<%= row.address[0].addressPhone %>/<%= row.date.toISOString().split('T')[0] %>/<%= row.invoice %>"
-                                                        class="btn btn-primary float-end">View</a>
+                                                        class="btn btn-outline-dark float-end"><i class="fa-regular fa-eye"></i></a>
                                         </td>
                                     </tr>
 

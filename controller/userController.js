@@ -41,78 +41,71 @@ function loginPage(req, res) {
 
 async function userLogin(req, res) {
     try {
-        let {email,password} = req.body
-        if (email && password) {
-            let mail = await User.findOne({ email: email })
-            if (mail) {
-                if (!mail.isDeleted) {
-                    const isuser = await bcrypt.compare(password, mail.password)
-                    if (isuser) {
-                        req.session.userlogin = true
-                        req.session.currentUserId = mail._id
-                        if (req.session.cartId && req.session.cartId !== null) {
-                            const cartdetails = await cart.findById(req.session.cartId)
-                            let data
-                            if (cartdetails) {
-                                data = cartdetails.products
-                            } else { return res.send('cart is not found in database') }
-                            const isCart = await cart.findOne({ userId: req.session.currentUserId })
-                            if (!isCart) {
-                                let array = []
-                                for (let i = 0; i < data.length; i++) {
-                                    array[i] = {
-                                        productId: data[i].productId,
-                                        productName: data[i].productName,
-                                        productPrice: data[i].productPrice,
-                                        productImage: data[i].productImage,
-                                        quantity: data[i].quantity
-                                    }
-                                }
-                                await cart.insertMany({
-                                    userId: req.session.currentUserId,
-                                    products: array
-                                })
-                                await cart.findByIdAndDelete(req.session.cartId)
-                            } else {
-                                for (let i = 0; i < data.length; i++) {
-                                    await cart.findOneAndUpdate({ userId: req.session.currentUserId }, { $push: { products: { productId: data[i].productId, productName: data[i].productName, productPrice: data[i].productPrice, productImage: data[i].productImage, quantity: data[i].quantity } } })
-                                }
-                                await cart.findByIdAndDelete(req.session.cartId)
-                            }
-                        }
-                        await product.updateMany({}, { $set: { cart: false } })
-                        notifier.notify({
-                            title: 'Notifications',
-                            message: 'User logined successfully...',
-                            icon: path.join(__dirname, 'public/assets/sparelogo.png'),
-                            sound: true,
-                            wait: true
-                        })
-                        return res.json({success:true,message:'User logined successfully...'});
-                    } else {
-                        return res.json({success:false,message:'you Entered the wrong password.!'});
-                    }
-                } else {
-                    notifier.notify({
-                        title: 'Notifications',
-                        message: 'The user has been blocked by the Admin. Please try to connect with the help center to know more.',
-                        icon: path.join(__dirname, 'public/assets/sparelogo.png'),
-                        sound: true,
-                        wait: true
-                    })
-                    return res.json({success:false,message:'Your were Blocked by the admin.'});
-
-                }
-            } else {
-                return res.json({success:false,message:'Email is not matching'});
-            }
-        } else {
-            return res.json({success:false,message:'Input details must not be blank!'});
+        let { email, password } = req.body
+        let mail = await User.findOne({ email: email })
+        
+        if (!email || !password) return res.json({ success: false, message: 'Input details must not be blank!' });
+        if (!mail || mail === undefined || mail === null) return res.json({ success: false, message: 'Email is not matching' });
+        if (mail.isDeleted) {
+            notifier.notify({
+                title: 'Notifications',
+                message: 'The user has been blocked by the Admin. Please try to connect with the help center to know more.',
+                icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+                sound: true,
+                wait: true
+            })
+            return res.json({ success: false, message: 'Your were Blocked by the admin.' });
         }
+        const isuser = await bcrypt.compare(password, mail.password)
+        if (!isuser) return res.json({ success: false, message: 'you Entered the wrong password.!' });
+
+        req.session.userlogin = true
+        req.session.currentUserId = mail._id
+        if (req.session.cartId && req.session.cartId !== null) {
+            const cartdetails = await cart.findById(req.session.cartId)
+            let data
+            if (cartdetails) {
+                data = cartdetails.products
+            } else { return res.send('cart is not found in database') }
+            const isCart = await cart.findOne({ userId: req.session.currentUserId })
+            if (!isCart) {
+                let array = []
+                for (let i = data.length - 1; i >= 0; i--) {
+                    array[i] = {
+                        productId: data[i].productId,
+                        productName: data[i].productName,
+                        productPrice: data[i].productPrice,
+                        productImage: data[i].productImage,
+                        quantity: data[i].quantity
+                    }
+                }
+                await cart.insertMany({
+                    userId: req.session.currentUserId,
+                    products: array
+                })
+                await cart.findByIdAndDelete(req.session.cartId)
+            } else {
+                for (let i = 0; i < data.length; i++) {
+                    await cart.findOneAndUpdate({ userId: req.session.currentUserId }, { $push: { products: { $each: [{ productId: data[i].productId, productName: data[i].productName, productPrice: data[i].productPrice, productImage: data[i].productImage, quantity: data[i].quantity }], $position: 0 } } })
+                }
+                await cart.findByIdAndDelete(req.session.cartId)
+            }
+        }
+        await product.updateMany({}, { $set: { cart: false } })
+        notifier.notify({
+            title: 'Notifications',
+            message: 'User logined successfully...',
+            icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+            sound: true,
+            wait: true
+        })
+        return res.json({ success: true, message: 'User logined successfully...' });
+
 
     } catch (err) {
         console.log(err)
         console.log('Somthing Error at post login')
+        // return res.json({ success: false, message: 'Unknown Error occured.!' });
     }
 }
 

@@ -58,7 +58,7 @@ async function orderPost(req, res) {
                 if (cart && cart !== null) {
                     let items = []
                     var totalAmount;
-                    var discount;
+                    var discount = 0;
                     var couponCode
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
@@ -106,18 +106,22 @@ async function orderPost(req, res) {
 
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
                         $push: {
-                            orders: [{
-                                paymentMethod: value,
-                                invoice: invoiceNumber,
-                                totalAmount: totalAmount,
-                                products: items,
-                                address: [{
-                                    addressId: addressId,
-                                    addressName: name,
-                                    addressPhone: phone
-                                }],
+                            orders: {
+                                $each: [{
+                                    paymentMethod: value,
+                                    invoice: invoiceNumber,
+                                    totalAmount: totalAmount,
+                                    couponDiscount: discount,
+                                    walletAmount: wallet,
+                                    products: items,
+                                    address: [{
+                                        addressId: addressId,
+                                        addressName: name,
+                                        addressPhone: phone
+                                    }],
 
-                            }]
+                                }], $position: 0
+                            }
                         }
                     })
                     if (orderOk) {
@@ -141,10 +145,10 @@ async function orderPost(req, res) {
                                 await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
                                 console.log('order placed using wallet balance')
                                 changePaymentStatus(invoiceNumber)
-                                decreaseWalletBalance(user,wallet);
+                                decreaseWalletBalance(user, wallet);
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
-                            if(value === 'online payment + wallet') decreaseWalletBalance(user,wallet);
+                            if (value === 'online payment + wallet') decreaseWalletBalance(user, wallet);
                             generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
                                 Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
@@ -172,7 +176,7 @@ async function orderPost(req, res) {
                     let items = []
 
                     var totalAmount;
-                    var discount;
+                    var discount = 0;
                     var couponCode;
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
@@ -208,6 +212,7 @@ async function orderPost(req, res) {
                             paymentMethod: value,
                             invoice: invoiceNumber,
                             totalAmount: totalAmount,
+                            couponDiscount: discount,
                             products: items,
                             address: [{
                                 addressId: addressId,
@@ -267,14 +272,15 @@ async function orderHomePage(req, res) {
         const user = req.session.currentUserId
         console.log(`user id is ${user}`)
         const userId = new ObjectId(user)
-        const data = await Order.findOne({ userId: user }).sort({ 'orders.date': -1 })
-        data.orders.sort((a, b) => b.date - a.date);
-        //pagination
-        const page = parseInt(req.query.page) || 1;
-        const start = (page - 1) * productsPerPage;
-        const end = start + productsPerPage;
-        const paginatedProducts = data.orders.slice(start, end)
+        const data = await Order.findOne({ userId: user })
+
         if (data && data !== null && data !== undefined) {
+            //pagination
+            const page = parseInt(req.query.page) || 1;
+            const start = (page - 1) * productsPerPage;
+            const end = start + productsPerPage;
+            const paginatedProducts = data.orders.slice(start, end)
+
             return res.render('user/orderlist.ejs', {
                 title: 'orderList',
                 data: paginatedProducts,
@@ -342,11 +348,15 @@ async function viewOrder(req, res) {
 async function cancelOrder(req, res) {
     try {
         const orderId = req.params.id
+        const userId = req.session.currentUserId;
+        const orderElem = await Order.findOne({ userId: userId }, { orders: { $elemMatch: { _id: orderId } } })
+        const status=orderElem.orders[0].products[0].status;
         await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.isCancelled': true } })
         const cancel = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': 'CANCELLED' } })
         if (cancel) {
-            console.log(cancel)
-            // await Order.findOneAndUpdate({'orders._id':orderId},{$set:{'orders.$.products.$.status':'Cancelled'}})
+            if (orderElem.orders[0].paymentMethod !== 'COD' && status === 'PLACED') {
+                await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.refund': true } })
+            }
             console.log('Order cancelled');
             res.redirect('/carts/orders/')
         }
@@ -452,7 +462,7 @@ module.exports = {
 
 // additional functons
 
-async function decreaseWalletBalance(userId,amount){
+async function decreaseWalletBalance(userId, amount) {
     try {
         const updatedUser = await User.findByIdAndUpdate(
             userId,
@@ -469,9 +479,9 @@ async function decreaseWalletBalance(userId,amount){
             },
             { new: true, upsert: true }
         )
-        if(updatedUser){
+        if (updatedUser) {
             console.log('amount deducted from the wallet...');
-        }else{
+        } else {
             console.log('failed to deduct the balance.');
         }
     } catch (error) {

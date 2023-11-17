@@ -140,11 +140,13 @@ async function placeOrder(val) {
             </div>
             <div class="col-md-8 col-12 p-5 ms-5 mt-3 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
             const receivedInvoiceData = resBody.invoiceData;
+            document.getElementById('couponbox').style.display='none'
             openPopup();
             renderInvoice(receivedInvoiceData);
         } else if (resBody.online) {
             const receivedInvoiceData = resBody.invoiceData;
             razorpayPayment(resBody.result,receivedInvoiceData)
+            document.getElementById('couponbox').style.display='none'
         }else{
             alert(resBody.message)
         }

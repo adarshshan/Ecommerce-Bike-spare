@@ -16,7 +16,7 @@ async function addressBook() {
         if (resBody.success) {
             for (let i = 0; i < resBody.addressBook[0].address.length; i++) {
                 x += `
-                <div class="row shadow m-2 bg-light" id="addr${resBody.addressBook[0].address[i]._id}">
+                <div class="row wallet-card shadow m-2 bg-light" id="addr${resBody.addressBook[0].address[i]._id}">
                         <p class="fs-3 fw-bold">${resBody.addressBook[0].address[i].name}</p>
                         <div class="col-md-4 col-12 col-lg-4">
                             <p>Full address : ${resBody.addressBook[0].address[i].fullAddress}</p>

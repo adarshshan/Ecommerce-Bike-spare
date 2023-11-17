@@ -29,6 +29,7 @@
         border-top: 2px solid;
     }
 </style>
+
 <body style="background-color: #f7efef;">
     <header>
         <nav class="navbar navbar-expand-lg navbar-light py-3 border-bottom border-3 bg-light">
@@ -123,13 +124,17 @@
                             </li>
                         </ul>
                         <!-- coupon -->
-                        <div class="card-body d-flex border-top">
-                              <div class="form-group">
-                                <input type="text" class="form-control py-3 px-2" id="couponCode" placeholder="Enter coupon code">
-                                <span class="text-danger" id="coupon-error"></span>
-                              </div>
-                              <button class="btn btn-outline-primary ms-3 px-4" onclick="verifyCoupon('<%= totalAmount %>')">Apply</button>
-                          </div>
+                        <div id="couponbox">
+                            <div class="card-body d-flex border-top">
+                                <div class="form-group">
+                                    <input type="text" class="form-control py-3 px-2" id="couponCode"
+                                        placeholder="Enter coupon code">
+                                    <span class="text-danger" id="coupon-error"></span>
+                                </div>
+                                <button class="btn btn-outline-primary ms-3 px-4"
+                                    onclick="verifyCoupon('<%= totalAmount %>')">Apply</button>
+                            </div>
+                        </div>
                         <!-- /coupon -->
 
                     </div>
@@ -137,25 +142,26 @@
             </div>
         </div>
     </div>
-    
+
     <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="/static/user/invoice.js"></script>
     <script>
-        async function verifyCoupon(total){
-            const code =document.getElementById('couponCode').value;
-            const response=await fetch(`/coupons/verify-coupon/${total}/${code}`,{method:'get'})
-            const resbody=await response.json()
-            if(resbody.success){
-                document.getElementById('totalAmount').innerText=resbody.actualAmount;
-                document.getElementById('discount').innerText=resbody.discountAmount;
+        async function verifyCoupon(total) {
+            const code = document.getElementById('couponCode').value;
+            const response = await fetch(`/coupons/verify-coupon/${total}/${code}`, { method: 'get' })
+            const resbody = await response.json()
+            if (resbody.success) {
+                document.getElementById('totalAmount').innerText = resbody.actualAmount;
+                document.getElementById('discount').innerText = resbody.discountAmount;
                 document.getElementById('message-alert').innerText = resbody.message
                 // document.getElementById('coupon-error').innerText=resbody.message
-                document.getElementById('coupon-error').innerHTML=`<p class="text-success">${resbody.message}</p>`
+                document.getElementById('coupon-error').innerHTML = `<p class="text-success">${resbody.message}</p>`
                 openPopup()
-            }else{
-                document.getElementById('coupon-error').innerText=resbody.message
+            } else {
+                document.getElementById('coupon-error').innerText = resbody.message
             }
         }
     </script>

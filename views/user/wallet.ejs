@@ -74,7 +74,7 @@
                     <h1 class="text-center mb-4">Your Wallet</h1>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-6 mt-3">
                             <div class="wallet-card">
                                 <h5 class="card-title">Balance</h5>
                                 <p class="balance">Rs. <%= balance %>
@@ -83,7 +83,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6 wallet-card">
+                        <div class="col-md-6 wallet-card mt-3">
 
                             <h3>Add Funds</h3>
                             <!-- <form> -->
@@ -105,13 +105,22 @@
                                                 <li
                                                     class="list-group-item d-flex justify-content-between align-items-center">
                                                     <div>
-                                                        <i class="fas fa-arrow-circle-up text-success me-2"></i>
-                                                        <span>Payment received - Rs. <%= row.amount %></span>
-                                                        <p class="transaction-desc">
-                                                            <%= row.description %>
-                                                        </p>
+                                                        <% if (row.type==='credited' ) { %>
+                                                            <i class="fas fa-arrow-circle-down text-danger me-2"></i>
+                                                            <span class="text-danger">Payment received - Rs. <%=
+                                                                    row.amount %></span>
+                                                            <% }else{ %>
+                                                                <i
+                                                                    class="fas fa-arrow-circle-up text-success me-2"></i>
+                                                                <span class="text-success">Payment received - Rs. <%=
+                                                                        row.amount %></span>
+                                                                <% } %>
+
+                                                                    <p class="transaction-desc">
+                                                                        <%= row.description %>
+                                                                    </p>
                                                     </div>
-                                                    <span class="transaction-time">Nov 10, 2023 - 10:30 AM</span>
+                                                    <span class="transaction-time"><%= row.time.toLocaleDateString() %> - <%= row.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); %></span>
                                                 </li>
                                                 <% }) %>
 
@@ -149,10 +158,10 @@
             const response = await fetch(`/add-walletfund/${amount}`, { method: 'get' })
             const resBody = await response.json()
             if (resBody.success) {
-                
+
                 document.querySelector('.balance').innerHTML = `Rs. ${resBody.walletDetails.balance}`
                 document.getElementById('amount').value = .00
-                let x='';
+                let x = '';
                 for (let i = 0; i < resBody.walletDetails.transactions.length; i++) {
                     x += ` <li class="list-group-item d-flex justify-content-between align-items-center">
                               <div>
