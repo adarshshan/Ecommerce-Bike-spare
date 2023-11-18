@@ -24,8 +24,8 @@ async function paymentOptionPage(req, res) {
             phone: phone
         }
         if (req.session.selectedAddress) {
-            const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: user })
-            res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts })
+            const { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: user })
+            res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts,totalDiscount })
         }
     } catch (error) {
         console.log('Error is at /payment_option/:id ' + error)
@@ -579,6 +579,7 @@ function generateUniqueIdentifier() {
 
 const calculateTotalAmount = async (matchCriteria) => {
     console.log('Matching criteria:', matchCriteria);
+
     const result = await Cart.aggregate([
         {
             $match: matchCriteria
@@ -600,20 +601,61 @@ const calculateTotalAmount = async (matchCriteria) => {
         {
             $group: {
                 _id: null,
-                totalAmount: { $sum: { $multiply: ["$product.price", "$products.quantity"] } },
+                totalAmount: {
+                    $sum: {
+                        $cond: {
+                            if: { $ne: ["$product.discount", 0] },
+                            then: {
+                                $multiply: [
+                                    {
+                                        $subtract: [
+                                            "$product.price",
+                                            { $multiply: ["$product.price", { $divide: ["$product.discount", 100] }] }
+                                        ]
+                                    },
+                                    "$products.quantity"
+                                ]
+                            },
+                            else: { $multiply: ["$product.price", "$products.quantity"] }
+                        }
+                    }
+                },
+                totalDiscount: {
+                    $sum: {
+                        $cond: {
+                            if: { $ne: ["$product.discount", 0] },
+                            then: {
+                                $multiply: [
+                                    "$product.price",
+                                    { $divide: ["$product.discount", 100] },
+                                    "$products.quantity"
+                                ]
+                            },
+                            else: 0
+                        }
+                    }
+                },
                 totalProducts: { $sum: 1 }
             }
         }
     ]);
+    
+
+    console.log('Aggregation result:', result);
+
+
 
 
     if (result.length > 0) {
         console.log('Total Amount:', result[0].totalAmount);
+        console.log(`totalProducts ${result[0].totalProducts}`)
+        console.log(`totalDiscount ${result[0].totalDiscount}`)
         let totalAmount = result[0].totalAmount
         let totalProducts = result[0].totalProducts
-        return { totalAmount, totalProducts };
+        let totalDiscount = result[0].totalDiscount
+        return { totalAmount, totalProducts,totalDiscount };
     } else {
         console.log('No results found.');
-        return 0;
+        return 0; // Return 0 if no results
     }
 };

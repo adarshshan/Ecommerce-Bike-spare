@@ -15,16 +15,16 @@ async function cartHome(req, res) {
         const cartList = await Cart.find({ userId: userId })
             .populate({
                 path: 'products.productId',
-                select: 'name price image description stock quantity'
+                select: 'name price image discount description stock quantity'
             })
         const justCart = await Cart.find({ _id: cartId })
             .populate({
                 path: 'products.productId',
-                select: 'name price image description stock quantity'
+                select: 'name price image discount description stock quantity'
             })
         if (cartList && cartList.length > 0 && cartList !== undefined) {
-            let { totalAmount, totalProducts } = await calculateTotalAmount({ userId: use })
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts })
+            let { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: use })
+            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts,totalDiscount })
 
         } else if (justCart && justCart.length) {
             let { totalAmount, totalProducts } = await calculateTotalAmount({ _id: car })
@@ -42,21 +42,21 @@ async function cartHome(req, res) {
 async function addCart(req, res) {
     try {
         const id = req.params.id//product id
-        const name=req.params.name
-        const price=req.params.price
-        const imageUri=req.params.image
-        const discription=req.params.disc;
+        const name = req.params.name
+        const price = req.params.price
+        const imageUri = req.params.image
+        const discription = req.params.disc;
         const userId = req.session.currentUserId
         if (!userId) {
             const cartId = req.session.cartId
             if (cartId && cartId !== null) {
 
-                        await Cart.findByIdAndUpdate(cartId, { $push: { products:{$each: [{ productId: id,productName:name,productPrice:price,productImage:imageUri,discription:discription }],$position:0 }} })
+                await Cart.findByIdAndUpdate(cartId, { $push: { products: { $each: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }], $position: 0 } } })
                 await product.findByIdAndUpdate(id, { $set: { cart: true } })
                 console.log('products add to existing cart...')
                 return res.redirect('/carts')
             } else {
-                const resu = await Cart.insertMany({ products: [{ productId: id,productName:name,productPrice:price,productImage:imageUri,discription:discription }] })
+                const resu = await Cart.insertMany({ products: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }] })
                 if (resu) {
                     req.session.cartId = resu[0]._id
                     await product.findByIdAndUpdate(id, { $set: { cart: true } })
@@ -69,7 +69,7 @@ async function addCart(req, res) {
         } else {
             const existCart = await Cart.findOne({ userId: userId })
             if (existCart) {
-                let push = await Cart.findOneAndUpdate({ userId: userId }, { $push: { products:{$each:[{productId: id,productName:name,productPrice:price,productImage:imageUri,discription:discription}],$position:0} } })
+                let push = await Cart.findOneAndUpdate({ userId: userId }, { $push: { products: { $each: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }], $position: 0 } } })
                 if (push) {
                     await product.findByIdAndUpdate(id, { $set: { cart: true } })
                     notifier.notify({
@@ -85,7 +85,7 @@ async function addCart(req, res) {
             } else {
                 const resu = await Cart.insertMany({
                     userId: userId,
-                    products: [{ productId: id,productName:name,productPrice:price,productImage:imageUri,discription:discription }]
+                    products: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }]
                 })
                 if (resu) {
                     await product.findByIdAndUpdate(id, { $set: { cart: true } })
@@ -137,7 +137,7 @@ async function increaseCount(req, res) {
         const use = new ObjectId(userId)
         if (userId) {
             await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': 1 } })
-            let { totalAmount, totalProducts } = await calculateTotalAmount({ userId: use })
+            let { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: use })
             const q = await Cart.aggregate([
                 {
                     $match: {
@@ -161,7 +161,7 @@ async function increaseCount(req, res) {
             ])
             let productQuantity = q[0].quantity
             console.log(`Quantity: ${productQuantity}`);
-            res.json({ success: true, productQuantity, totalAmount, totalProducts })
+            res.json({ success: true, productQuantity, totalAmount, totalProducts,totalDiscount })
 
         } else if (cartId) {
             await Cart.updateOne({ _id: cartId, 'products.productId': id }, { $inc: { 'products.$.quantity': 1 } })
@@ -207,7 +207,7 @@ async function decreaseCount(req, res) {
         const cartId = req.session.cartId
         if (userId) {
             await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
-            let { totalAmount, totalProducts } = await calculateTotalAmount({ userId: use })
+            let { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: use })
             const q = await Cart.aggregate([
                 {
                     $match: {
@@ -231,7 +231,7 @@ async function decreaseCount(req, res) {
             ])
             let productQuantity = q[0].quantity
             console.log(`Quantity: ${productQuantity}`);
-            res.json({ success: true, productQuantity, totalAmount, totalProducts })
+            res.json({ success: true, productQuantity, totalAmount, totalProducts,totalDiscount })
         } else if (cartId) {
             await Cart.updateOne({ _id: cartId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
             const q = await Cart.aggregate([
@@ -267,6 +267,7 @@ async function decreaseCount(req, res) {
 
 const calculateTotalAmount = async (matchCriteria) => {
     console.log('Matching criteria:', matchCriteria);
+
     const result = await Cart.aggregate([
         {
             $match: matchCriteria
@@ -288,20 +289,59 @@ const calculateTotalAmount = async (matchCriteria) => {
         {
             $group: {
                 _id: null,
-                totalAmount: { $sum: { $multiply: ["$product.price", "$products.quantity"] } },
+                totalAmount: {
+                    $sum: {
+                        $cond: {
+                            if: { $ne: ["$product.discount", 0] },
+                            then: {
+                                $multiply: [
+                                    {
+                                        $subtract: [
+                                            "$product.price",
+                                            { $multiply: ["$product.price", { $divide: ["$product.discount", 100] }] }
+                                        ]
+                                    },
+                                    "$products.quantity"
+                                ]
+                            },
+                            else: { $multiply: ["$product.price", "$products.quantity"] }
+                        }
+                    }
+                },
+                totalDiscount: {
+                    $sum: {
+                        $cond: {
+                            if: { $ne: ["$product.discount", 0] },
+                            then: {
+                                $multiply: [
+                                    "$product.price",
+                                    { $divide: ["$product.discount", 100] },
+                                    "$products.quantity"
+                                ]
+                            },
+                            else: 0
+                        }
+                    }
+                },
                 totalProducts: { $sum: 1 }
             }
         }
     ]);
+    
 
     console.log('Aggregation result:', result);
+
+
+
 
     if (result.length > 0) {
         console.log('Total Amount:', result[0].totalAmount);
         console.log(`totalProducts ${result[0].totalProducts}`)
+        console.log(`totalDiscount ${result[0].totalDiscount}`)
         let totalAmount = result[0].totalAmount
         let totalProducts = result[0].totalProducts
-        return { totalAmount, totalProducts };
+        let totalDiscount = result[0].totalDiscount
+        return { totalAmount, totalProducts,totalDiscount };
     } else {
         console.log('No results found.');
         return 0; // Return 0 if no results

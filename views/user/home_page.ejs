@@ -69,8 +69,14 @@
                                     <% if (row.stock==0) { %>
                                         <p class="text-danger">out of stock</p>
                                         <% } %>
-                                            <p class="card-text">RS. <%= row.price %>
-                                            </p>
+                                        <% if (row.discount!==0) { %>
+                                         <small class="text-success"><%= row.discount+" %off" %></small>
+                                         <p class="card-text text-success"><del class="text-danger"><%= row.price %></del>    <i class="fa-solid fa-indian-rupee-sign text-dark"></i> <%= row.price-(row.price*row.discount/100) %></p>
+                                        <% }else{ %>
+                                            <p class="card-text"><i class="fa-solid fa-indian-rupee-sign"></i>  <%= row.price %></p>
+                                            <% } %>
+                                            
+                                            
                                             <div class="d-flex mt-3">
                                                 <% if (row.cart) { %>
                                                     <a href="/carts" class="btn btn-warning py-3 fw-bold">Go

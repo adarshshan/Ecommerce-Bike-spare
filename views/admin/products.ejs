@@ -20,6 +20,7 @@
                   <th scope="col">Image</th>
                   <th scope="col">Title</th>
                   <th scope="col">Price</th>
+                  <th scope="col">Discount</th>
                   <th scope="col">Brand</th>
                   <th scope="col">Category</th>
                   <th scope="col">Stock left</th>
@@ -34,6 +35,7 @@
                     <td><img width="50" src="<%= row.image[0] %>" ></td>
                     <td><%= row.name %></td>
                     <td><%= row.price %></td>
+                    <td><%= row.discount==0?' ':row.discount+' %off' %></td>
                     <td><%= row.brandId.name?row.brandId.name:'Brand name' %></td>
                     <td><%= row.categorieId ? row.categorieId.name:'N/A' %></td>
                     <td><%= row.stock %></td>

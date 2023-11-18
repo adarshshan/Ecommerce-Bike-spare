@@ -1,27 +1,27 @@
-const Cart=require('../models/cart')
-const addressModel=require('../models/userDetail')
+const Cart = require('../models/cart')
+const addressModel = require('../models/userDetail')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
 
 
 
-async function checkoutPage (req, res) {
+async function checkoutPage(req, res) {
     const userId = req.session.currentUserId
     const user = new ObjectId(userId)
     if (userId) {
         const address = await addressModel.findOne({ userId: userId })
         const cart = await Cart.findOne({ userId: userId })
-        if (cart && cart !== null && cart !== undefined &&cart.products.length!==0) {
-            
-            const { totalAmount, totalProducts } = await calculateTotalAmount({ userId: user })
+        if (cart && cart !== null && cart !== undefined && cart.products.length !== 0) {
+
+            const { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: user })
             var addressDetails
             if (address && address !== null) {
                 addressDetails = address.address;
             } else {
                 console.log('data not found')
             }
-            res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts })
-        }else{
+            res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts, totalDiscount })
+        } else {
             console.log('Cart is empty')
             return res.redirect('/carts')
         }
@@ -34,7 +34,7 @@ async function checkoutPage (req, res) {
 
 }
 
-async function addAddress (req, res) {
+async function addAddress(req, res) {
     try {
         const userId = req.session.currentUserId
         const data = req.body
@@ -72,7 +72,7 @@ async function addressGet(req, res) {
     }
 }
 
-async function updateAddress (req, res) {
+async function updateAddress(req, res) {
     try {
         const id = req.params.id
         const data = req.body
@@ -104,7 +104,7 @@ async function updateAddress (req, res) {
     }
 }
 
-async function deleteAddress (req, res) {
+async function deleteAddress(req, res) {
     const idd = req.params.id
     const id = new ObjectId(idd)
     console.log('it is your address id ' + id)
@@ -118,7 +118,7 @@ async function deleteAddress (req, res) {
 
 }
 
-module.exports={
+module.exports = {
     checkoutPage,
     addAddress,
     addressGet,
@@ -128,6 +128,7 @@ module.exports={
 
 const calculateTotalAmount = async (matchCriteria) => {
     console.log('Matching criteria:', matchCriteria);
+
     const result = await Cart.aggregate([
         {
             $match: matchCriteria
@@ -149,18 +150,59 @@ const calculateTotalAmount = async (matchCriteria) => {
         {
             $group: {
                 _id: null,
-                totalAmount: { $sum: { $multiply: ["$product.price", "$products.quantity"] } },
+                totalAmount: {
+                    $sum: {
+                        $cond: {
+                            if: { $ne: ["$product.discount", 0] },
+                            then: {
+                                $multiply: [
+                                    {
+                                        $subtract: [
+                                            "$product.price",
+                                            { $multiply: ["$product.price", { $divide: ["$product.discount", 100] }] }
+                                        ]
+                                    },
+                                    "$products.quantity"
+                                ]
+                            },
+                            else: { $multiply: ["$product.price", "$products.quantity"] }
+                        }
+                    }
+                },
+                totalDiscount: {
+                    $sum: {
+                        $cond: {
+                            if: { $ne: ["$product.discount", 0] },
+                            then: {
+                                $multiply: [
+                                    "$product.price",
+                                    { $divide: ["$product.discount", 100] },
+                                    "$products.quantity"
+                                ]
+                            },
+                            else: 0
+                        }
+                    }
+                },
                 totalProducts: { $sum: 1 }
             }
         }
     ]);
 
+
+    console.log('Aggregation result:', result);
+
+
+
+
     if (result.length > 0) {
         console.log('Total Amount:', result[0].totalAmount);
         console.log(`totalProducts ${result[0].totalProducts}`)
+        console.log(`totalDiscount ${result[0].totalDiscount}`)
         let totalAmount = result[0].totalAmount
         let totalProducts = result[0].totalProducts
-        return { totalAmount, totalProducts };
+        let totalDiscount = result[0].totalDiscount
+        return { totalAmount, totalProducts, totalDiscount };
     } else {
         console.log('No results found.');
         return 0; // Return 0 if no results

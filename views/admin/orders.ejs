@@ -80,7 +80,9 @@
             const response=await fetch(`/wallet-refund/${orderId}`,{method:'get'})
             const resBody=await response.json()
             if(resBody.success){
-                alert(resBody.message)
+                setTimeout(()=>{
+                    location.reload()
+                },500)
             }else{
                 alert(resBody.message)
             }

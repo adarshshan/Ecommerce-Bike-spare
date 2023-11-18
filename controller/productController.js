@@ -79,6 +79,7 @@ function addProduct(req, res) {
                 categorieId: req.body.categorieId,
                 price: req.body.price,
                 stock: req.body.stock,
+                discount:req.body.discount,
                 description: req.body.description,
                 image: arrayimage
             })
@@ -222,6 +223,7 @@ async function updateProduct(req, res) {
                 categorieId: req.body.categorieId,
                 price: req.body.price,
                 stock: req.body.stock,
+                discount:req.body.discount,
                 description: req.body.description,
                 image: compimgpath
             }).then(() => {

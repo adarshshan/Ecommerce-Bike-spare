@@ -58,7 +58,13 @@
                                     <h3 class="mt-5">
                                         <%= row.productId.name %>
                                     </h3>
-                                    <p class="fw-bold">Rs <%= row.productId.price %>
+                                    <% if (row.productId.discount!==0) { %>
+                                        <p class="text-success">Discount: <%= row.productId.discount +' %off' %></p>
+                                        <p><strong>Price: <del class="text-danger">Rs.<%= row.productId.price %></del> <p class="fs-4 text-success"><i class="fa-solid fa-indian-rupee-sign"></i> <%= row.productId.price-(row.productId.price*row.productId.discount/100) %></p> </strong></p>
+                                    <% }else{ %>
+                                        <p class="fw-bold"><i class="fa-solid fa-indian-rupee-sign"></i> <%= row.productId.price %>
+                                        <% } %>
+                                    
                                     </p>
                                 </div>
                             </div>

@@ -23,8 +23,8 @@
     }
 </style>
 </head>
-<body style="background-color: #f7efef;">
-<div class="container">
+<body>
+<div class="container border-top">
     <div class="row">
         <div class="col-md-6 mt-5">
             <div id="productCarousel" class="carousel slide" data-ride="carousel">
@@ -68,7 +68,13 @@
             <p>
                 <%= products.description %>
             </p>
-            <p><strong>Price: $<%= products.price %></strong></p>
+            <% if (products.discount!==0) { %>
+                <p class="text-success">Discount: <%= products.discount +' %off' %></p>
+                <p><strong>Price: <del class="text-danger"><i class="fa-solid fa-indian-rupee-sign"></i>  <%= products.price %></del> <p class="fs-4 text-success"><i class="fa-solid fa-indian-rupee-sign"></i>  <%= products.price-(products.price*products.discount/100) %></p> </strong></p>
+            <% }else{ %>
+                <p><strong>Price:<i class="fa-solid fa-indian-rupee-sign"></i>  <%= products.price %></strong></p>
+                <% } %>
+            
             <p><strong>Availability: In Stock </strong>
                 <%= products.stock %><b> Nos</b>
             </p>

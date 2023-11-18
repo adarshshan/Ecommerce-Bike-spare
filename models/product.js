@@ -28,9 +28,6 @@ const prouctSchema = new mongoose.Schema({
         type: String
     },
     image: [{type: String}],
-    // image:{
-    //     type:String,
-    // },
     isDeleted:{
         type:Boolean,
         default:false
@@ -41,6 +38,10 @@ const prouctSchema = new mongoose.Schema({
     },
     modified_at: {
         type: Date
+    },
+    discount:{
+        type:Number,
+        default:0
     },
     cart:{
         type:Boolean,
