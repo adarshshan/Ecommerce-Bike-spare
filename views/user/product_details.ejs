@@ -25,17 +25,17 @@
 </head>
 <body>
 <div class="container border-top">
-    <div class="row">
-        <div class="col-md-6 mt-5">
+    <div class="row mt-5">
+        <div class="col-md-6">
             <div id="productCarousel" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
                     <div class="carousel-item active">
-                        <img style="height: 500px;" src="<%= imgUri %><%= products.image[0] %>" class="d-block w-75 zoom_img"
+                        <img style="width: 100%;" src="<%= imgUri %><%= products.image[0] %>" class="d-block w-75 zoom_img"
                             alt="Product Image 1">
                     </div>
                     <% for( let i=1; i < products.image.length; i++ ) { %>
                         <div class="carousel-item">
-                            <img style="height: 500px;" src="<%= imgUri %><%= products.image[i] %>"
+                            <img style="width: 100%;" src="<%= imgUri %><%= products.image[i] %>"
                                 class="d-block w-75 zoom_img" alt="Product Image 1">
                         </div>
                     <% } %>
@@ -61,7 +61,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 mt-5">
+        <div class="col-md-6">
             <h1>
                 <%= products.name %>
             </h1>

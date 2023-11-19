@@ -28,8 +28,8 @@ function validateAlternumber() {
         phoneError.innerHTML = 'Phone number should be 10 numbers'
         return false;
     }
-    phoneError.style.color = 'green'
-    phoneError.innerHTML = 'valid'
+    phoneError.innerHTML = ''
+    return true;
 }
 function validateLandmark() {
     const Landmark = document.getElementById('Landmark').value
@@ -43,8 +43,7 @@ function validateLandmark() {
         LandmarkError.innerHTML = 'write altest 10 characters *'
         return false;
     }
-    LandmarkError.style.color = 'green'
-    LandmarkError.innerHTML = 'valid'
+    LandmarkError.innerHTML = ''
     return true;
 }
 function validatePin() {
@@ -59,8 +58,8 @@ function validatePin() {
         pinError.innerHTML = 'pin must be 6 numbers'
         return false;
     }
-    pinError.style.color = 'green'
-    pinError.innerHTML = 'pin is valid'
+    // pinError.style.color = 'green'
+    pinError.innerHTML = ''
     return true;
 }
 function validateAddress() {
@@ -75,8 +74,8 @@ function validateAddress() {
         addressError.innerHTML = 'must have to write atlest 10 charachers*'
         return false;
     }
-    addressError.style.color = 'green'
-    addressError.innerHTML = 'valid'
+    // addressError.style.color = 'green'
+    addressError.innerHTML = ''
     return true;
 }
 function validatePhone() {
@@ -91,8 +90,8 @@ function validatePhone() {
         phoneError.innerHTML = 'Phone number should be 10 numbers'
         return false;
     }
-    phoneError.style.color = 'green'
-    phoneError.innerHTML = 'valid'
+    // phoneError.style.color = 'green'
+    phoneError.innerHTML = ''
 }
 function validateName() {
     const name = document.getElementById('name').value
@@ -106,7 +105,7 @@ function validateName() {
         nameError.innerHTML = 'name must has 4-20 charachers*'
         return false
     }
-    nameError.style.color = 'green'
-    nameError.innerHTML = 'valid'
+    // nameError.style.color = 'green'
+    nameError.innerHTML = ' '
     return true;
 }

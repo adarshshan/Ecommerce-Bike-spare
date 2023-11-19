@@ -8,7 +8,7 @@
     <div class="container-fluid" style="background-color: #f7efef;">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-3 d-md-block sidebar fs-5 fw-normal shadow">
+            <nav id="sidebar" class="col-md-3 col-lg-3 d-md-block sidebar fs-4 fw-normal shadow">
                 <div class="position-sticky">
                     <a class="nav-link text-dark" href="/profile">
                         <div class="nav-item p-3">
@@ -75,11 +75,11 @@
 
                     <div class="row">
                         <div class="col-md-6 mt-3">
-                            <div class="wallet-card">
+                            <div class="wallet-card py-5">
                                 <h5 class="card-title">Balance</h5>
                                 <p class="balance">Rs. <%= balance %>
                                 </p>
-                                <a href="#" class="btn btn-primary">Withdraw</a>
+                                <!-- <a href="#" class="btn btn-primary">Withdraw</a> -->
                             </div>
                         </div>
 
@@ -161,21 +161,9 @@
 
                 document.querySelector('.balance').innerHTML = `Rs. ${resBody.walletDetails.balance}`
                 document.getElementById('amount').value = .00
-                let x = '';
-                for (let i = 0; i < resBody.walletDetails.transactions.length; i++) {
-                    x += ` <li class="list-group-item d-flex justify-content-between align-items-center">
-                              <div>
-                                  <i class="fas fa-arrow-circle-up text-success me-2"></i>
-                                  <span>Payment received - Rs. ${resBody.walletDetails.transactions[i].amount}</span>
-                                  <p class="transaction-desc">${resBody.walletDetails.transactions[i].description}</p>
-                              </div>
-                                  <span class="transaction-time">${resBody.walletDetails.transactions[i].time}</span>
-                          </li>`
-                }
-                // document.getElementById('transactions').innerHTML = x;
                 setTimeout(() => {
-                    document.getElementById('transactions').innerHTML = x;
                     alert(resBody.message)
+                    location.reload()
                 }, 500);
 
 

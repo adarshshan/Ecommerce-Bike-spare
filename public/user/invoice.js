@@ -79,34 +79,40 @@ function renderInvoice(invoiceData) {
                                     ${products}
 
                                     <tr>
+                                        <td class="thick-line"><strong>Subtotal</strong></td>
                                         <td class="thick-line"></td>
-                                        <td class="thick-line"></td>
-                                        <td class="thick-line text-center"><strong>Subtotal</strong></td>
+                                        <td class="thick-line text-center"></td>
                                         <td class="thick-line text-right">Rs.${subtotal}</td>
                                     </tr>
                                     <tr>
-                                        <td class="thick-line"></td>
-                                        <td class="thick-line"></td>
-                                        <td class="thick-line text-center"><strong>Paid from wallet balance </strong></td>
-                                        <td class="thick-line text-right">Rs.${invoiceData.information.wallet}</td>
+                                        <td class="no-line"><strong>Paid from wallet balance </strong></td>
+                                        <td class="no-line"></td>
+                                        <td class="no-line text-center"></td>
+                                        <td class="no-line text-right">Rs.${invoiceData.information.wallet}</td>
                                     </tr>
                                     <tr>
-                                        <td class="thick-line"></td>
-                                        <td class="thick-line"></td>
-                                        <td class="thick-line text-center"><strong>Discount</strong></td>
-                                        <td class="thick-line text-right">Rs.${invoiceData.information.discount}</td>
+                                        <td class="no-line"><strong>Discount on products</strong></td>
+                                        <td class="no-line"></td>
+                                        <td class="no-line text-center"></td>
+                                        <td class="no-line text-right text-success">-Rs.${invoiceData.information.totalDiscount}</td>
                                     </tr>
                                     <tr>
+                                        <td class="no-line"><strong>Coupon Discount</strong></td>
                                         <td class="no-line"></td>
+                                        <td class="no-line text-center"></td>
+                                        <td class="no-line text-right text-success">-Rs.${invoiceData.information.discount}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="no-line"><strong>Shipping</strong></td>
                                         <td class="no-line"></td>
-                                        <td class="no-line text-center"><strong>Shipping</strong></td>
+                                        <td class="no-line text-center"></td>
                                         <td class="no-line text-right">Rs.00</td>
                                     </tr>
                                     <tr>
+                                        <td class="no-line"><strong>Total</strong></td>
                                         <td class="no-line"></td>
-                                        <td class="no-line"></td>
-                                        <td class="no-line text-center"><strong>Total</strong></td>
-                                        <td class="no-line text-right">Rs.${invoiceData.information.totalAmount}</td>
+                                        <td class="no-line text-center"></td>
+                                        <td class="no-line text-right">Rs.${invoiceData.information.totalAmount+invoiceData.information.wallet}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -138,7 +144,7 @@ async function placeOrder(val) {
                 </div>
                 <p class="btn border-0 fw-bold py-3 float-end" onclick="downloadInvoice()">Download Invoice  <i class="fa-solid fa-download fs-5"></i></p>
             </div>
-            <div class="col-md-8 col-12 p-5 ms-5 mt-3 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
+            <div class="col-md-8 col-12 p-5 mt-3 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
             const receivedInvoiceData = resBody.invoiceData;
             document.getElementById('couponbox').style.display='none'
             openPopup();

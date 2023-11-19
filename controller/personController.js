@@ -1,6 +1,6 @@
 const Products = require('../models/product')
 const User = require('../models/user')
-const Address=require('../models/userDetail')
+const Address = require('../models/userDetail')
 const Brand = require('../models/brand')
 const categorie = require('../models/categorie')
 const bcrypt = require('bcrypt')
@@ -20,7 +20,17 @@ async function personHome(req, res) {
         }
         const userId = req.session.currentUserId;
         const productsPerPage = 12
-        let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 })
+        let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 }).populate("categorieId", { _id: 0, name: 1 })
+
+        // console.log(productList)
+        let categoryNames = [...new Set(
+            productList
+              .filter(product => product.categorieId && product.categorieId.name) // Filter out null or undefined categorieId
+              .map(product => product.categorieId.name)
+          )];
+
+
+
         const page = parseInt(req.query.page) || 1;
         const start = (page - 1) * productsPerPage;
         const end = start + productsPerPage;
@@ -28,18 +38,19 @@ async function personHome(req, res) {
         if (!productList) {
             res.status(500).json({ success: false })
         } else {
-            if (userId && userId !== null && userId !== undefined){
-                const user=await User.findById(userId)
-                var wishlist=user.wishlist
+            if (userId && userId !== null && userId !== undefined) {
+                const user = await User.findById(userId)
+                var wishlist = user.wishlist
 
             }
-                res.render('user/home_page', {
-                    title: 'home_page',
-                    products: paginatedProducts,
-                    currenPage: page,
-                    totaPages: Math.ceil(productList.length / productsPerPage),
-                    wishlist
-                })
+            res.render('user/home_page', {
+                title: 'home_page',
+                products: paginatedProducts,
+                currenPage: page,
+                totaPages: Math.ceil(productList.length / productsPerPage),
+                wishlist,
+                categoryNames
+            })
         }
     } catch (error) {
         console.log("An Error occured at rendering the user home page..." + error)
@@ -390,7 +401,7 @@ async function newPasswordUpdate(req, res) {
 
 ///////////wishlist-Controller////////
 
-async function wishlistHome (req, res) {
+async function wishlistHome(req, res) {
     try {
         const userId = req.session.currentUserId
         const users = await User.findById(userId).populate('wishlist.productId')
@@ -403,7 +414,7 @@ async function wishlistHome (req, res) {
     }
 }
 
-async function addToWishlist (req, res) {
+async function addToWishlist(req, res) {
     try {
         const productId = req.params.id;
         const userId = req.session.currentUserId;
@@ -450,29 +461,29 @@ async function walletHome(req, res) {
     try {
         const userId = req.session.currentUserId
         const id = new ObjectId(userId)
-        const userwallet=await User.findById(userId,{_id:0,wallet:1})
-        const balance=userwallet.wallet.balance
-        const wallet=await User.aggregate([
+        const userwallet = await User.findById(userId, { _id: 0, wallet: 1 })
+        const balance = userwallet.wallet.balance
+        const wallet = await User.aggregate([
             { $match: { _id: id } },
             { $unwind: "$wallet.transactions" },
             { $sort: { "wallet.transactions.time": -1 } },
-            { 
-              $group: {
-                _id: "$_id",
-                wallet: { $push: "$wallet.transactions" }
-              }
+            {
+                $group: {
+                    _id: "$_id",
+                    wallet: { $push: "$wallet.transactions" }
+                }
             },
             { $project: { _id: 0, wallet: 1 } }
-          ])
+        ])
         // console.log(wallet[0].wallet);
         // console.log(wallet[0]);
-        res.render('user/wallet.ejs', { title: 'wallet',wallet,balance});
+        res.render('user/wallet.ejs', { title: 'wallet', wallet, balance });
     } catch (error) {
         console.log(error)
     }
 }
 
-async function addWalletFund (req, res) {
+async function addWalletFund(req, res) {
     try {
         const amount = req.params.amount
         const userId = req.session.currentUserId
@@ -496,11 +507,11 @@ async function addWalletFund (req, res) {
             // console.log(updatedUser.wallet.transactions)
             console.log(`updateddddd...`)
             console.log(updatedUser.wallet)
-            let walletDetails=updatedUser.wallet;
-            return res.json({success:true,message:'Amouont added successfully.',walletDetails});
+            let walletDetails = updatedUser.wallet;
+            return res.json({ success: true, message: 'Amouont added successfully.', walletDetails });
         } else {
             console.log('Amount Failed to add to the wallet...')
-            return res.json({success:false,message:'Amount Failed to add to the wallet...'});
+            return res.json({ success: false, message: 'Amount Failed to add to the wallet...' });
         }
     } catch (error) {
         console.log(error)

@@ -103,7 +103,7 @@ async function orderPost(req, res) {
                         }
                     }
 
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, wallet)
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, wallet,totalDiscount)
 
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
                         $push: {
@@ -208,7 +208,7 @@ async function orderPost(req, res) {
                     } else {
                         console.log('products not found in database...')
                     }
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount)
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount,totalDiscount)
                     const orderOk = await Order.insertMany({
                         userId: user,
                         orders: [{
@@ -526,7 +526,7 @@ function generateRazorpay(total, orderId) {
 
 
 
-function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, paymentMethod, date, discount, totalAmount, wallet) {
+function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, paymentMethod, date, discount, totalAmount, wallet,totalDiscount) {
     return {
         BilledTo: {
             name: userName,
@@ -551,6 +551,7 @@ function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, u
             number: invoiceNumber,
             method: paymentMethod,
             discount: parseInt(discount) || 0,
+            totalDiscount:parseFloat(totalDiscount),
             totalAmount: parseInt(totalAmount),
             wallet: parseInt(wallet) || 0,
             date: new Date().toLocaleString('en-GB', {
