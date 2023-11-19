@@ -45,6 +45,7 @@
                                 <th>Customer Name</th>
                                 <th>Order Date</th>
                                 <th>Coupon Discount</th>
+                                <th>Discount on Products</th>
                                 <th>wallet Amount</th>
                                 <th>Total Amount</th>
                                 <th>Payment Method</th>
@@ -59,6 +60,7 @@
                                         <td><%= row.address[0].addressName %></td>
                                         <td><%= row.date.toISOString().split('T')[0] %></td>
                                         <td><%= row.couponDiscount %></td>
+                                        <td><%= row.ProductDiscount %></td>
                                         <td><%= row.walletAmount %></td>
                                         <td><%= row.totalAmount+row.couponDiscount+row.walletAmount %></td>
                                         <td><%= row.paymentMethod %></td>

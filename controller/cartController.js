@@ -11,7 +11,7 @@ async function cartHome(req, res) {
         const cartId = req.session.cartId
         const car = new ObjectId(cartId)
         const use = new ObjectId(userId)
-        if (!userId && !cartId) return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0 })
+        if (!userId && !cartId) return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0,totalDiscount:0 })
         const cartList = await Cart.find({ userId: userId })
             .populate({
                 path: 'products.productId',
@@ -27,10 +27,10 @@ async function cartHome(req, res) {
             return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts,totalDiscount })
 
         } else if (justCart && justCart.length) {
-            let { totalAmount, totalProducts } = await calculateTotalAmount({ _id: car })
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts })
+            let { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ _id: car })
+            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts,totalDiscount })
         } else {
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0 })
+            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0,totalDiscount:0 })
         }
 
     } catch (error) {

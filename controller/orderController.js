@@ -60,6 +60,8 @@ async function orderPost(req, res) {
                     var totalAmount;
                     var discount = 0;
                     var couponCode
+                    var totalDiscount=0
+                    var { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: userId })
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
                         totalAmount = coupon.total
@@ -67,7 +69,6 @@ async function orderPost(req, res) {
                         couponCode = coupon.code
                     } else {
                         console.log('There is no coupon')
-                        var { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
                     }
                     const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
                     if (products) {
@@ -112,6 +113,7 @@ async function orderPost(req, res) {
                                     invoice: invoiceNumber,
                                     totalAmount: totalAmount,
                                     couponDiscount: discount,
+                                    ProductDiscount:totalDiscount,
                                     walletAmount: wallet,
                                     products: items,
                                     address: [{
@@ -178,6 +180,8 @@ async function orderPost(req, res) {
                     var totalAmount;
                     var discount = 0;
                     var couponCode;
+                    var totalDiscount=0
+                    var { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: userId })
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
                         totalAmount = coupon.total
@@ -185,7 +189,6 @@ async function orderPost(req, res) {
                         couponCode = coupon.code
                     } else {
                         console.log('There is no coupon')
-                        var { totalAmount, totalProducts } = await calculateTotalAmount({ userId: userId })
                     }
                     const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
                     if (products) {
@@ -213,6 +216,7 @@ async function orderPost(req, res) {
                             invoice: invoiceNumber,
                             totalAmount: totalAmount,
                             couponDiscount: discount,
+                            ProductDiscount:totalDiscount,
                             products: items,
                             address: [{
                                 addressId: addressId,

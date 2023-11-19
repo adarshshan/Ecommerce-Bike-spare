@@ -20,7 +20,8 @@
                                         <tr>
                                             <th scope="col"> Invoice Number</th>
                                             <th scope="col">Order date</th>
-                                            <th scope="col">Discount</th>
+                                            <th scope="col">coupon Discount</th>
+                                            <th scope="col">Discount on product</th>
                                             <th scope="col">Wallet amount</th>
                                             <th scope="col">Total Amount</th>
                                             <th scope="col">payment Method</th>
@@ -38,8 +39,9 @@
                                                     <td><%= order[i].invoice %></td>
                                                     <td style="width: 200px;"> <%= order[i].date.toISOString().split('T')[0] %></td>
                                                     <td><%= order[i].couponDiscount %></td>
+                                                    <td><%= order[i].ProductDiscount %></td>
                                                     <td><%= order[i].walletAmount %></td>
-                                                    <td><%= order[i].totalAmount+order[i].couponDiscount+order[i].walletAmount %></td>
+                                                    <td><%= order[i].totalAmount+order[i].couponDiscount+order[i].walletAmount+order[i].ProductDiscount %></td>
                                                     <td><%= order[i].paymentMethod %></td>
                                                     <td><%= order[i].products[0].status %></td>
                                                     <td class="d-flex">
