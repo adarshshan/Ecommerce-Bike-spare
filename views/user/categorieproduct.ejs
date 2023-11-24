@@ -1,99 +1,101 @@
 <%- include('head/header') %>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300&display=swap" rel="stylesheet">
   <style>
-    .category-item a {
-      text-decoration: none;
-      color: black;
-    }
+    .category a {
+            text-decoration: none;
+            color: black;
+        }
 
-    .category-item {
-      background-color: #f8f9fa;
-      border-radius: 15px;
-      padding: 10px;
-      width: 24.5%;
-      text-align: center;
-      box-shadow: 0 0 10px rgb(73, 72, 72);
-      transition: all 0.3s ease-in-out;
+        .category-item {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 5px;
+            width: 24.5%;
+            text-align: center;
+            box-shadow: 0 0 10px rgb(73, 72, 72);
+            transition: all 0.3s ease-in-out;
 
-    }
+        }
 
-    .category-item:hover {
-      transform: translateY(5px);
-      box-shadow: 0 0 30px rgba(239, 5, 5, 0.2);
-    }
+        .category-item:hover {
+            transform: translateY(5px);
+            box-shadow: 0 0 30px rgba(239, 5, 5, 0.2);
+        }
 
-    .category-item:hover .category-item a {
-      color: red;
-    }
+        .category-item:hover .category-item a {
+            color: red;
+        }
 
-    @media (min-width:830px) {
-      .category {
-        position: sticky;
-        top: 0%;
-        z-index: 2;
-        background: rgb(222, 220, 220);
-        font-family: 'Oswald', sans-serif;
-        display: flex;
-        justify-content: space-between;
-        /* overflow-x: scroll;
-                overflow-y: visible; */
-      }
+        @media (min-width:830px) {
+            .category {
+                position: sticky;
+                top: 0%;
+                z-index: 2;
+                background: rgb(222, 220, 220);
+                font-family: 'Oswald', sans-serif;
+                display: flex;
+                justify-content: space-between;
+                overflow-x: scroll;
+                overflow-y: visible;
+            }
 
-      .category-item {
-        font-size: 22px;
-        width: 350px;
-      }
-    }
+            .category-item {
+                font-size: 22px;
+                width: 350px;
+            }
+        }
 
-    @media (max-width:830px) {
-      .category {
-        position: sticky;
-        top: 0%;
-        z-index: 2;
-        background: rgb(222, 220, 220);
-        font-family: 'Oswald', sans-serif;
-        display: flex;
-        justify-content: space-between;
-        /* overflow-x: scroll;
-                overflow-y: visible; */
-      }
+        @media (max-width:830px) {
+            .category {
+                position: sticky;
+                top: 0%;
+                z-index: 2;
+                background: rgb(222, 220, 220);
+                font-family: 'Oswald', sans-serif;
+                display: flex;
+                justify-content: space-between;
+                overflow-x: scroll;
+                overflow-y: visible;
+            }
 
-      .category-item {
-        font-size: 15px;
-        width: 350px;
-      }
-    }
+            .category-item {
+                font-size: 15px;
+                width: 350px;
+            }
+        }
 
-    @media (max-width:480px) {
-      .category {
-        position: sticky;
-        top: 0%;
-        z-index: 2;
-        background: rgb(222, 220, 220);
-        font-family: 'Oswald', sans-serif;
-        display: flex;
-        justify-content: space-between;
-        /* overflow-x: scroll;
-                overflow-y: visible; */
-      }
+        @media (max-width:480px) {
+            .category {
+                position: sticky;
+                top: 0%;
+                z-index: 2;
+                background: rgb(222, 220, 220);
+                font-family: 'Oswald', sans-serif;
+                display: flex;
+                justify-content: space-between;
+                overflow-x: scroll;
+                overflow-y: visible;
+            }
 
-      .category-item {
-        font-size: 9px;
-        width: 350px;
-      }
-    }
+            .category-item {
+                font-size: 9px;
+                width: 350px;
+            }
+        }
+
+        .category::-webkit-scrollbar {
+            display: none;
+        }
   </style>
   <!-- categoryes -->
   <div class="category">
     <% if (categoryNames && categoryNames!==null) { %>
       <% for( let i=0; i < categoryNames.length; i++ ) { %>
-        <div class="category-item ">
           <a href="/view-categorie-products/<%= categoryNames[i] %>">
-
+            <div class="category-item ">
             <%= categoryNames[i] %>
-
+          </div>
           </a>
-        </div>
         <% } %>
           <% } %>
   </div>
@@ -143,11 +145,9 @@
                                 <a href="/carts" class="btn btn-warning py-3 fw-bold">Go
                                   to carts</a>
                                 <% }else{ %>
-                                  <form
-                                    action="/carts/add/<%= row._id %>/<%= row.name %>/<%= row.price %>/<%= row.image[0] %>/<%= row.description %>"
-                                    method="post">
-                                    <input class="btn btn-warning py-3 fw-bold" type="submit" value="Add to Cart">
-                                  </form>
+                                  <button class="btn btn-warning py-3 fw-bold"
+                                                                onclick="addToCart('<%= JSON.stringify({id:row._id,name:row.name,price:row.price,image:row.image[0],description:row.description}) %>'); return false;">Add
+                                                                to Cart</button>
                                   <% } %>
                                     <a href="#" class="btn btn-danger ms-3 py-3 fw-bold">Buy
                                       Now</a>
@@ -163,5 +163,17 @@
 
     </div>
   </section>
+  <script>
+    async function addToCart(data) {
+            const productDetails = JSON.parse(data);
+            const response = await fetch(`/carts/add/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}`, { method: 'get' })
+            const resBody = await response.json()
+            if (resBody.success) {
+                localStorage.removeItem('CouponDetails')
+            } else {
+                alert(resBody.message)
+            }
+        }
+  </script>
 
   <%- include('head/footer') %>

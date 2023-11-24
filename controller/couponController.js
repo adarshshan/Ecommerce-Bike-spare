@@ -1,7 +1,7 @@
-const Coupon=require('../models/coupon')
+const Coupon = require('../models/coupon')
 
 
-async function couponHome (req, res) {
+async function couponHome(req, res) {
     try {
         const pageNum = parseInt(req.query.page) || 1;
         const nextPage = pageNum + 1;
@@ -26,18 +26,24 @@ async function couponHome (req, res) {
     }
 }
 
-function addCoupon (req, res) {
+function addCoupon(req, res) {
     try {
-        const amount = req.body.amount
+        const minDiscount = req.body.minDiscount
+        const maxDiscount = req.body.maxDiscount
         const expireDate = req.body.expireDate
         const maxusage = req.body.maxusage;
+        const minPurchase = req.body.minPurchase;
+        const maxPurchase = req.body.maxPurchase
         let isExistDiscount = false
         do {
             let myDiscountCode = coupongenerator()
             let newDiscountCode = new Coupon({
                 code: myDiscountCode,
+                minPurchase: minPurchase,
+                maxPurchase: maxPurchase,
                 isPercent: false,
-                amount: amount,
+                minDiscount: minDiscount,
+                maxDiscount: maxDiscount,
                 maxusage: maxusage,
                 expireDate: expireDate,
                 isActive: true
@@ -61,10 +67,13 @@ function addCoupon (req, res) {
 async function editCoupon(req, res) {
     try {
         const couponId = req.params.id
-        const amount = req.params.amount
-        const expireDate = req.params.date
+        const minPurchase = req.params.minPurchase
+        const minDiscount = req.params.minDiscount
+        const maxPurchase = req.params.maxPurchase
+        const maxDiscount = req.params.maxDiscount
         const maxusage = req.params.maxusage
-        const updated = await Coupon.findByIdAndUpdate(couponId, { $set: { amount: amount, expireDate: expireDate, maxusage: maxusage } });
+        const expireDate = req.params.date
+        const updated = await Coupon.findByIdAndUpdate(couponId, { $set: { minDiscount: minDiscount, minPurchase: minPurchase, maxDiscount: maxDiscount, maxPurchase: maxPurchase, expireDate: expireDate, maxusage: maxusage } });
         if (updated && updated !== undefined) {
             return res.json({ success: true, message: 'Coupon updated successfully.' })
         } else {
@@ -124,29 +133,46 @@ async function verifyCoupon(req, res) {
     try {
         const totalAmount = req.params.total
         const couponCode = req.params.code
-        console.log(`your coupon code is ${couponCode} and total amount is ${totalAmount}`)
         const coupon = await Coupon.findOne({ code: couponCode })
         const currentDate = new Date().toISOString().split('T')[0];
         if (!coupon || coupon === null) return res.json({ success: false, message: 'Entered Coupon Code is Wrong' });
+        if (coupon.minPurchase > totalAmount) return res.json({ success: false, message: `Purchase must not be less than ${coupon.minPurchase}rs for eligible for this coupon.` })
         if (coupon.isDeleted) return res.json({ success: false, message: 'Coupon is No longer Available' })
         if (!coupon.isActive) return res.json({ success: false, message: 'Not available. Coupon is Deactivated by the admin.' })
         if (coupon.expireDate < currentDate) return res.json({ success: false, message: 'coupon is Expired.' })
         if (coupon.used_count > coupon.maxusage) return res.json({ success: false, message: 'No more coupons left' })
         //If there is no error
-        const discountAmount = coupon.amount;
+        if (coupon.maxPurchase < totalAmount) {
+            console.log('Congratulations  you are Eligible for high discount!')
+            percentCoupon = coupon.maxDiscount
+            const discountAmount = totalAmount * percentCoupon / 100;
+            const actualAmount = totalAmount - discountAmount
+
+            req.session.discount = {
+                discount: discountAmount,
+                total: actualAmount,
+                code: couponCode,
+                couponPercent: coupon.amount
+            }
+            return res.json({ success: true, message: 'Coupon approved...with high discound', discountAmount, actualAmount, percentCoupon })
+        }
+        percentCoupon = coupon.minDiscount
+        const discountAmount = totalAmount * percentCoupon / 100;
         const actualAmount = totalAmount - discountAmount
+
         req.session.discount = {
             discount: discountAmount,
             total: actualAmount,
-            code: couponCode
+            code: couponCode,
+            couponPercent: coupon.amount
         }
-        return res.json({ success: true, message: 'Coupon approved...', discountAmount, actualAmount })
+        return res.json({ success: true, message: 'Coupon approved...', discountAmount, actualAmount, percentCoupon })
     } catch (error) {
         console.log(error)
     }
 }
 
-module.exports={
+module.exports = {
     couponHome,
     addCoupon,
     editCoupon,

@@ -24,6 +24,7 @@
     "pdf-creator-node": "^2.3.5",
     "promise": "^8.3.0",
     "razorpay": "^2.9.2",
+    "sweetalert2": "^11.10.1",
     "uuid": "^9.0.1"
   },
   "scripts": {

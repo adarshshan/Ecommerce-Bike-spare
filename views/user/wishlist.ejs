@@ -53,19 +53,27 @@
                                 <div class="col-12 col-md-3"><img src="<%= row.productId.image[0] %>"
                                         alt="Image will load..." style="width: 100%;"></div>
                                 <div class="col-12 col-md-9">
-                                    <i class="fa-solid fa-trash float-end mt-5 me-5 fs-4"
-                                        onclick="removeWishlist('<%= row._id %>')"></i>
+                                    <i class="fa-solid fa-trash float-end mt-5 me-5 fs-4 text-danger"
+                                        onclick="removeWishlist('<%= row._id %>'); return false;"></i>
                                     <h3 class="mt-5">
                                         <%= row.productId.name %>
                                     </h3>
                                     <% if (row.productId.discount!==0) { %>
-                                        <p class="text-success">Discount: <%= row.productId.discount +' %off' %></p>
-                                        <p><strong>Price: <del class="text-danger">Rs.<%= row.productId.price %></del> <p class="fs-4 text-success"><i class="fa-solid fa-indian-rupee-sign"></i> <%= row.productId.price-(row.productId.price*row.productId.discount/100) %></p> </strong></p>
-                                    <% }else{ %>
-                                        <p class="fw-bold"><i class="fa-solid fa-indian-rupee-sign"></i> <%= row.productId.price %>
-                                        <% } %>
-                                    
-                                    </p>
+                                        <p class="text-success">Discount: <%= row.productId.discount +' %off' %>
+                                        </p>
+                                        <p><strong>Price: <del class="text-danger">Rs.<%= row.productId.price %></del>
+                                                <p class="fs-4 text-success"><i
+                                                        class="fa-solid fa-indian-rupee-sign"></i>
+                                                    <%= row.productId.price-(row.productId.price*row.productId.discount/100)
+                                                        %>
+                                                </p>
+                                            </strong></p>
+                                        <% }else{ %>
+                                            <p class="fw-bold"><i class="fa-solid fa-indian-rupee-sign"></i>
+                                                <%= row.productId.price %>
+                                                    <% } %>
+
+                                            </p>
                                 </div>
                             </div>
                         </a>
@@ -81,18 +89,46 @@
 
         </div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         async function removeWishlist(id) {
-            const response = await fetch(`/remove-wishlist/${id}`, { method: 'get' })
-            const resBody = await response.json()
-            if (resBody.success) {
-                location.reload()
-            } else {
-                alert(resBody.message)
-            }
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/remove-wishlist/${id}`, { method: 'get' }).then((response) => {
+                        if (!response.ok) {
+                            console.log('there is an error...')
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    }).then((resBody) => {
+                        if (resBody.success) {
+                            Swal.fire({
+                                title: "Deleted!",
+                                text: "Your file has been deleted.",
+                                icon: "success"
+                            })
+                            setTimeout(() => {
+                                location.reload()
+                            }, 1000);
+                        } else {
+                            alert(resBody.message)
+                        }
+                    })
+
+                }
+            })
+
         }
     </script>
+
 
 
     <%- include('head/footer') %>

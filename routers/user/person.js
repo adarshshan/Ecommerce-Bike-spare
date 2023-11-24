@@ -3,32 +3,14 @@ const router = express.Router()
 const controller = require('../../controller/personController')
 const userAuth = require('../../middlware/userAuth')
 const User = require('../../models/user')
+const nodemailer = require('nodemailer')
 const Order = require('../../models/order');
 const Products = require('../../models/product')
 
 
 router.get('/', controller.personHome)
 router.get('/productDetails/:id', controller.userDetailHome)
-router.get('/view-categorie-products/:categoryname', async (req, res) => {
-    try {
-        const categorie = req.params.categoryname;
-        var categoryNames=await categoryName();
-        const products = await Products.find({ isDeleted: false }).populate('categorieId', { _id: 0, name: 1 })
-        console.log(`products is ${products[2].categorieId.name}`);
-        let filterResult = [];
-        console.log('the length is ', products.length)
-        for (let i = 0; i < products.length; i++) {
-            if (products[i].categorieId && products[i].categorieId.name === categorie) {
-                filterResult.push(products[i]);
-            }
-        }
-        console.log('result is herre boss')
-        console.log(filterResult);
-        res.render('user/categorieproduct.ejs', { title: 'view-categoryProducts.', filterResult,categoryNames,categorie})
-    } catch (error) {
-        console.log(error)
-    }
-})
+router.get('/view-categorie-products/:categoryname', controller.categoryFilter)
 
 
 //--------Profile-----//
@@ -58,23 +40,40 @@ router.get('/remove-wishlist/:id', userAuth, controller.removeWishlist)
 //wallet
 router.get('/wallet', userAuth, controller.walletHome)
 router.get('/add-walletfund/:amount', userAuth, controller.addWalletFund)
-router.get('/wallet-refund/:orderId', async (req, res) => {
+router.get('/wallet-refund/:orderId', controller.refundWallet);
+router.post('/veryfy-payment', async (req, res) => {
+    const { payment, wallet } = req.body
+    const userId = req.session.currentUserId
+    veryfyPayment(payment).then(() => {
+        console.log('payment success in veryfypayment')
+        addWalletAmount(userId, wallet).then((updatedUser) => {
+            return res.json({ status: true, message: 'payment verifyed successfully and wallet amount updated.' })
+        }).catch((err) => console.log(err))
+
+    }).catch((err) => {
+        console.log(err)
+        res.json({ status: false, message: 'Somthing went wrong at catch block.' })
+    })
+})
+
+
+//refferal offer
+
+router.get('/share-link/:email', async (req, res) => {
     try {
-        const orderId = req.params.orderId
-        console.log(`your order id is ${orderId}`);
-        const data = await Order.findOne({ 'orders._id': orderId }, { orders: { $elemMatch: { _id: orderId } } })
-        const order = await Order.findOne({ 'orders._id': orderId })
-        const userId = order.userId;
-        const walletfund = data.orders[0].walletAmount;
-        const total = data.orders[0].totalAmount;
-        const RefundableAmount = walletfund + total;
-        const changed = await IncreaseWalletBalance(userId, RefundableAmount);
-        if (!changed) return res.json({ success: false, message: 'failed add the cancellation amount.' });
-        await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.refund': false } })
-        return res.json({ success: true, message: 'Cancellation amount added to the wallet' })
+        const Email = req.params.email
+        console.log(Email);
+        const sendUri = await sendUriToEmail(Email,req);
+        if(sendUri){
+            console.log('email send success fully.')
+            return res.json({success:true,message:'email send success fully.'})
+        }else{
+            return res.json({success:false,message:'failed to send the email.'})
+        }
+
+
     } catch (error) {
         console.log(error)
-        return res.json({ success: false, message: 'Unknown Error occured.!' })
     }
 })
 
@@ -82,49 +81,81 @@ module.exports = router
 
 
 //additional functions
-
-async function categoryName() {
-    try {
-        let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 }).populate("categorieId", { _id: 0, name: 1 })
-
-        // console.log(productList)
-        let categoryNames = [...new Set(
-            productList
-                .filter(product => product.categorieId && product.categorieId.name) // Filter out null or undefined categorieId
-                .map(product => product.categorieId.name)
-        )];
-        return categoryNames;
-    } catch (error) {
-        console.log(error)
+let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.AUTH_EMAIL,
+        pass: process.env.AUTH_PASS
     }
+})
+async function sendUriToEmail(email,req) {
+    const userId=req.session.currentUserId
+    const user=await User.findById(userId)
+    const refferalCode=user.refferalCode
+    console.log(`your reffeslkfjsd code is ${refferalCode}`)
+    mailOptions = {
+        from: process.env.AUTH_EMAIL,
+        to: email,
+        subject: 'Hello Costomer.',
+        html: `<p>This is your refferal link. <b>http://localhost:3000/users/signup/?refferalCode=${refferalCode}</b> You will get 50rs wallet balance, by signup using this refferal link.</p>
+        <p><b>Hurry up join with us</b></p>`
+    }
+    transporter.sendMail(mailOptions, (err, res) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log('Success parttt')
+        }
+    })
 }
 
-async function IncreaseWalletBalance(userId, amount) {
-    try {
-        const updatedUser = await User.findByIdAndUpdate(
+
+function veryfyPayment(payment) {
+    return new Promise((resolve, reject) => {
+        const Crypto = require('crypto')
+        let hmac = Crypto.createHmac('sha256', 'NH5mIiVcgS7yf9zr0iwQisAQ')
+
+        hmac.update(payment.razorpay_order_id + '|' + payment.razorpay_payment_id)
+        hmac = hmac.digest('hex')
+        if (hmac == payment.razorpay_signature) {
+            resolve()
+            console.log('resolved')
+        } else {
+            reject()
+            console.log('rejected')
+
+        }
+    })
+}
+function addWalletAmount(userId, wallet) {
+    return new Promise((resolve, reject) => {
+        User.findByIdAndUpdate(
             userId,
             {
-                $inc: { 'wallet.balance': amount },
+                $inc: { 'wallet.balance': wallet.amount },
                 $push: {
                     'wallet.transactions': {
                         type: 'debited',
-                        amount: amount,
-                        description: 'Order Cancelled by You.',
+                        amount: wallet.amount,
+                        description: 'fund add by the user',
                         time: Date.now()
                     }
                 }
             },
             { new: true, upsert: true }
-        )
-        if (updatedUser) {
-            console.log('Cancellation amount added to the wallet');
-            return true;
-        } else {
-            console.log('failed add the cancellation amount.');
-            return false;
-        }
-    } catch (error) {
-        console.log(error)
-        return false;
-    }
+        ).then((updatedUser) => {
+            console.log(`updateddddd...`)
+            console.log(updatedUser)
+            resolve(updatedUser)
+            console.log('resolved')
+        })
+            .catch((err) => {
+                console.log(err)
+                console.log('somthing trouble while update the wallet balance.')
+                reject()
+                console.log('rejected..')
+            })
+    })
 }
+
+

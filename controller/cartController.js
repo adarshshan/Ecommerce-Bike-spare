@@ -8,29 +8,19 @@ const ObjectId = mongoose.Types.ObjectId;
 async function cartHome(req, res) {
     try {
         const userId = req.session.currentUserId
-        const cartId = req.session.cartId
-        const car = new ObjectId(cartId)
         const use = new ObjectId(userId)
-        if (!userId && !cartId) return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0,totalDiscount:0 })
+        if (!userId) return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0, totalDiscount: 0 })
         const cartList = await Cart.find({ userId: userId })
             .populate({
                 path: 'products.productId',
                 select: 'name price image discount description stock quantity'
             })
-        const justCart = await Cart.find({ _id: cartId })
-            .populate({
-                path: 'products.productId',
-                select: 'name price image discount description stock quantity'
-            })
         if (cartList && cartList.length > 0 && cartList !== undefined) {
-            let { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: use })
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts,totalDiscount })
+            let { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: use })
+            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts, totalDiscount })
 
-        } else if (justCart && justCart.length) {
-            let { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ _id: car })
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts,totalDiscount })
         } else {
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0,totalDiscount:0 })
+            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0, totalDiscount: 0 })
         }
 
     } catch (error) {
@@ -47,59 +37,43 @@ async function addCart(req, res) {
         const imageUri = req.params.image
         const discription = req.params.disc;
         const userId = req.session.currentUserId
-        if (!userId) {
-            const cartId = req.session.cartId
-            if (cartId && cartId !== null) {
-
-                await Cart.findByIdAndUpdate(cartId, { $push: { products: { $each: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }], $position: 0 } } })
-                await product.findByIdAndUpdate(id, { $set: { cart: true } })
-                console.log('products add to existing cart...')
-                return res.redirect('/carts')
-            } else {
-                const resu = await Cart.insertMany({ products: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }] })
-                if (resu) {
-                    req.session.cartId = resu[0]._id
-                    await product.findByIdAndUpdate(id, { $set: { cart: true } })
-                    return res.redirect('/carts')
-                } else {
-                    res.send('Somthing  trouble in inserting data')
-                }
-            }
-
-        } else {
-            const existCart = await Cart.findOne({ userId: userId })
-            if (existCart) {
-                let push = await Cart.findOneAndUpdate({ userId: userId }, { $push: { products: { $each: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }], $position: 0 } } })
-                if (push) {
-                    await product.findByIdAndUpdate(id, { $set: { cart: true } })
-                    notifier.notify({
-                        title: 'Notifications',
-                        message: 'Product successfully added to cart List.. ',
-                        icon: path.join(__dirname, 'public/assets/sparelogo.png'),
-                        wait: true
-                    })
-                    return res.redirect('/carts')
-                } else {
-                    return res.send('Product is not going to the cart list')
-                }
-            } else {
-                const resu = await Cart.insertMany({
-                    userId: userId,
-                    products: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }]
+        const existinCart=await Cart.findOne({products:{$elemMatch:{productId:id}}})
+        if(existinCart) return res.json({success:false,message:'Product is already in cartlist...'})
+        if (!userId) return res.json({ success: false, message: 'User not logined!' })
+        const existCart = await Cart.findOne({ userId: userId })
+        if (existCart) {
+            let push = await Cart.findOneAndUpdate({ userId: userId }, { $push: { products: { $each: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }], $position: 0 } } })
+            if (push) {
+                if (req.session.discount) delete req.session.discount;
+                notifier.notify({
+                    title: 'Notifications',
+                    message: 'Product successfully added to cart List.. ',
+                    icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+                    wait: true
                 })
-                if (resu) {
-                    await product.findByIdAndUpdate(id, { $set: { cart: true } })
-                    console.log('New cart created with userId ..')
-                    res.redirect('/carts')
-                } else {
-                    res.send('Somthing  trouble in inserting data')
-                }
+                // return res.redirect('/carts')
+                return res.json({ success: true, message: 'Product successfully added to cart List' })
+            } else {
+                return res.send('Product is not going to the cart list')
             }
-
+        } else {
+            const resu = await Cart.insertMany({
+                userId: userId,
+                products: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }]
+            })
+            if (resu) {
+                await product.findByIdAndUpdate(id, { $set: { cart: true } })
+                console.log('New cart created with userId ..')
+                // res.redirect('/carts')
+                return res.json({ success: true, message: 'New cart created with userId' })
+            } else {
+                res.send('Somthing  trouble in inserting data')
+            }
         }
 
     } catch (error) {
         console.log(`Error is at adding to cart ${error}`)
+        return res.json({ success: false, message: 'Error is at adding to cart' })
     }
 
 
@@ -113,15 +87,18 @@ async function removeCart(req, res) {
         const cartdelete = await Cart.findOneAndUpdate({ userId: userId }, { $pull: { products: { productId: id } } })
         if (cartdelete && cartdelete !== null) {
             await product.findByIdAndUpdate(id, { $set: { cart: false } })
+            if (req.session.discount) delete req.session.discount;
             notifier.notify({
                 title: 'Notifications',
                 message: 'The Cart Item removed ',
                 icon: path.join(__dirname, 'public/assets/sparelogo.png'),
                 wait: true
             })
-            res.redirect('/carts')
+            // res.redirect('/carts')
+            return res.json({ success: true, message: 'Cart item removed.' })
         } else {
-            res.send('An Error')
+            // res.send('An Error')
+            return res.json({ success: false, message: 'Cart item Failed to remove.' })
         }
     } catch (error) {
         console.log('The Error is at Remove from cart.' + error)
@@ -135,64 +112,37 @@ async function increaseCount(req, res) {
         const userId = req.session.currentUserId
         const cartId = req.session.cartId
         const use = new ObjectId(userId)
-        if (userId) {
-            await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': 1 } })
-            let { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: use })
-            const q = await Cart.aggregate([
-                {
-                    $match: {
-                        "products.productId": id
-                    }
-                },
-                {
-                    $unwind: "$products"
-                },
-                {
-                    $match: {
-                        "products.productId": id
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0, // Exclude the _id field from the result
-                        quantity: "$products.quantity"
-                    }
-                }
-            ])
-            let productQuantity = q[0].quantity
-            console.log(`Quantity: ${productQuantity}`);
-            res.json({ success: true, productQuantity, totalAmount, totalProducts,totalDiscount })
+        if (!userId) return res.json({ success: false });
 
-        } else if (cartId) {
-            await Cart.updateOne({ _id: cartId, 'products.productId': id }, { $inc: { 'products.$.quantity': 1 } })
-            const q = await Cart.aggregate([
-                {
-                    $match: {
-                        "products.productId": id
-                    }
-                },
-                {
-                    $unwind: "$products"
-                },
-                {
-                    $match: {
-                        "products.productId": id
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0, // Exclude the _id field from the result
-                        quantity: "$products.quantity"
-                    }
+        await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': 1 } })
+        let { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: use })
+        const q = await Cart.aggregate([
+            {
+                $match: {
+                    "products.productId": id
                 }
-            ])
-            let productQuantity = q[0].quantity
-            console.log(`Quantity: ${productQuantity}`);
-            res.json({ success: true, productQuantity })
-        } else {
-            console.log('Something went wrong...')
-            res.json({ success: false })
-        }
+            },
+            {
+                $unwind: "$products"
+            },
+            {
+                $match: {
+                    "products.productId": id
+                }
+            },
+            {
+                $project: {
+                    _id: 0, // Exclude the _id field from the result
+                    quantity: "$products.quantity"
+                }
+            }
+        ])
+        let productQuantity = q[0].quantity
+        console.log(`Quantity: ${productQuantity}`);
+        if (req.session.discount) delete req.session.discount;
+        res.json({ success: true, productQuantity, totalAmount, totalProducts, totalDiscount })
+
+
     } catch (error) {
         console.log(`An error occured while increasing the Quantity...${error}`)
     }
@@ -204,63 +154,39 @@ async function decreaseCount(req, res) {
         const id = new ObjectId(idd)
         const userId = req.session.currentUserId
         const use = new ObjectId(userId)
-        const cartId = req.session.cartId
-        if (userId) {
-            await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
-            let { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: use })
-            const q = await Cart.aggregate([
-                {
-                    $match: {
-                        "products.productId": id
-                    }
-                },
-                {
-                    $unwind: "$products"
-                },
-                {
-                    $match: {
-                        "products.productId": id
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0, // Exclude the _id field from the result
-                        quantity: "$products.quantity"
-                    }
+        if (!userId) return res.json({ success: false });
+
+        await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
+        let { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: use })
+        const q = await Cart.aggregate([
+            {
+                $match: {
+                    "products.productId": id
                 }
-            ])
-            let productQuantity = q[0].quantity
-            console.log(`Quantity: ${productQuantity}`);
-            res.json({ success: true, productQuantity, totalAmount, totalProducts,totalDiscount })
-        } else if (cartId) {
-            await Cart.updateOne({ _id: cartId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
-            const q = await Cart.aggregate([
-                {
-                    $match: {
-                        "products.productId": id
-                    }
-                },
-                {
-                    $unwind: "$products"
-                },
-                {
-                    $match: {
-                        "products.productId": id
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0, // Exclude the _id field from the result
-                        quantity: "$products.quantity"
-                    }
+            },
+            {
+                $unwind: "$products"
+            },
+            {
+                $match: {
+                    "products.productId": id
                 }
-            ])
-            let productQuantity = q[0].quantity
-            console.log(`Quantity: ${productQuantity}`);
-            res.json({ success: true, productQuantity })
-        }
+            },
+            {
+                $project: {
+                    _id: 0, // Exclude the _id field from the result
+                    quantity: "$products.quantity"
+                }
+            }
+        ])
+        let productQuantity = q[0].quantity
+        console.log(`Quantity: ${productQuantity}`);
+        if (req.session.discount) delete req.session.discount;
+        return res.json({ success: true, productQuantity, totalAmount, totalProducts, totalDiscount })
+
     } catch (error) {
         console.log('An error occured while decreasing the quantity...' + error)
+        return res.json({ success: false })
     }
 }
 
@@ -327,7 +253,7 @@ const calculateTotalAmount = async (matchCriteria) => {
             }
         }
     ]);
-    
+
 
     console.log('Aggregation result:', result);
 
@@ -341,7 +267,7 @@ const calculateTotalAmount = async (matchCriteria) => {
         let totalAmount = result[0].totalAmount
         let totalProducts = result[0].totalProducts
         let totalDiscount = result[0].totalDiscount
-        return { totalAmount, totalProducts,totalDiscount };
+        return { totalAmount, totalProducts, totalDiscount };
     } else {
         console.log('No results found.');
         return 0; // Return 0 if no results

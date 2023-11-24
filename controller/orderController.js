@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
 const Razorpay = require('razorpay')
 const Promise = require('promise')
+const Swal = require('sweetalert2')
 var instance = new Razorpay({ key_id: 'rzp_test_kxpY9d3K4xgnJt', key_secret: 'NH5mIiVcgS7yf9zr0iwQisAQ' })
 
 
@@ -24,8 +25,8 @@ async function paymentOptionPage(req, res) {
             phone: phone
         }
         if (req.session.selectedAddress) {
-            const { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: user })
-            res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts,totalDiscount })
+            const { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: user })
+            res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts, totalDiscount })
         }
     } catch (error) {
         console.log('Error is at /payment_option/:id ' + error)
@@ -36,7 +37,6 @@ async function orderPost(req, res) {
     try {
         const value = req.params.value
         const { id, name, phone } = req.session.selectedAddress
-        console.log(`id :${id}, name :${name}, phone : ${phone}`)
         const addressId = new ObjectId(id)
         const user = req.session.currentUserId
         const userId = new ObjectId(user);
@@ -60,16 +60,17 @@ async function orderPost(req, res) {
                     var totalAmount;
                     var discount = 0;
                     var couponCode
-                    var totalDiscount=0
-                    var { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: userId })
+                    var totalDiscount = 0
+                    var couponPercent = 0
+                    var { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: userId })
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
                         totalAmount = coupon.total
                         discount = coupon.discount
                         couponCode = coupon.code
-                    } else {
-                        console.log('There is no coupon')
+                        couponPercent = coupon.couponPercent
                     }
+
                     const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
                     if (products) {
                         for (let i = 0; i < products.products.length; i++) {
@@ -103,7 +104,7 @@ async function orderPost(req, res) {
                         }
                     }
 
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, wallet,totalDiscount)
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, wallet, totalDiscount, couponPercent)
 
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
                         $push: {
@@ -113,14 +114,14 @@ async function orderPost(req, res) {
                                     invoice: invoiceNumber,
                                     totalAmount: totalAmount,
                                     couponDiscount: discount,
-                                    ProductDiscount:totalDiscount,
+                                    ProductDiscount: totalDiscount,
                                     walletAmount: wallet,
                                     products: items,
-                                    address: [{
+                                    address: {
                                         addressId: addressId,
                                         addressName: name,
                                         addressPhone: phone
-                                    }],
+                                    },
 
                                 }], $position: 0
                             }
@@ -140,6 +141,7 @@ async function orderPost(req, res) {
                         if (value === 'COD') {
                             await Cart.findOneAndDelete({ userId: user })//to Delete the order completed cart
                             await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
+                            delete req.session.discount;//To delete the coupon discount details.
                             return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
                         } else {
                             if (totalAmount === 0 && value === 'online payment + wallet') {
@@ -148,12 +150,14 @@ async function orderPost(req, res) {
                                 console.log('order placed using wallet balance')
                                 changePaymentStatus(invoiceNumber)
                                 decreaseWalletBalance(user, wallet);
+                                delete req.session.discount;//To delete the coupon discount details.
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
                             if (value === 'online payment + wallet') decreaseWalletBalance(user, wallet);
                             generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
                                 Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
+                                delete req.session.discount;//To delete the coupon discount details.
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
                             }).catch((err) => {
                                 console.log(`error is ${err}`);
@@ -180,13 +184,15 @@ async function orderPost(req, res) {
                     var totalAmount;
                     var discount = 0;
                     var couponCode;
-                    var totalDiscount=0
-                    var { totalAmount, totalProducts,totalDiscount } = await calculateTotalAmount({ userId: userId })
+                    var totalDiscount = 0
+                    var couponPercent = 0;
+                    var { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: userId })
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
                         totalAmount = coupon.total
                         discount = coupon.discount
                         couponCode = coupon.code
+                        couponPercent = coupon.couponPercent
                     } else {
                         console.log('There is no coupon')
                     }
@@ -208,7 +214,7 @@ async function orderPost(req, res) {
                     } else {
                         console.log('products not found in database...')
                     }
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount,totalDiscount)
+                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, totalDiscount, couponPercent)
                     const orderOk = await Order.insertMany({
                         userId: user,
                         orders: [{
@@ -216,13 +222,13 @@ async function orderPost(req, res) {
                             invoice: invoiceNumber,
                             totalAmount: totalAmount,
                             couponDiscount: discount,
-                            ProductDiscount:totalDiscount,
+                            ProductDiscount: totalDiscount,
                             products: items,
-                            address: [{
+                            address: {
                                 addressId: addressId,
                                 addressName: name,
                                 addressPhone: phone
-                            }],
+                            },
 
                         }]
                     })
@@ -362,10 +368,12 @@ async function cancelOrder(req, res) {
                 await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.refund': true } })
             }
             console.log('Order cancelled');
-            res.redirect('/carts/orders/')
+            return res.json({success:true,message:'Order cancelled!'})
+            // res.redirect('/carts/orders/')
         }
     } catch (error) {
         console.log(error)
+        return res.json({success:false,message:'Failed to cancel!'})
     }
 }
 
@@ -373,6 +381,10 @@ async function changeStatus(req, res) {
     try {
         const orderId = req.params.id
         const status = req.params.status
+        if(status=='DELIVERED'){
+            const expireDate=new Date().setDate(new Date().getDate() + 15)
+            await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.return_last_date': expireDate } })
+        }
         const updated = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': status } })
         if (updated) {
             console.log('status updated')
@@ -526,7 +538,7 @@ function generateRazorpay(total, orderId) {
 
 
 
-function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, paymentMethod, date, discount, totalAmount, wallet,totalDiscount) {
+function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, paymentMethod, date, discount, totalAmount, wallet, totalDiscount) {
     return {
         BilledTo: {
             name: userName,
@@ -551,7 +563,7 @@ function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, u
             number: invoiceNumber,
             method: paymentMethod,
             discount: parseInt(discount) || 0,
-            totalDiscount:parseFloat(totalDiscount),
+            totalDiscount: parseFloat(totalDiscount),
             totalAmount: parseInt(totalAmount),
             wallet: parseInt(wallet) || 0,
             date: new Date().toLocaleString('en-GB', {
@@ -644,7 +656,7 @@ const calculateTotalAmount = async (matchCriteria) => {
             }
         }
     ]);
-    
+
 
     console.log('Aggregation result:', result);
 
@@ -658,7 +670,7 @@ const calculateTotalAmount = async (matchCriteria) => {
         let totalAmount = result[0].totalAmount
         let totalProducts = result[0].totalProducts
         let totalDiscount = result[0].totalDiscount
-        return { totalAmount, totalProducts,totalDiscount };
+        return { totalAmount, totalProducts, totalDiscount };
     } else {
         console.log('No results found.');
         return 0; // Return 0 if no results

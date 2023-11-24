@@ -3,6 +3,7 @@ const User = require('../models/user')
 const Address = require('../models/userDetail')
 const Brand = require('../models/brand')
 const categorie = require('../models/categorie')
+const Order = require('../models/order')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 const userOtpVerification = require('../models/userOtpVerification')
@@ -10,6 +11,9 @@ const notifier = require('node-notifier');
 const path = require('path');
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
+const Razorpay = require('razorpay')
+const Promise = require('promise')
+var instance = new Razorpay({ key_id: 'rzp_test_kxpY9d3K4xgnJt', key_secret: 'NH5mIiVcgS7yf9zr0iwQisAQ' })
 
 
 
@@ -25,9 +29,9 @@ async function personHome(req, res) {
         // console.log(productList)
         let categoryNames = [...new Set(
             productList
-              .filter(product => product.categorieId && product.categorieId.name) // Filter out null or undefined categorieId
-              .map(product => product.categorieId.name)
-          )];
+                .filter(product => product.categorieId && product.categorieId.name) // Filter out null or undefined categorieId
+                .map(product => product.categorieId.name)
+        )];
 
 
 
@@ -80,6 +84,27 @@ async function userDetailHome(req, res) {
         })
     } catch (error) {
         console.log('An Error occured when Rendering the product Details...')
+    }
+}
+
+async function categoryFilter(req, res) {
+    try {
+        const categorie = req.params.categoryname;
+        var categoryNames = await categoryName();
+        const products = await Products.find({ isDeleted: false }).populate('categorieId', { _id: 0, name: 1 })
+        console.log(`products is ${products[2].categorieId.name}`);
+        let filterResult = [];
+        console.log('the length is ', products.length)
+        for (let i = 0; i < products.length; i++) {
+            if (products[i].categorieId && products[i].categorieId.name === categorie) {
+                filterResult.push(products[i]);
+            }
+        }
+        console.log('result is herre boss')
+        console.log(filterResult);
+        res.render('user/categorieproduct.ejs', { title: 'view-categoryProducts.', filterResult, categoryNames, categorie })
+    } catch (error) {
+        console.log(error)
     }
 }
 
@@ -486,35 +511,59 @@ async function walletHome(req, res) {
 async function addWalletFund(req, res) {
     try {
         const amount = req.params.amount
-        const userId = req.session.currentUserId
-        console.log(`amount is ${amount}`);
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            {
-                $inc: { 'wallet.balance': amount },
-                $push: {
-                    'wallet.transactions': {
-                        type: 'debited',
-                        amount: amount,
-                        description: 'fund add by the user',
-                        time: Date.now()
-                    }
-                }
-            },
-            { new: true, upsert: true }
-        )
-        if (updatedUser) {
-            // console.log(updatedUser.wallet.transactions)
-            console.log(`updateddddd...`)
-            console.log(updatedUser.wallet)
-            let walletDetails = updatedUser.wallet;
-            return res.json({ success: true, message: 'Amouont added successfully.', walletDetails });
-        } else {
-            console.log('Amount Failed to add to the wallet...')
-            return res.json({ success: false, message: 'Amount Failed to add to the wallet...' });
-        }
+
+        generateRazorpay(amount, req.session.currentUserId).then((wallet) => {
+            return res.json({ online: true, message: 'Wallet Recharge', wallet });
+        }).catch((err) => {
+            console.log(err)
+            return res.json({ online: false, message: 'Somthing went wrong at a catch ` ' })
+        })
+
     } catch (error) {
         console.log(error)
+    }
+}
+function generateRazorpay(total, userId) {
+    return new Promise((resolve, reject) => {
+        const { v4: uuidv4 } = require('uuid');
+        const uniqueId = uuidv4();
+        const shortUniqueId = `${uniqueId.substring(0, 8)}_${Date.now()}`
+
+        const receiptId = `${shortUniqueId}_${Date.now()}`;
+        var options = {
+            amount: total * 100,
+            currency: "INR",
+            receipt: receiptId,
+            payment_capture: 1,
+        };
+        instance.orders.create(options, function (err, wallet) {
+            if (err) {
+                console.log('error is here.')
+                console.log(err)
+            } else {
+                resolve(wallet);
+            }
+        });
+    })
+}
+
+async function refundWallet(req, res) {
+    try {
+        const orderId = req.params.orderId
+        console.log(`your order id is ${orderId}`);
+        const data = await Order.findOne({ 'orders._id': orderId }, { orders: { $elemMatch: { _id: orderId } } })
+        const order = await Order.findOne({ 'orders._id': orderId })
+        const userId = order.userId;
+        const walletfund = data.orders[0].walletAmount;
+        const total = data.orders[0].totalAmount;
+        const RefundableAmount = walletfund + total;
+        const changed = await IncreaseWalletBalance(userId, RefundableAmount);
+        if (!changed) return res.json({ success: false, message: 'failed add the cancellation amount.' });
+        await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.refund': false } })
+        return res.json({ success: true, message: 'Cancellation amount added to the wallet' })
+    } catch (error) {
+        console.log(error)
+        return res.json({ success: false, message: 'Unknown Error occured.!' })
     }
 }
 
@@ -538,10 +587,58 @@ module.exports = {
     removeWishlist,
     walletHome,
     addWalletFund,
-    addressBook
+    addressBook,
+    refundWallet,
+    categoryFilter
 }
 
 //Functionss//
+
+async function categoryName() {
+    try {
+        let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 }).populate("categorieId", { _id: 0, name: 1 })
+
+        // console.log(productList)
+        let categoryNames = [...new Set(
+            productList
+                .filter(product => product.categorieId && product.categorieId.name) // Filter out null or undefined categorieId
+                .map(product => product.categorieId.name)
+        )];
+        return categoryNames;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function IncreaseWalletBalance(userId, amount) {
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            {
+                $inc: { 'wallet.balance': amount },
+                $push: {
+                    'wallet.transactions': {
+                        type: 'debited',
+                        amount: amount,
+                        description: 'Order Cancelled by You.',
+                        time: Date.now()
+                    }
+                }
+            },
+            { new: true, upsert: true }
+        )
+        if (updatedUser) {
+            console.log('Cancellation amount added to the wallet');
+            return true;
+        } else {
+            console.log('failed add the cancellation amount.');
+            return false;
+        }
+    } catch (error) {
+        console.log(error)
+        return false;
+    }
+}
 
 let transporter = nodemailer.createTransport({
     service: 'gmail',

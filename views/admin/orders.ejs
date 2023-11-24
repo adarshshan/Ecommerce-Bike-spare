@@ -45,12 +45,17 @@
                                                     <td><%= order[i].paymentMethod %></td>
                                                     <td><%= order[i].products[0].status %></td>
                                                     <td class="d-flex">
-                                                        <button class="btn btn-outline-dark float-end" onclick="viewOrders(`<%= JSON.stringify({id:order[i]._id,totalAmount:order[i].totalAmount,paymentMethod:order[i].paymentMethod,addressName:order[i].address[0].addressName,addressPhone:order[i].address[0].addressPhone,date:order[i].date.toISOString().split('T')[0]}) %>`)"><i class="fa-solid fa-eye fs-4"></i></button>
-                                                        <% if (order[i].products[0].status!=='CANCELLED') { %>
-                                                            <button
-                                                            onclick="showform('<%= order[i]._id %>')"
-                                                            type="button" class="btn btn-outline-success ms-4"><i
-                                                                class="fa-regular fa-pen-to-square"></i></button>
+                                                        <button class="btn btn-outline-dark float-end" onclick="viewOrders(`<%= JSON.stringify({id:order[i]._id,totalAmount:order[i].totalAmount,paymentMethod:order[i].paymentMethod,addressName:order[i].address.addressName,addressPhone:order[i].address.addressPhone,date:order[i].date.toISOString().split('T')[0]}) %>`)"><i class="fa-solid fa-eye fs-4"></i></button>
+                                                        <% if (order[i].products[0].status!=='CANCELLED' || order[i].products[0].status!=='DELIVERED') { %>
+                                                            <% if (order[i].refund) { %>
+                                                                <button class="btn btn-outline-danger ms-2" onclick="refund('<%= order[i]._id %>')">Refund</button>
+                                                                <% }else{ %>
+                                                                    <button
+                                                                    onclick="showform('<%= order[i]._id %>')"
+                                                                    type="button" class="btn btn-outline-success ms-4"><i
+                                                                        class="fa-regular fa-pen-to-square"></i></button>
+                                                                    <% } %>
+                                                            
                                                         <% }else{ %>
                                                             <% if (order[i].refund) { %>
                                                                 <button class="btn btn-outline-danger ms-2" onclick="refund('<%= order[i]._id %>')">Refund</button>
@@ -157,7 +162,10 @@
             console.log(resBody)
             if (resBody.success) {
                 console.log(resBody.message)
-                alert(resBody.message)
+                setTimeout(()=>{
+                    location.reload()
+                },500)
+                
             } else {
                 console.log(resBody.message)
                 alert(resBody.message)

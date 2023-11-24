@@ -1,15 +1,15 @@
 <%- include('head/header') %>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300&display=swap" rel="stylesheet">
     <style>
-        .category-item a {
+        .category a {
             text-decoration: none;
             color: black;
         }
 
         .category-item {
             background-color: #f8f9fa;
-            border-radius: 15px;
-            padding: 10px;
+            border-radius: 5px;
+            padding: 5px;
             width: 24.5%;
             text-align: center;
             box-shadow: 0 0 10px rgb(73, 72, 72);
@@ -35,8 +35,8 @@
                 font-family: 'Oswald', sans-serif;
                 display: flex;
                 justify-content: space-between;
-                /* overflow-x: scroll;
-                overflow-y: visible; */
+                overflow-x: scroll;
+                overflow-y: visible;
             }
 
             .category-item {
@@ -54,8 +54,8 @@
                 font-family: 'Oswald', sans-serif;
                 display: flex;
                 justify-content: space-between;
-                /* overflow-x: scroll;
-                overflow-y: visible; */
+                overflow-x: scroll;
+                overflow-y: visible;
             }
 
             .category-item {
@@ -73,8 +73,8 @@
                 font-family: 'Oswald', sans-serif;
                 display: flex;
                 justify-content: space-between;
-                /* overflow-x: scroll;
-                overflow-y: visible; */
+                overflow-x: scroll;
+                overflow-y: visible;
             }
 
             .category-item {
@@ -82,18 +82,20 @@
                 width: 350px;
             }
         }
+
+        .category::-webkit-scrollbar {
+            display: none;
+        }
     </style>
     <!-- categoryes -->
     <div class="category">
         <% if (categoryNames && categoryNames!==null) { %>
             <% for( let i=0; i < categoryNames.length; i++ ) { %>
-                <div class="category-item ">
-                    <a href="/view-categorie-products/<%= categoryNames[i] %>">
-
+                <a href="/view-categorie-products/<%= categoryNames[i] %>">
+                    <div class="category-item ">
                         <%= categoryNames[i] %>
-
-                    </a>
-                </div>
+                    </div>
+                </a>
                 <% } %>
                     <% } %>
     </div>
@@ -183,22 +185,14 @@
                                                     <% } %>
 
 
-                                                        <div class="d-flex mt-3">
-                                                            <% if (row.cart) { %>
-                                                                <a href="/carts" class="btn btn-warning py-3 fw-bold">Go
-                                                                    to carts</a>
-                                                                <% }else{ %>
-                                                                    <form
-                                                                        action="/carts/add/<%= row._id %>/<%= row.name %>/<%= row.price %>/<%= row.image[0] %>/<%= row.description %>"
-                                                                        method="post">
-                                                                        <input class="btn btn-warning py-3 fw-bold"
-                                                                            type="submit" value="Add to Cart">
-                                                                    </form>
-                                                                    <% } %>
-                                                                        <a href="#"
-                                                                            class="btn btn-danger ms-3 py-3 fw-bold">Buy
-                                                                            Now</a>
-                                                        </div>
+                                                        <!-- <div class="d-flex mt-3">
+                                                            <button class="btn btn-warning py-3 fw-bold"
+                                                                onclick="addToCart('<%= JSON.stringify({id:row._id,name:row.name,price:row.price,image:row.image[0],description:row.description}) %>'); return false;">Add
+                                                                to Cart</button>
+
+                                                            <a href="#" class="btn btn-danger ms-3 py-3 fw-bold">Buy
+                                                                Now</a>
+                                                        </div> -->
                                 </div>
                             </div>
                         </a>
@@ -220,6 +214,41 @@
         </ul>
     </section>
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const scrollStep = 150; // Adjust as needed
+            const categoryItems = document.getElementById("category-items")
+            const scrollLeftBtn = document.getElementById('scroll-left')
+            const scrollRightBtn = document.getElementById('scroll-right')
+
+            scrollLeftBtn.addEventListener('click', function () {
+                categoryItems.scrollLeft -= scrollStep;
+            });
+
+            scrollRightBtn.addEventListener('click', function () {
+                const availableScroll = categoryItems.scrollWidth - categoryItems.clientWidth;
+                const currentPosition = categoryItems.scrollLeft;
+
+                if (currentPosition < availableScroll) {
+                    const nextScroll = currentPosition + scrollStep;
+                    categoryItems.scrollLeft = nextScroll < availableScroll ? nextScroll : availableScroll;
+                }
+            });
+        });
+
+
+
+
+        async function addToCart(data) {
+            const productDetails = JSON.parse(data);
+            const response = await fetch(`/carts/add/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}`, { method: 'get' })
+            const resBody = await response.json()
+            if (resBody.success) {
+                localStorage.removeItem('CouponDetails')
+            } else {
+                // alert(resBody.message)
+                location.href = '/carts'
+            }
+        }
 
         async function addToWishlist(id) {
             const response = await fetch(`/add-wishlist/${id}`, { method: 'get' })

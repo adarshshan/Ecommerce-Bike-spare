@@ -42,24 +42,24 @@ async function addNewAddress() {
     landmark = document.getElementById('Landmark').value
     alterNumber = document.getElementById('alternumber').value
 
-    if (!name.length || !phone.length || !address.length || !pin.length || !district.length || !landmark.length || !alterNumber.length){
-        document.getElementById('alertmessage').innerHTML=`
+    if (!name.length || !phone.length || !address.length || !pin.length || !district.length || !landmark.length || !alterNumber.length) {
+        document.getElementById('alertmessage').innerHTML = `
                 <div class="alert alert-dismissible fade show alert-danger" role="alert">
                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
                      <strong>Input fields must be filled!</strong>
               </div>`
-              return false;
+        return false;
     }
 
-        addressData = {
-            name: name,
-            phone: phone,
-            fullAddress: address,
-            pinCode: pin,
-            district: district,
-            landmark: landmark,
-            alternativePhone: alterNumber
-        }
+    addressData = {
+        name: name,
+        phone: phone,
+        fullAddress: address,
+        pinCode: pin,
+        district: district,
+        landmark: landmark,
+        alternativePhone: alterNumber
+    }
     const response = await fetch('/users/address', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
@@ -72,7 +72,7 @@ async function addNewAddress() {
     document.getElementById('form1').innerHTML = `<div class="card col-md-12 form-group d-flex p-3 btn btn-outline-primary" onclick="showform()">
                                         + Add new Address
                                     </div>`
-    document.getElementById('alertmessage').innerHTML=`
+    document.getElementById('alertmessage').innerHTML = `
                                     <div class="alert alert-dismissible fade show alert-success" role="alert">
                                      <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
                                          <strong>Address add successfully</strong>
@@ -89,13 +89,13 @@ async function updateAddress(id) {
     landmark = document.getElementById('Landmark').value
     alterNumber = document.getElementById('alternumber').value
 
-    if (!name.length || !phone.length || !address.length || !pin.length || !district.length || !landmark.length || !alterNumber.length){
-        document.getElementById('alertmessage').innerHTML=`
+    if (!name.length || !phone.length || !address.length || !pin.length || !district.length || !landmark.length || !alterNumber.length) {
+        document.getElementById('alertmessage').innerHTML = `
                 <div class="alert alert-dismissible fade show alert-danger" role="alert">
                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
                      <strong>Input fields must be filled!</strong>
               </div>`
-              return false;
+        return false;
     }
 
     addressData = {
@@ -117,12 +117,12 @@ async function updateAddress(id) {
     clear()
     getAddress()
     document.getElementById(`address${id}`).innerHTML = ``
-    document.getElementById('alertmessage2').innerHTML=`
+    document.getElementById('alertmessage2').innerHTML = `
                 <div class="alert alert-dismissible fade show alert-success" role="alert">
                  <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
                      <strong>updated successfully</strong>
               </div>`
-              return true;
+    return true;
 }
 
 async function getAddress() {
@@ -263,13 +263,14 @@ function showform() {
 }
 
 async function addressDelete(id) {
-    console.log(`id is ${id}`)
-    const response = await fetch(`/users/delete_address/${id}`, { method: "get" })
-    const resBody = await response.json()
-    if (resBody.addressList) {
-        let x = ''
-        for (let i = 0; i < resBody.addressList.address.length; i++) {
-            x += `<div class="card col-md-12 form-group d-flex">
+    try {
+        console.log(`id is ${id}`)
+        const response = await fetch(`/users/delete_address/${id}`, { method: "get" })
+        const resBody = await response.json()
+        if (resBody.addressList) {
+            let x = ''
+            for (let i = 0; i < resBody.addressList.address.length; i++) {
+                x += `<div class="card col-md-12 form-group d-flex">
             <b>${resBody.addressList.address[i].name}      ${resBody.addressList.address[i].phone}</b>
             <p class="mt-3">${resBody.addressList.address[i].fullAddress},${resBody.addressList.address[i].landmark},${resBody.addressList.address[i].pinCode},${resBody.addressList.address[i].alternativePhone},${resBody.addressList.address[i].district}</p>
             <div class="d-flex col-md-8 mb-4">
@@ -278,11 +279,15 @@ async function addressDelete(id) {
                 </div>
             
         </div>`
+            }
+            document.getElementById('inner').innerHTML = x
+            console.log('address successfully deleted...')
+        } else {
+            console.log('A Trouble detected while deleting the address details.')
         }
-        document.getElementById('inner').innerHTML = x
-        console.log('address successfully deleted...')
-    } else {
-        console.log('A Trouble detected while deleting the address details.')
+    } catch (error) {
+        alert('Error occured. please check console')
+        console.log(error)
     }
 }
 function editAddress(data) {

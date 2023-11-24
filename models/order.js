@@ -43,6 +43,10 @@ const orderSchema = new mongoose.Schema({
       type: Boolean,
       default:false
     },
+    return_last_date:{
+      type:Date,
+
+    },
     products: [
       {
         product_id: {
@@ -73,12 +77,12 @@ const orderSchema = new mongoose.Schema({
           required: true,
         },
         delivery_date: {
-          type: String,
+          type: Date,
           default: new Date().setDate(new Date().getDate() + 7),
         }
       }
     ],
-    address:[{
+    address:{
       addressId: {
         type: mongoose.Types.ObjectId,
         ref: 'userDetail',
@@ -92,7 +96,7 @@ const orderSchema = new mongoose.Schema({
         type:Number,
         required:true,
       }
-    }]
+    }
   }]
 })
 

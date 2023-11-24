@@ -110,8 +110,7 @@
                                                             <span class="text-danger">Payment received - Rs. <%=
                                                                     row.amount %></span>
                                                             <% }else{ %>
-                                                                <i
-                                                                    class="fas fa-arrow-circle-up text-success me-2"></i>
+                                                                <i class="fas fa-arrow-circle-up text-success me-2"></i>
                                                                 <span class="text-success">Payment received - Rs. <%=
                                                                         row.amount %></span>
                                                                 <% } %>
@@ -120,7 +119,11 @@
                                                                         <%= row.description %>
                                                                     </p>
                                                     </div>
-                                                    <span class="transaction-time"><%= row.time.toLocaleDateString() %> - <%= row.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); %></span>
+                                                    <span class="transaction-time">
+                                                        <%= row.time.toLocaleDateString() %> - <%=
+                                                                row.time.toLocaleTimeString([], { hour: '2-digit' ,
+                                                                minute: '2-digit' }); %>
+                                                    </span>
                                                 </li>
                                                 <% }) %>
 
@@ -142,6 +145,7 @@
                     integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
                     crossorigin="anonymous">
                     </script>
+                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
 
@@ -157,22 +161,79 @@
             const amount = document.getElementById('amount').value
             const response = await fetch(`/add-walletfund/${amount}`, { method: 'get' })
             const resBody = await response.json()
-            if (resBody.success) {
+            if (resBody.online) {
+                razorpayPayment(resBody.wallet)
+                // document.querySelector('.balance').innerHTML = `Rs. ${resBody.walletDetails.balance}`
+                // document.getElementById('amount').value = .00
+                // setTimeout(() => {
+                //     alert(resBody.message)
+                //     location.reload()
+                // }, 500);
 
-                document.querySelector('.balance').innerHTML = `Rs. ${resBody.walletDetails.balance}`
-                document.getElementById('amount').value = .00
-                setTimeout(() => {
-                    alert(resBody.message)
-                    location.reload()
-                }, 500);
 
+            } else if (resBody.online) {
 
             } else {
                 alert(resBody.message)
             }
         }
-    </script>
 
+        function razorpayPayment(wallet) {
+            var options = {
+                "key": "rzp_test_kxpY9d3K4xgnJt", // Enter the Key ID generated from the Dashboard
+                "amount": wallet.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+                "currency": "INR",
+                "name": "SpareKit",
+                "description": "Test Transaction",
+                "image": "https://example.com/your_logo",
+                "order_id": wallet.receipt,
+                "handler": function (response) {
+                    veryfyPayment(response, wallet);
+                },
+                "prefill": {
+                    "name": "Gaurav Kumar",
+                    "email": "gaurav.kumar@example.com",
+                    "contact": "9000090000"
+                },
+                "notes": {
+                    "address": "Razorpay Corporate Office"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        }
+        function veryfyPayment(payment, wallet) {
+            $.ajax({
+                url: '/veryfy-payment',
+                method: 'post',
+                data: {
+                    payment,
+                    wallet
+                },
+                success: (response) => {
+                    if (response.status) {
+                        alert('Success part...')
+                    } else {
+                        alert(`payment failed`);
+                        rzp1.open();
+                    }
+                }
+            })
+        }
+
+        // Alert Popup
+        function openPopup() {
+            popup.classList.add('open-popup');
+        }
+        function closePopup() {
+            popup.classList.remove('open-popup');
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
     <%- include('head/footer') %>
         <!-- <li class="list-group-item d-flex justify-content-between align-items-center">

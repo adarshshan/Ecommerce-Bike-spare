@@ -106,11 +106,13 @@
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                 Discount on products
-                                <span id="discount-product"><%= totalDiscount %></span>
+                                <span id="discount-product">
+                                    <%= totalDiscount %>
+                                </span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                Discount on Coupons
-                                <span id="discount"></span>
+                                <span id="percentCoupon">Discount on Coupons</span>
+                                <span id="discount">00</span>
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                                 Shipping
@@ -133,11 +135,13 @@
                                 <div class="form-group">
                                     <input type="text" class="form-control py-3 px-2" id="couponCode"
                                         placeholder="Enter coupon code">
-                                    <span class="text-danger" id="coupon-error"></span>
                                 </div>
-                                <button class="btn btn-outline-primary ms-3 px-4"
+                                <button id="applybtn" class="btn btn-outline-primary ms-3 px-4"
                                     onclick="verifyCoupon('<%= totalAmount %>')">Apply</button>
+                                <button id="cancelbtn" style="display: none;" class="btn btn-outline-danger ms-3 px-4"
+                                    onclick="cancelCoupon('<%= totalAmount %>')">Cancel</button>
                             </div>
+                            <span class="text-danger" id="coupon-error"></span>
                         </div>
                         <!-- /coupon -->
 
@@ -153,21 +157,56 @@
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="/static/user/invoice.js"></script>
     <script>
+        async function cancelCoupon(totalAmount) {
+            const response = await fetch('/coupons/cancelCoupon', { method: 'get' })
+            const resbody = await response.json()
+            if (resbody.success) {
+                alert(resbody.message)
+                document.getElementById('cancelbtn').style.display = 'none'
+                document.getElementById('applybtn').style.display = 'block'
+                document.getElementById('couponCode').value = '';
+                document.getElementById('coupon-error').innerHTML = '';
+                document.getElementById('discount').innerText = 0;
+                document.getElementById('totalAmount').innerText = totalAmount;
+                document.getElementById('percentCoupon').innerText = `Discount on Coupons `;
+                localStorage.removeItem('CouponDetails')
+            } else {
+                alert(resbody.message)
+            }
+        }
         async function verifyCoupon(total) {
             const code = document.getElementById('couponCode').value;
             const response = await fetch(`/coupons/verify-coupon/${total}/${code}`, { method: 'get' })
             const resbody = await response.json()
             if (resbody.success) {
+                let couponDetails = {
+                    couponDiscount: resbody.discountAmount,
+                    percentCoupon: resbody.percentCoupon,
+                    actualAmount: resbody.actualAmount
+                }
+                localStorage.setItem("CouponDetails", JSON.stringify(couponDetails))//Storing the coupon Details in the local storrage.
                 document.getElementById('totalAmount').innerText = resbody.actualAmount;
                 document.getElementById('discount').innerText = resbody.discountAmount;
+                document.getElementById('percentCoupon').innerText = `Discount on Coupons(${resbody.percentCoupon}%)`;
                 document.getElementById('message-alert').innerText = resbody.message
                 // document.getElementById('coupon-error').innerText=resbody.message
                 document.getElementById('coupon-error').innerHTML = `<p class="text-success">${resbody.message}</p>`
+                document.getElementById('cancelbtn').style.display = 'block'
+                document.getElementById('applybtn').style.display = 'none'
                 openPopup()
             } else {
                 document.getElementById('coupon-error').innerText = resbody.message
             }
         }
+        const storedInfo = JSON.parse(localStorage.getItem('CouponDetails'))
+        if (storedInfo) {
+            document.getElementById('cancelbtn').style.display = 'block'
+            document.getElementById('applybtn').style.display = 'none'
+            document.getElementById('discount').innerHTML = storedInfo.couponDiscount
+            document.getElementById('percentCoupon').innerText = `Discount on Coupons(${storedInfo.percentCoupon}%)`;
+            document.getElementById('totalAmount').innerText = storedInfo.actualAmount;
+        }
+
     </script>
 
 

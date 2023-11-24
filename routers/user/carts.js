@@ -13,10 +13,10 @@ const ObjectId = mongoose.Types.ObjectId;
 
 //----cart----
 router.get('/', controller.cartHome)
-router.post('/add/:id/:name/:price/:image/:disc', controller.addCart)
-router.get('/remove/:id', controller.removeCart)
-router.get('/increaseCount/:id', controller.increaseCount)
-router.get('/decreaseCount/:id', controller.decreaseCount)
+router.get('/add/:id/:name/:price/:image/:disc', userAuth, controller.addCart)
+router.get('/remove/:id', userAuth, controller.removeCart)
+router.get('/increaseCount/:id', userAuth, controller.increaseCount)
+router.get('/decreaseCount/:id', userAuth, controller.decreaseCount)
 
 
 //---Order Side......
@@ -30,7 +30,7 @@ router.get('/changeStatus/:id/:status', adminAuth, orderController.changeStatus)
 router.post('/veryfy-payment', (req, res) => {
     const { payment, order } = req.body
     veryfyPayment(payment, order).then(() => {
-        removeCart(req.session.currentUserId,req);//to delete the existing cart details
+        removeCart(req.session.currentUserId, req);//to delete the existing cart details
         changePaymentStatus(order.receipt).then(() => {
             console.log('payment successful');
             res.json({ status: true, message: 'payment successful and status changed!.' });
@@ -45,12 +45,28 @@ router.post('/veryfy-payment', (req, res) => {
         res.json({ status: false, message: 'Somthing went wrong' })
     })
 })
-
+router.get('/return-product/:id', async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const Return = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': 'RETURN' } })
+        if (Return) {
+            await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.refund': true } })
+            console.log('product return approved.')
+            return res.json({ success: true, message: 'product return approved.' })
+        } else {
+            console.log('product return Failed.')
+            return res.json({ success: false, message: 'product return Failed.' })
+        }
+    } catch (error) {
+        console.log(error)
+        return res.json({ success: false, message: 'Somthing went wrong.' })
+    }
+})
 
 
 //additional functions:
 
-async function removeCart(userId,req) {
+async function removeCart(userId, req) {
     delete req.session.selectedAddress
     const deleted = await Cart.findOneAndDelete({ userId: userId })
     if (deleted) {

@@ -1,3 +1,6 @@
+
+
+
 function increaseProductQuantity(productId, productPrice) {
     fetch(`/carts/increaseCount/${productId}`, {
         method: 'GET'
@@ -8,12 +11,13 @@ function increaseProductQuantity(productId, productPrice) {
         }
         console.log(response)
         return response.json();
-    }) 
+    })
         .then((data) => {
             let total = data.productQuantity * productPrice
             let quantity = data.productQuantity
-            let totalAmount=data.totalAmount
-            let totalProducts=data.totalProducts
+            let totalAmount = data.totalAmount
+            let totalProducts = data.totalProducts
+            localStorage.removeItem('CouponDetails')
 
             const quantityInput = document.getElementById(`form${productId}`);
             if (quantityInput) {
@@ -23,17 +27,17 @@ function increaseProductQuantity(productId, productPrice) {
             if (totalPriceElement) {
                 totalPriceElement.innerHTML = total;
             }
-            const totalAmountElement=document.getElementById('totalAmount')
-            if(totalAmountElement){
-                totalAmountElement.innerHTML=totalAmount
+            const totalAmountElement = document.getElementById('totalAmount')
+            if (totalAmountElement) {
+                totalAmountElement.innerHTML = totalAmount
             }
-            const totalProductsElement=document.getElementById('totalProducts')
-            if(totalProductsElement){
-                totalProductsElement.innerHTML=`(${totalProducts})items`
+            const totalProductsElement = document.getElementById('totalProducts')
+            if (totalProductsElement) {
+                totalProductsElement.innerHTML = `(${totalProducts})items`
             }
-            const taem=document.getElementById('actualamount')
-            if(taem){
-                taem.innerHTML=totalAmount
+            const taem = document.getElementById('actualamount')
+            if (taem) {
+                taem.innerHTML = totalAmount
             }
         })
         .catch(error => {
@@ -51,12 +55,13 @@ function decreaseProductQuantity(productId, productPrice) {
         }
         console.log(response)
         return response.json();
-    }) 
+    })
         .then((data) => {
             let total = data.productQuantity * productPrice
             let quantity = data.productQuantity
-            let totalAmount=data.totalAmount
-            let totalProducts=data.totalProducts
+            let totalAmount = data.totalAmount
+            let totalProducts = data.totalProducts
+            localStorage.removeItem('CouponDetails')
 
             const quantityInput = document.getElementById(`form${productId}`);
             if (quantityInput) {
@@ -66,17 +71,17 @@ function decreaseProductQuantity(productId, productPrice) {
             if (totalPriceElement) {
                 totalPriceElement.innerHTML = total;
             }
-            const totalAmountElement=document.getElementById('totalAmount')
-            if(totalAmountElement){
-                totalAmountElement.innerHTML=totalAmount
+            const totalAmountElement = document.getElementById('totalAmount')
+            if (totalAmountElement) {
+                totalAmountElement.innerHTML = totalAmount
             }
-            const totalProductsElement=document.getElementById('totalProducts')
-            if(totalProductsElement){
-                totalProductsElement.innerHTML=`(${totalProducts})items`
+            const totalProductsElement = document.getElementById('totalProducts')
+            if (totalProductsElement) {
+                totalProductsElement.innerHTML = `(${totalProducts})items`
             }
-            const taem=document.getElementById('actualamount')
-            if(taem){
-                taem.innerHTML=totalAmount
+            const taem = document.getElementById('actualamount')
+            if (taem) {
+                taem.innerHTML = totalAmount
             }
         })
         .catch(error => {

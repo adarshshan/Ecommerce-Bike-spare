@@ -1,5 +1,5 @@
- // Alert Popup
- function openPopup() {
+// Alert Popup
+function openPopup() {
     popup.classList.add('open-popup');
 }
 function closePopup() {
@@ -369,4 +369,36 @@ async function updateName() {
                         </div>`
     }
 
+}
+
+async function logOut() {
+    Swal.fire({
+        title: "Log out?",
+        text: "",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Log out!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/users/logout`, { method: 'get' }).then((response) => {
+                if (!response.ok) {
+                    console.log('there is an error...')
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            }).then((resBody) => {
+                if (resBody.success) {
+                    Swal.fire({
+                        title: "Logged out!",
+                        text: "Visit again, Thank you.",
+                        icon: "success"
+                    });
+                    location.href='/';
+                }else{
+                    alert(resBody.message)
+                }
+            })
+        }
+    });
 }

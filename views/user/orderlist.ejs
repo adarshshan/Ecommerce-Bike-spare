@@ -1,38 +1,38 @@
 <%- include('head/header') %>
-<style>
-    a :hover{
-        background: rgb(97, 97, 96);
-        color: rgb(250, 249, 249);
-    }
-</style>
+    <style>
+        a :hover {
+            background: rgb(97, 97, 96);
+            color: rgb(250, 249, 249);
+        }
+    </style>
     <div class="container-fluid" style="background-color: #f7efef;">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-4 fw-normal" >
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-4 fw-normal">
                 <div class="position-sticky">
-                        <a class="nav-link text-dark" href="/profile">
-                            <div class="nav-item p-3">
+                    <a class="nav-link text-dark" href="/profile">
+                        <div class="nav-item p-3">
                             My Account
-                            </div>
-                        </a>
-                        <a class="nav-link text-dark" href="/carts/orders">
-                            <div class="nav-item p-3">
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="/carts/orders">
+                        <div class="nav-item p-3">
                             Orders
-                            </div>
-                        </a>
-                        <a class="nav-link text-dark" href="/wishlist">
-                            <div class="nav-item p-3">
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="/wishlist">
+                        <div class="nav-item p-3">
                             wishlist
-                            </div>
-                        </a>
-                        <a class="nav-link text-dark" href="/wallet">
-                            <div class="nav-item p-3">
-                                Your Wallet
-                            </div>
-                        </a>
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="/wallet">
+                        <div class="nav-item p-3">
+                            Your Wallet
+                        </div>
+                    </a>
                 </div>
             </nav>
-            
+
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div
                     class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-5 pb-2 mb-3 border-bottom">
@@ -57,27 +57,56 @@
                             <% if (data && data.length) { %>
                                 <% data.forEach((row,index)=> { %>
                                     <tr>
-                                        <td><%= row.address[0].addressName %></td>
-                                        <td><%= row.date.toISOString().split('T')[0] %></td>
-                                        <td><%= row.couponDiscount %></td>
-                                        <td><%= row.ProductDiscount %></td>
-                                        <td><%= row.walletAmount %></td>
-                                        <td><%= row.totalAmount+row.couponDiscount+row.walletAmount %></td>
-                                        <td><%= row.paymentMethod %></td>
-                                        <td><% if (row.isCancelled) { %>
+                                        <td>
+                                            <%= row.address.addressName %>
+                                        </td>
+                                        <td>
+                                            <%= row.date.toISOString().split('T')[0] %>
+                                        </td>
+                                        <td>
+                                            <%= row.couponDiscount %>
+                                        </td>
+                                        <td>
+                                            <%= row.ProductDiscount %>
+                                        </td>
+                                        <td>
+                                            <%= row.walletAmount %>
+                                        </td>
+                                        <td>
+                                            <%= row.totalAmount+row.couponDiscount+row.walletAmount %>
+                                        </td>
+                                        <td>
+                                            <%= row.paymentMethod %>
+                                        </td>
+                                        <td>
+                                            <% if (row.isCancelled) { %>
                                                 <p class="text-danger">CANCELLED</p>
                                                 <% }else{ %>
                                                     <%= row.products[0].status %>
-                                                    <% } %>
+                                                        <% } %>
                                         </td>
                                         <td>
-                                            <% if (!row.isCancelled) { %>
-                                                <a href="/carts/cancelOrder/<%= row._id %>"
-                                                    class="btn btn-outline-danger"><i class="fa-solid fa-ban"></i></a>
-                                                    <!-- <button onclick="cancelOrder('<%= row._id %>')" class="btn btn-danger">Cancel</button> -->
+                                            <i class="fa-solid fa-ellipsis-vertical dropdown-toggle-split"
+                                                data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                            <ul class="dropdown-menu shadow">
+                                                <% if (!row.isCancelled && row.products[0].status!=='RETURN' && row.products[0].status!=='DELIVERED') { %>
+                                                    <li style="cursor: pointer;" onclick="cancelOrder('<%= row._id %>')"><i
+                                                        class="fa-solid fa-ban text-danger"></i> Cancel
+                                                </li>
                                                 <% } %>
-                                                    <a href="/carts/view_order/<%= row._id %>/<%= row.totalAmount %>/<%= row.paymentMethod %>/<%= row.address[0].addressName %>/<%= row.address[0].addressPhone %>/<%= row.date.toISOString().split('T')[0] %>/<%= row.invoice %>"
-                                                        class="btn btn-outline-dark float-end"><i class="fa-regular fa-eye"></i></a>
+                                                <a style="text-decoration: none; color: black ;"
+                                                    href="/carts/view_order/<%= row._id %>/<%= row.totalAmount %>/<%= row.paymentMethod %>/<%= row.address.addressName %>/<%= row.address.addressPhone %>/<%= row.date.toISOString().split('T')[0] %>/<%= row.invoice %>">
+                                                    <li onclick="viewOrder('<%= row._id %>')">
+                                                        <i class="fa-regular fa-eye"></i> view
+                                                    </li>
+                                                </a>
+                                                <% let currentDate=Date.now() %>
+                                                <% if (row.products[0].status==='DELIVERED' && row.return_last_date > currentDate ) { %>
+                                                    <li style="cursor: pointer;" onclick="returnOrder('<%= row._id %>')">
+                                                        <i class="fa-solid fa-rotate-left"></i> return</li>
+                                                    <% } %>
+
+                                            </ul>
                                         </td>
                                     </tr>
 
@@ -106,7 +135,37 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        async function returnOrder(id){
+            try {
+                const response=await fetch(`/carts/return-product/${id}`);
+                const resBody=await response.json()
+                if(resBody.success){
+                    alert(resBody.message)
+                }else{
+                    alert(resBody.message)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        async function cancelOrder(id) {
+            try {
+                const response = await fetch(`/carts/cancelOrder/${id}`, { method: 'get' });
+                const resBody = await response.json();
+                if (resBody.success) {
+                    alert(resBody.message)
+                    setTimeout(() => {
+                        location.reload()
+                    }, 500);
+                } else {
+                    alert(resBody.message)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    </script>
 
-    
 
     <%- include('head/footer') %>

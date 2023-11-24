@@ -42,10 +42,6 @@ const prouctSchema = new mongoose.Schema({
     discount:{
         type:Number,
         default:0
-    },
-    cart:{
-        type:Boolean,
-        default:false
     }
 })
 const product = mongoose.model('product', prouctSchema)

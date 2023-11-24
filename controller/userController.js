@@ -43,7 +43,7 @@ async function userLogin(req, res) {
     try {
         let { email, password } = req.body
         let mail = await User.findOne({ email: email })
-        
+
         if (!email || !password) return res.json({ success: false, message: 'Input details must not be blank!' });
         if (!mail || mail === undefined || mail === null) return res.json({ success: false, message: 'Email is not matching' });
         if (mail.isDeleted) {
@@ -111,7 +111,9 @@ async function userLogin(req, res) {
 
 function userSignupPage(req, res) {
     try {
-        res.render('user/signup', { title: 'user signUp' })
+        const refferalCode = req.query.refferalCode;
+        console.log('your refferel code is ' + refferalCode + 'from the usersignupform')
+        res.render('user/signup', { title: 'user signUp', refferalCode })
     } catch (error) {
         console.log(error)
     }
@@ -125,6 +127,7 @@ async function userSignup(req, res) {
         const mobile = req.body.phone
         const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         const email = req.body.email
+        const refferalCode = req.query.refferalCode;
         const isuser = await User.findOne({ email: req.body.email })
         if (isuser !== null) {
             req.session.message = {
@@ -176,13 +179,14 @@ async function userSignup(req, res) {
             email: req.body.email,
             phone: req.body.phone,
             password: hashedpassword,
+            refferalCode: generateReferralCode(),
             verified: false
         })
         const result = await user.save()
 
         const otpsent = sendOtpVerificationEmail(result, req, res)
         if (otpsent) {
-            return res.render('user/otppage', { title: 'OTP Login page.', msg: '', type: '' })
+            return res.render('user/otppage', { title: 'OTP Login page.', msg: '', type: '', refferalCode })
         }
 
     } catch (error) {
@@ -217,7 +221,8 @@ async function verifyOtp(req, res) {
     try {
         let otp = req.body.otp
         let userId = req.session.uesrid
-        console.log(`userId: ${userId} and otp: ${otp}`);
+        let refferalCode = req.query.refferalCode;
+        console.log(`userId: ${userId} and otp: ${otp} and refferalCode is ${refferalCode}`);
         if (!userId || !otp) {
             return res.render('user/otppage', { title: 'OTP Login page.', msg: 'Empty OTP details are not allowed.', type: 'danger' })
         } else {
@@ -246,7 +251,17 @@ async function verifyOtp(req, res) {
                         //success
                         await User.updateOne({ _id: userId }, { verified: true })
                         await userOtpVerification.deleteMany({ userId })
-                        // alert('Email verified successfully...')
+                        if (refferalCode) {
+                            // const updateReferrer = await User.findOneAndUpdate({ refferalCode: refferalCode }, { $inc: { 'wallet.balance': 50 } })
+                            const increased = await IncreaseWalletBalance(refferalCode);
+                            if (increased) {
+                                console.log('50rs added to refferer')
+                            } else {
+                                console.log('FAiled to add 50rs')
+                            }
+                        } else {
+                            console.log('There is no refferal code')
+                        }
                         notifier.notify({
                             title: 'Notifications',
                             message: 'Email Verified successfully ',
@@ -262,6 +277,36 @@ async function verifyOtp(req, res) {
     } catch (error) {
         delete req.session.uesrid
         return res.render('user/otppage', { title: 'OTP Login page.', msg: 'Somthing went wrong. Try again.', type: 'danger' })
+    }
+}
+
+async function IncreaseWalletBalance(refferalCode) {
+    try {
+        const updatedUser = await User.findOneAndUpdate(
+            { refferalCode: refferalCode },
+            {
+                $inc: { 'wallet.balance': 50 },
+                $push: {
+                    'wallet.transactions': {
+                        type: 'debited',
+                        amount: 50,
+                        description: 'Cash Received by Somone is logined using your refferal code.',
+                        time: Date.now()
+                    }
+                }
+            },
+            { new: true, upsert: true }
+        )
+        if (updatedUser) {
+            console.log('Refferal offer is credited to the user wallet');
+            return true;
+        } else {
+            console.log('failed the refferal offer.');
+            return false;
+        }
+    } catch (error) {
+        console.log(error)
+        return false;
     }
 }
 
@@ -320,6 +365,10 @@ async function unBlockUser(req, res) {
         console.log('Error is at unBlockUser ' + error)
     }
 
+}
+
+function generateReferralCode() {
+    return Math.random().toString(36).substring(2, 8);
 }
 
 let transporter = nodemailer.createTransport({
@@ -382,10 +431,10 @@ async function userLogout(req, res) {
         delete req.session.userlogin
         delete req.session.currentUserId
         delete req.session.cartId
-        await product.updateMany({}, { $set: { cart: false } })
-        res.redirect('/')
+        return res.json({ success: true, message: 'logged out' });
     } catch (error) {
         console.log('An Error occured when logging out ' + error)
+        return res.json({ success: false, message: 'Failed to logging out.' })
     }
 
 }

@@ -40,7 +40,10 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">Coupon Code</th>
-                                            <th scope="col">Amount/Discount</th>
+                                            <th scope="col">min.Purchase</th>
+                                            <th scope="col">min.Discount</th>
+                                            <th scope="col">max.Purchase</th>
+                                            <th scope="col">max.Discount</th>
                                             <th scope="col">Max.Usage</th>
                                             <th scope="col">Current Usage</th>
                                             <th scope="col">Created Date</th>
@@ -58,7 +61,16 @@
                                                         <%= row.code %>
                                                     </td>
                                                     <td>
-                                                        <%= row.amount %>
+                                                        <%= row.minPurchase %>
+                                                    </td>
+                                                    <td>
+                                                        <%= row.minDiscount+'%' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= row.maxPurchase %>
+                                                    </td>
+                                                    <td>
+                                                        <%= row.maxDiscount+'%' %>
                                                     </td>
                                                     <td>
                                                         <%= row.maxusage %>
@@ -69,16 +81,14 @@
                                                     <td>
                                                         <%= row.created_at.toISOString().split('T')[0] %>
                                                     </td>
-                                                    <!-- <td>
-                                                        <%= row.expireDate %>
-                                                    </td> -->
                                                     <td>
-                                                        <% const currentDate = new Date().toISOString().split('T')[0]; %>
-                                                        <% if (row.expireDate < currentDate) { %>
-                                                            <p class="text-danger">coupon Expired <br> (<%= row.expireDate %>)</p>
-                                                            <% }else{ %>
-                                                                <%= row.expireDate %>
-                                                                <% } %>
+                                                        <% const currentDate=new Date().toISOString().split('T')[0]; %>
+                                                            <% if (row.expireDate < currentDate) { %>
+                                                                <p class="text-danger">coupon Expired <br> (<%=
+                                                                        row.expireDate %>)</p>
+                                                                <% }else{ %>
+                                                                    <%= row.expireDate %>
+                                                                        <% } %>
                                                     </td>
                                                     <td>
                                                         <% if (row.isActive) { %>
@@ -101,7 +111,7 @@
                                                                         <li onclick="deleteCoupon('<%= row._id %>')">
                                                                             Delete</li>
                                                                         <li
-                                                                            onclick="couponEditForm('<%= JSON.stringify({id:row._id,amount:row.amount,maxusage:row.maxusage,expireDate:row.expireDate}) %>')">
+                                                                            onclick="couponEditForm('<%= JSON.stringify({id:row._id,minDiscount:row.minDiscount,minPurchase:row.minPurchase,maxDiscount:row.maxDiscount,maxPurchase:row.maxPurchase,maxusage:row.maxusage,expireDate:row.expireDate}) %>')">
                                                                             Edit</li>
                                                         </ul>
                                                     </td>
@@ -163,9 +173,25 @@
                                 <h2>Add Coupon</h2>
                                 <!-- <form action="/coupons" method="POST"> -->
                                 <div class="form-group">
-                                    <label for="amount">Amount/Discount</label>
-                                    <input type="number" class="form-control" id="amount" name="amount" placeholder=""
-                                        required>
+                                    <label for="minDiscount">Discount in percentage</label>
+                                    <input type="number" class="form-control" id="minDiscount" name="minDiscount"
+                                        placeholder="" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="maxDiscount">Maximum Discount in percentage(optional)</label>
+                                    <input type="number" class="form-control" id="maxDiscount" name="maxDiscount"
+                                        placeholder="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="minPurchase">Minimum Purchase</label>
+                                    <input type="number" class="form-control" id="minPurchase" name="minPurchase"
+                                        placeholder="" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="maxPurchase">Maximum Purchase for eligible maximum
+                                        discount(Optional)</label>
+                                    <input type="number" class="form-control" id="maxPurchase" name="maxPurchase"
+                                        placeholder="">
                                 </div>
                                 <div class="form-group">
                                     <label for="amount">Maximum usage</label>
@@ -237,14 +263,20 @@
         }
         async function addCoupon() {
             try {
-                const amount = document.getElementById('amount').value
+                const minDiscount = document.getElementById('minDiscount').value
+                const minPurchase = document.getElementById('minPurchase').value
+                const maxDiscount = document.getElementById('maxDiscount').value
+                const maxPurchase = document.getElementById('maxPurchase').value
                 const maxusage = document.getElementById('maxusage').value
                 const expireDate = document.getElementById('expireDate').value
                 const response = await fetch(`/coupons`, {
                     method: 'post',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        amount: amount,
+                        minDiscount: minDiscount,
+                        minPurchase: minPurchase,
+                        maxDiscount: maxDiscount,
+                        maxPurchase: maxPurchase,
                         maxusage: maxusage,
                         expireDate: expireDate
                     })
@@ -279,11 +311,26 @@
                 editform.innerHTML = `
                             <div class="card-body">
                                 <h2>Edit Coupon</h2>
-                                    <div class="form-group">
-                                        <label for="amount">Amount/Discount</label>
-                                        <input type="number" class="form-control" id="amount" value="${couponData.amount}" name="amount"
-                                            placeholder="" required>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="minDiscount">Discount in percentage</label>
+                                    <input type="number" class="form-control" id="minDiscount" value="${couponData.minDiscount}" name="minDiscount" placeholder=""
+                                        required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="maxDiscount">Maximum Discount in percentage(optional)</label>
+                                    <input type="number" class="form-control" id="maxDiscount" value="${couponData.maxDiscount}" name="maxDiscount" placeholder="" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="minPurchase">Minimum Purchase</label>
+                                    <input type="number" class="form-control" id="minPurchase" value="${couponData.minPurchase}" name="minPurchase"
+                                        placeholder="" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="maxPurchase">Maximum Purchase for eligible maximum discount(Optional)</label>
+                                    <input type="number" class="form-control" id="maxPurchase" value="${couponData.maxPurchase}" name="maxPurchase"
+                                        placeholder="" >
+                                </div>
+                                <div class="form-group">
                                     <div class="form-group">
                                     <label for="amount">Maximum usage</label>
                                     <input type="number" class="form-control" id="maxusage" value="${couponData.maxusage}" name="maxusage" placeholder=""
@@ -304,10 +351,13 @@
 
         async function couponEdit(couponId) {
             try {
-                const amount = document.getElementById('amount').value
+                const minDiscount = document.getElementById('minDiscount').value
+                const minPurchase = document.getElementById('minPurchase').value
+                const maxDiscount = document.getElementById('maxDiscount').value
+                const maxPurchase = document.getElementById('maxPurchase').value
                 const maxusage = document.getElementById('maxusage').value
                 const expireDate = document.getElementById('expireDate').value
-                const response = await fetch(`/coupons/edit-coupon/${couponId}/${amount}/${expireDate}/${maxusage}`, { method: 'get' })
+                const response = await fetch(`/coupons/edit-coupon/${couponId}/${minDiscount}/${minPurchase}/${maxDiscount}/${maxPurchase}/${expireDate}/${maxusage}`, { method: 'get' })
                 const resbody = await response.json();
                 if (resbody.success) {
                     document.getElementById('message-alert').innerText = resbody.message
