@@ -83,6 +83,7 @@ async function userDetailHome(req, res) {
             console.log('Error is at get productDetails')
         })
     } catch (error) {
+        console.log(error)
         console.log('An Error occured when Rendering the product Details...')
     }
 }
@@ -500,6 +501,9 @@ async function walletHome(req, res) {
             },
             { $project: { _id: 0, wallet: 1 } }
         ])
+        console.log(`wallet is ${wallet}`)
+        console.log(wallet);
+        // if(!wallet || wallet===undefined || wallet.length===0) return res.send('wallet is not defined')
         // console.log(wallet[0].wallet);
         // console.log(wallet[0]);
         res.render('user/wallet.ejs', { title: 'wallet', wallet, balance });

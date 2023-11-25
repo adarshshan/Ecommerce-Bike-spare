@@ -186,7 +186,13 @@ async function userSignup(req, res) {
 
         const otpsent = sendOtpVerificationEmail(result, req, res)
         if (otpsent) {
-            return res.render('user/otppage', { title: 'OTP Login page.', msg: '', type: '', refferalCode })
+            if (refferalCode) {
+                console.log(`refferalCode is ${refferalCode}`)
+                return res.render('user/otppage', { title: 'OTP Login page.', msg: '', type: '', refferalCode: refferalCode })
+            }else{
+                return res.render('user/otppage', { title: 'OTP Login page.', msg: '', type: '',refferalCode: ''})
+            }
+
         }
 
     } catch (error) {
@@ -222,7 +228,7 @@ async function verifyOtp(req, res) {
         let otp = req.body.otp
         let userId = req.session.uesrid
         let refferalCode = req.query.refferalCode;
-        console.log(`userId: ${userId} and otp: ${otp} and refferalCode is ${refferalCode}`);
+        console.log(`userId: ${userId} and otp: ${otp}`);
         if (!userId || !otp) {
             return res.render('user/otppage', { title: 'OTP Login page.', msg: 'Empty OTP details are not allowed.', type: 'danger' })
         } else {
@@ -252,7 +258,6 @@ async function verifyOtp(req, res) {
                         await User.updateOne({ _id: userId }, { verified: true })
                         await userOtpVerification.deleteMany({ userId })
                         if (refferalCode) {
-                            // const updateReferrer = await User.findOneAndUpdate({ refferalCode: refferalCode }, { $inc: { 'wallet.balance': 50 } })
                             const increased = await IncreaseWalletBalance(refferalCode);
                             if (increased) {
                                 console.log('50rs added to refferer')

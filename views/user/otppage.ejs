@@ -8,23 +8,44 @@
                         <div class="card-body p-4 p-sm-5">
                             <h3 class="card-title"></h3>
                             <small><b>Enter your One Time password</b></small>
-                            <form action="/users/verifyOtp/?refferalCode=<%= refferalCode %>" method="post">
-                                <div class="form-floating mb-3 mt-5">
-                                    <input type="text" class="form-control" name="otp" placeholder="" id="number">
-                                    <label >Enter the OTP</label>
-                                </div>
-                                <br>
-                                <% if (locals.msg) { %>
-                                    <div class="alert alert-dismissible fade show alert-<%= type %>" role="alert">
-                                        <button class="btn-close" type="button" data-bs-dismiss="alert"
-                                            aria-label="close"></button>
-                                        <strong>
-                                            <%= msg %>
-                                        </strong>
+                            <% if (refferalCode && refferalCode!==null && refferalCode.length!==0) { %>
+                                <form action="/users/verifyOtp/?refferalCode=<%= refferalCode %>" method="post">
+                                    <div class="form-floating mb-3 mt-5">
+                                        <input type="text" class="form-control" name="otp" placeholder="" id="number">
+                                        <label >Enter the OTP</label>
                                     </div>
-                                    <% } %>
-                                        <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
-                            </form>
+                                    <br>
+                                    <% if (locals.msg) { %>
+                                        <div class="alert alert-dismissible fade show alert-<%= type %>" role="alert">
+                                            <button class="btn-close" type="button" data-bs-dismiss="alert"
+                                                aria-label="close"></button>
+                                            <strong>
+                                                <%= msg %>
+                                            </strong>
+                                        </div>
+                                        <% } %>
+                                            <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
+                                </form>
+                                <% }else{ %>
+                                    <form action="/users/verifyOtp" method="post">
+                                        <div class="form-floating mb-3 mt-5">
+                                            <input type="text" class="form-control" name="otp" placeholder="" id="number">
+                                            <label >Enter the OTP</label>
+                                        </div>
+                                        <br>
+                                        <% if (locals.msg) { %>
+                                            <div class="alert alert-dismissible fade show alert-<%= type %>" role="alert">
+                                                <button class="btn-close" type="button" data-bs-dismiss="alert"
+                                                    aria-label="close"></button>
+                                                <strong>
+                                                    <%= msg %>
+                                                </strong>
+                                            </div>
+                                            <% } %>
+                                                <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
+                                    </form>
+                                  <% } %>
+                            
                             <div id="countdown"></div>
                             <form id="resend-form" class="mt-3" action="/users/resendtpVerficationCode" method="post">
                                 <input class="btn btn-danger" type="submit" value="Resend OTP" id="reform" disabled>

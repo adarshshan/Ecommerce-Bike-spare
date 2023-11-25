@@ -46,6 +46,10 @@
                 </div>
             </nav>
             <div class="col-lg-7 col-md-9">
+                <% let rupee = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                }); %>
                 <% if (wishlist && wishlist!==null && wishlist.length) { %>
                     <% wishlist.forEach((row,index)=> { %>
                         <a style="text-decoration: none; color: black;" href="/productDetails/<%= row.productId._id %>">
@@ -61,15 +65,13 @@
                                     <% if (row.productId.discount!==0) { %>
                                         <p class="text-success">Discount: <%= row.productId.discount +' %off' %>
                                         </p>
-                                        <p><strong>Price: <del class="text-danger">Rs.<%= row.productId.price %></del>
-                                                <p class="fs-4 text-success"><i
-                                                        class="fa-solid fa-indian-rupee-sign"></i>
-                                                    <%= row.productId.price-(row.productId.price*row.productId.discount/100)
-                                                        %>
+                                        <p><strong>Price: <del class="text-danger"><%= rupee.format(row.productId.price) %></del>
+                                                <p class="fs-4 text-success">
+                                                    <%= rupee.format(row.productId.price-(row.productId.price*row.productId.discount/100)) %>
                                                 </p>
                                             </strong></p>
                                         <% }else{ %>
-                                            <p class="fw-bold"><i class="fa-solid fa-indian-rupee-sign"></i>
+                                            <p class="fw-bold">
                                                 <%= row.productId.price %>
                                                     <% } %>
 

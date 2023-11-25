@@ -63,6 +63,10 @@
                     </div>
                 </div>
                 <div class="col-md-6">
+                    <% let rupee = new Intl.NumberFormat('en-IN', {
+                        style: 'currency',
+                        currency: 'INR',
+                    }); %>
                     <h1>
                         <%= products.name %>
                     </h1>
@@ -72,11 +76,11 @@
                     <% if (products.discount!==0) { %>
                         <p class="text-success">Discount: <%= products.discount +' %off' %>
                         </p>
-                        <p><strong>Price: <del class="text-danger"><i class="fa-solid fa-indian-rupee-sign"></i>
-                                    <%= products.price %>
+                        <p><strong>Price: <del class="text-danger">
+                                    <%= rupee.format(products.price) %>
                                 </del>
-                                <p class="fs-4 text-success"><i class="fa-solid fa-indian-rupee-sign"></i>
-                                    <%= products.price-(products.price*products.discount/100) %>
+                                <p class="fs-4 text-success">
+                                    <%= rupee.format(products.price-(products.price*products.discount/100)) %>
                                 </p>
                             </strong></p>
                         <% }else{ %>
@@ -97,7 +101,7 @@
                                         <% }else{ %>
                                             <button class="btn btn-warning p-3 fw-bold" onclick="addToCart('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description}) %>'); return false;">Add to Cart</button>
                                             <% } %>
-                                                <button class="btn btn-success p-3 fw-bold ms-3">Buy Now</button>
+                                                <button class="btn btn-success p-3 fw-bold ms-3" onclick="buyNow('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description,discount:products.discount}) %>'); return false;">Buy Now</button>
                                 </div>
                 </div>
             </div>
@@ -105,6 +109,17 @@
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
+            async function buyNow(data){
+                const productDetails = JSON.parse(data);
+                const response=await fetch(`/carts/buy-now/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}/${productDetails.discount}`,{method:'get'})
+                const resBody=await response.json()
+                if(resBody.success){
+                    console.log(resBody.message)
+                    location.href='/users/checkout'
+                }else{
+                    alert(`Somthing went wrong at buyNow`);
+                }
+            }
             async function addToCart(data) {
                 const productDetails = JSON.parse(data);
                 const response = await fetch(`/carts/add/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}`, { method: 'get' })

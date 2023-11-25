@@ -8,6 +8,8 @@ const ObjectId = mongoose.Types.ObjectId;
 const Razorpay = require('razorpay')
 const Promise = require('promise')
 const Swal = require('sweetalert2')
+const helpers = require('../utils/helpers')
+const localStorage = require("localStorage")
 var instance = new Razorpay({ key_id: 'rzp_test_kxpY9d3K4xgnJt', key_secret: 'NH5mIiVcgS7yf9zr0iwQisAQ' })
 
 
@@ -24,8 +26,17 @@ async function paymentOptionPage(req, res) {
             name: name,
             phone: phone
         }
+        if (localStorage.getItem("product")) {
+            console.log('Buy Now')
+            let product = JSON.parse(localStorage.getItem("product"));
+            console.log(product)
+            const totalDiscount = product.price * product.discount / 100;
+            const totalAmount = product.price - totalDiscount;
+            const totalProducts = 1;
+            return res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts, totalDiscount })
+        }
         if (req.session.selectedAddress) {
-            const { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: user })
+            const { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: user })
             res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts, totalDiscount })
         }
     } catch (error) {
@@ -43,7 +54,7 @@ async function orderPost(req, res) {
         let status = value === 'COD' ? 'PLACED' : 'PENDING'
         const cart = await Cart.findOne({ userId: userId })
         const exist = await Order.findOne({ userId: userId })
-        const invoiceNumber = generateInvoiceNumber();
+        const invoiceNumber = helpers.generateInvoiceNumber();
         const userData = await User.findById(user)
         const userName = userData.name
         const userEmail = userData.email
@@ -54,7 +65,108 @@ async function orderPost(req, res) {
         if (exist && exist !== null) {
             try {
                 console.log('already have an order collection...')
+                //----buy now----//
+                if (localStorage.getItem("product")) {
+                    console.log('Buy Now')
+                    let product = JSON.parse(localStorage.getItem("product"));
+                    console.log(product)
+                    var totalDiscount = product.price * product.discount / 100;
+                    var totalAmount = product.price - totalDiscount;
+                    var totalProducts = 1;
+                    //coupon///
+                    var discount = 0;
+                    var couponCode
+                    var couponPercent = 0
+                    if (coupon && coupon !== null && coupon !== undefined) {
+                        console.log('Coupon Detected')
+                        totalAmount = coupon.total
+                        discount = coupon.discount
+                        couponCode = coupon.code
+                        couponPercent = coupon.couponPercent
+                    }
+                    if (value === 'online payment + wallet') {
+                        console.log('Its online payment + wallet methodd')
+                        const userDetails = await User.findById(user)
+                        if (!userDetails.wallet.balance) return res.json({ success: false, message: 'Wallet is Empty!' })
+                        if (userDetails.wallet.balance == 0) return res.json({ success: false, message: 'Wallet is Empty!!' })
+                        if (userDetails.wallet.balance < totalAmount) {
+                            var totalAmount = totalAmount - userDetails.wallet.balance;
+                            var wallet = userDetails.wallet.balance
+                        } else {
+                            var wallet = totalAmount;
+                            var totalAmount = 0;
+                        }
+                    }
+                    let items = [{
+                        product_id: product.id,
+                        productName: product.name,
+                        productPrice: product.price,
+                        productImage: product.imageUri,
+                        productDiscription: product.discription,
+                        quantity: 1,
+                        status: status,
+                    }]
 
+                    const invoiceData = helpers.getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, wallet, totalDiscount, couponPercent)
+
+                    const orderOk = await Order.findOneAndUpdate({ userId: user }, {
+                        $push: {
+                            orders: {
+                                $each: [{
+                                    paymentMethod: value,
+                                    invoice: invoiceNumber,
+                                    totalAmount: totalAmount,
+                                    couponDiscount: discount,
+                                    ProductDiscount: totalDiscount,
+                                    walletAmount: wallet,
+                                    products: items,
+                                    address: {
+                                        addressId: addressId,
+                                        addressName: name,
+                                        addressPhone: phone
+                                    },
+
+                                }], $position: 0
+                            }
+                        }
+                    })
+                    if (orderOk) {
+                        console.log('order success pushed successfully into the existing order model..')
+
+                        //Stock Deduction
+                        await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });
+                        
+                        const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
+                        console.log(`orderElement is ${orderElem}`);
+                        if (value === 'COD') {
+                            await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
+                            return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
+                        } else {
+                            if (totalAmount === 0 && value === 'online payment + wallet') {
+                                await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
+                                console.log('order placed using wallet balance')
+                                helpers.changePaymentStatus(invoiceNumber)
+                                helpers.decreaseWalletBalance(user, wallet);
+                                return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
+                            }
+                            if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
+                            generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
+
+                                Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
+
+                                return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
+                            }).catch((err) => {
+                                console.log(`error is ${err}`);
+                            })
+                        }
+                    } else {
+                        console.log('somthing trouble while push the orders into the ordermodel..')
+                        return res.json({ success: false, message: 'somthing trouble while push the orders into the ordermodel..', invoiceData: '' })
+                    }
+
+                }
+                //-----/buy Now------//
+                //coupon///
                 if (cart && cart !== null) {
                     let items = []
                     var totalAmount;
@@ -62,7 +174,7 @@ async function orderPost(req, res) {
                     var couponCode
                     var totalDiscount = 0
                     var couponPercent = 0
-                    var { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: userId })
+                    var { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: userId })
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
                         totalAmount = coupon.total
@@ -104,7 +216,7 @@ async function orderPost(req, res) {
                         }
                     }
 
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, wallet, totalDiscount, couponPercent)
+                    const invoiceData = helpers.getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, wallet, totalDiscount, couponPercent)
 
                     const orderOk = await Order.findOneAndUpdate({ userId: user }, {
                         $push: {
@@ -148,12 +260,12 @@ async function orderPost(req, res) {
                                 await Cart.findOneAndDelete({ userId: user })//to Delete the order completed cart
                                 await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
                                 console.log('order placed using wallet balance')
-                                changePaymentStatus(invoiceNumber)
-                                decreaseWalletBalance(user, wallet);
+                                helpers.changePaymentStatus(invoiceNumber)
+                                helpers.decreaseWalletBalance(user, wallet);
                                 delete req.session.discount;//To delete the coupon discount details.
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
-                            if (value === 'online payment + wallet') decreaseWalletBalance(user, wallet);
+                            if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
                             generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
                                 Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
@@ -186,7 +298,7 @@ async function orderPost(req, res) {
                     var couponCode;
                     var totalDiscount = 0
                     var couponPercent = 0;
-                    var { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: userId })
+                    var { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: userId })
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
                         totalAmount = coupon.total
@@ -214,7 +326,7 @@ async function orderPost(req, res) {
                     } else {
                         console.log('products not found in database...')
                     }
-                    const invoiceData = getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, totalDiscount, couponPercent)
+                    const invoiceData = helpers.getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, totalDiscount, couponPercent)
                     const orderOk = await Order.insertMany({
                         userId: user,
                         orders: [{
@@ -298,7 +410,7 @@ async function orderHomePage(req, res) {
                 totaPages: Math.ceil(data.orders.length / productsPerPage)
             });
         } else {
-            res.send('data not found...')
+            res.send('NO orders')
             console.log('data not found...')
         }
 
@@ -360,7 +472,7 @@ async function cancelOrder(req, res) {
         const orderId = req.params.id
         const userId = req.session.currentUserId;
         const orderElem = await Order.findOne({ userId: userId }, { orders: { $elemMatch: { _id: orderId } } })
-        const status=orderElem.orders[0].products[0].status;
+        const status = orderElem.orders[0].products[0].status;
         await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.isCancelled': true } })
         const cancel = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': 'CANCELLED' } })
         if (cancel) {
@@ -368,12 +480,12 @@ async function cancelOrder(req, res) {
                 await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.refund': true } })
             }
             console.log('Order cancelled');
-            return res.json({success:true,message:'Order cancelled!'})
+            return res.json({ success: true, message: 'Order cancelled!' })
             // res.redirect('/carts/orders/')
         }
     } catch (error) {
         console.log(error)
-        return res.json({success:false,message:'Failed to cancel!'})
+        return res.json({ success: false, message: 'Failed to cancel!' })
     }
 }
 
@@ -381,8 +493,8 @@ async function changeStatus(req, res) {
     try {
         const orderId = req.params.id
         const status = req.params.status
-        if(status=='DELIVERED'){
-            const expireDate=new Date().setDate(new Date().getDate() + 15)
+        if (status == 'DELIVERED') {
+            const expireDate = new Date().setDate(new Date().getDate() + 15)
             await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.return_last_date': expireDate } })
         }
         const updated = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': status } })
@@ -399,19 +511,76 @@ async function changeStatus(req, res) {
     }
 }
 
+function verifyPayment(req, res) {
+    const { payment, order } = req.body
+    console.log('payment is ')
+    console.log(payment)
+    console.log('order id is ')
+    console.log(order.receipt);
+    helpers.veryfyPayment(payment, order).then(() => {
+        helpers.removeCart(req.session.currentUserId, req);//to delete the existing cart details
+        helpers.changePaymentStatu(order.receipt).then(() => {
+            console.log('payment successful');
+            res.json({ status: true, message: 'payment successful and status changed!.' });
+        }).catch((err) => {
+            console.log(err)
+            console.log('payment failed and status not updated.')
+            res.json({ status: false, message: 'payment failed and status not updated.' });
+        })
+    }).catch((err) => {
+        console.log(err)
+
+        res.json({ status: false, message: 'Somthing went wrong' })
+    })
+}
+
+async function returnProduct(req, res) {
+    try {
+        const orderId = req.params.id;
+        const Return = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': 'RETURN' } })
+        if (Return) {
+            await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.refund': true } })
+            console.log('product return approved.')
+            return res.json({ success: true, message: 'product return approved.' })
+        } else {
+            console.log('product return Failed.')
+            return res.json({ success: false, message: 'product return Failed.' })
+        }
+    } catch (error) {
+        console.log(error)
+        return res.json({ success: false, message: 'Somthing went wrong.' })
+    }
+}
+
 async function adminOrderList(req, res) {
     try {
         const orderList = await Order.find()
-        orderList[0].orders.sort((a, b) => new Date(b.date) - new Date(a.date));
-        let order = orderList[0].orders
+        // console.log('total order list is below')
+        // console.log(orderList)
+        const allOrders = orderList.reduce((accumulator, currentOrder) => {
+            return accumulator.concat(currentOrder.orders);
+        }, []);
+        // console.log('all order is below')
+        // console.log(allOrders);
+        allOrders.sort((a, b) => {
+            // Convert the date strings to actual Date objects for comparison
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+
+            // Compare the dates and arrange them in descending order
+            return dateB - dateA;
+        });
+
+        // orderList[0].orders.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // let order = orderList[0].orders
         const productsPerPage = 9
         const page = parseInt(req.query.page) || 1;
         const start = (page - 1) * productsPerPage;
         const end = start + productsPerPage;
-        const paginatedProducts = order.slice(start, end)
+        const paginatedProducts = allOrders.slice(start, end)
         res.render('admin/orders.ejs', {
             title: 'orders', order: paginatedProducts, currenPage: page,
-            totaPages: Math.ceil(order.length / productsPerPage)
+            totaPages: Math.ceil(allOrders.length / productsPerPage)
         })
     } catch (error) {
         console.log(error)
@@ -472,51 +641,16 @@ module.exports = {
     cancelOrder,
     changeStatus,
     adminOrderList,
-    adminViewOrder
+    adminViewOrder,
+    verifyPayment,
+    returnProduct
 }
 
 
 // additional functons
 
-async function decreaseWalletBalance(userId, amount) {
-    try {
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            {
-                $inc: { 'wallet.balance': -amount },
-                $push: {
-                    'wallet.transactions': {
-                        type: 'credited',
-                        amount: amount,
-                        description: 'Products purchased.',
-                        time: Date.now()
-                    }
-                }
-            },
-            { new: true, upsert: true }
-        )
-        if (updatedUser) {
-            console.log('amount deducted from the wallet...');
-        } else {
-            console.log('failed to deduct the balance.');
-        }
-    } catch (error) {
-        console.log(error)
-    }
-}
 
-async function changePaymentStatus(invoice) {
-    try {
-        const updated = await Order.findOneAndUpdate({ 'orders.invoice': invoice }, { $set: { 'orders.$.products.$[].status': 'PLACED' } })
-        if (updated) {
-            console.log('order status updated...');
-        } else {
-            console.log('Order status Failed to update...');
-        }
-    } catch (error) {
-        console.log(error)
-    }
-}
+
 
 function generateRazorpay(total, orderId) {
     return new Promise((resolve, reject) => {
@@ -535,144 +669,3 @@ function generateRazorpay(total, orderId) {
         });
     })
 }
-
-
-
-function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, paymentMethod, date, discount, totalAmount, wallet, totalDiscount) {
-    return {
-        BilledTo: {
-            name: userName,
-            phone: userPhone,
-            email: userEmail
-        },
-        sender: {
-            company: 'SpareKit',
-            address: 'sparekit, malappuram',
-            zip: '1234 AB',
-            city: 'Malappuram',
-            country: 'India'
-        },
-        client: {
-            client: name,
-            phone: phone,
-            address: '4567 CD',
-            city: 'calicut',
-            country: 'India'
-        },
-        information: {
-            number: invoiceNumber,
-            method: paymentMethod,
-            discount: parseInt(discount) || 0,
-            totalDiscount: parseFloat(totalDiscount),
-            totalAmount: parseInt(totalAmount),
-            wallet: parseInt(wallet) || 0,
-            date: new Date().toLocaleString('en-GB', {
-                hour12: false,
-            })
-        },
-        products: items,
-        'bottom-notice': 'Kindly pay your invoice within 30 days.',
-        settings: {
-            currency: 'INR'
-        }
-    };
-}
-
-
-function generateInvoiceNumber() {
-    const prefix = "SPK";
-    const year = new Date().getFullYear();
-    const uniqueIdentifier = generateUniqueIdentifier();
-    const suffix = "";
-
-    const invoiceNumber = `${prefix}-${year}-${uniqueIdentifier}${suffix}`;
-    return invoiceNumber;
-}
-
-function generateUniqueIdentifier() {
-    const randomNumber = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
-    return randomNumber;
-}
-
-const calculateTotalAmount = async (matchCriteria) => {
-    console.log('Matching criteria:', matchCriteria);
-
-    const result = await Cart.aggregate([
-        {
-            $match: matchCriteria
-        },
-        {
-            $unwind: "$products"
-        },
-        {
-            $lookup: {
-                from: "products",
-                localField: "products.productId",
-                foreignField: "_id",
-                as: "product"
-            }
-        },
-        {
-            $unwind: "$product"
-        },
-        {
-            $group: {
-                _id: null,
-                totalAmount: {
-                    $sum: {
-                        $cond: {
-                            if: { $ne: ["$product.discount", 0] },
-                            then: {
-                                $multiply: [
-                                    {
-                                        $subtract: [
-                                            "$product.price",
-                                            { $multiply: ["$product.price", { $divide: ["$product.discount", 100] }] }
-                                        ]
-                                    },
-                                    "$products.quantity"
-                                ]
-                            },
-                            else: { $multiply: ["$product.price", "$products.quantity"] }
-                        }
-                    }
-                },
-                totalDiscount: {
-                    $sum: {
-                        $cond: {
-                            if: { $ne: ["$product.discount", 0] },
-                            then: {
-                                $multiply: [
-                                    "$product.price",
-                                    { $divide: ["$product.discount", 100] },
-                                    "$products.quantity"
-                                ]
-                            },
-                            else: 0
-                        }
-                    }
-                },
-                totalProducts: { $sum: 1 }
-            }
-        }
-    ]);
-
-
-    console.log('Aggregation result:', result);
-
-
-
-
-    if (result.length > 0) {
-        console.log('Total Amount:', result[0].totalAmount);
-        console.log(`totalProducts ${result[0].totalProducts}`)
-        console.log(`totalDiscount ${result[0].totalDiscount}`)
-        let totalAmount = result[0].totalAmount
-        let totalProducts = result[0].totalProducts
-        let totalDiscount = result[0].totalDiscount
-        return { totalAmount, totalProducts, totalDiscount };
-    } else {
-        console.log('No results found.');
-        return 0; // Return 0 if no results
-    }
-};

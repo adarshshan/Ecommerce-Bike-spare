@@ -151,6 +151,10 @@
                 <h2 class="text-center">PRODUCTS</h2>
             </div>
             <div class="row mt-5 mx-auto">
+                <% let rupee = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                }); %>
                 <% products.forEach((row,index)=> { %>
                     <div class="col-12 col-sm-6 col-md-4 col-lg-3 shadow mb-4">
                         <a style="text-decoration: none; color: black;" href="/productDetails/<%= row._id %>">
@@ -174,13 +178,13 @@
                                                     <%= row.discount+" %off" %>
                                                 </small>
                                                 <p class="card-text text-success"><del class="text-danger">
-                                                        <%= row.price %>
-                                                    </del> <i class="fa-solid fa-indian-rupee-sign text-dark"></i>
-                                                    <%= row.price-(row.price*row.discount/100) %>
+                                                        <%= rupee.format(row.price) %>
+                                                    </del>
+                                                    <%= rupee.format(row.price-(row.price*row.discount/100)) %>
                                                 </p>
                                                 <% }else{ %>
-                                                    <p class="card-text"><i class="fa-solid fa-indian-rupee-sign"></i>
-                                                        <%= row.price %>
+                                                    <p class="card-text">
+                                                        <%= rupee.format(row.price) %>
                                                     </p>
                                                     <% } %>
 

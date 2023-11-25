@@ -150,6 +150,40 @@
 </body>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function sharePage() {
+            Swal.fire({
+                title: "Enter the Email you want to share the page",
+                input: "text",
+                inputAttributes: {
+                    autocapitalize: "off"
+                },
+                showCancelButton: true,
+                confirmButtonText: "Share link",
+                showLoaderOnConfirm: true,
+                preConfirm: async (email) => {
+                    try {
+                        const githubUrl = `/share-link/${email}`;
+                        const response = await fetch(githubUrl, { method: 'get' });
+                        if (!response.ok) {
+                            return Swal.showValidationMessage(`${JSON.stringify(await response.json())} `);
+                        }
+                        const resBody = await response.json();
+                        if (resBody.success) {
+                            alert(resBody.message)
+                            Swal.fire({
+                                title: `Email succesfully send`
+                            });
+                        }else{
+                            alert(resBody.message)
+                        }
+                    } catch (error) {
+                        Swal.showValidationMessage(`Request failed: ${error}`);
+                    }
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            })
+        }
+
         async function logOut() {
             Swal.fire({
                 title: "Log out?",

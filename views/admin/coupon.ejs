@@ -54,6 +54,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <% let rupee = new Intl.NumberFormat('en-IN', {
+                                            style: 'currency',
+                                            currency: 'INR',
+                                        }); %>
                                         <% if (couponList && couponList!==null && couponList.length) { %>
                                             <% couponList.forEach((row,index)=> { %>
                                                 <tr>
@@ -61,13 +65,13 @@
                                                         <%= row.code %>
                                                     </td>
                                                     <td>
-                                                        <%= row.minPurchase %>
+                                                        <%= rupee.format(row.minPurchase) %>
                                                     </td>
                                                     <td>
                                                         <%= row.minDiscount+'%' %>
                                                     </td>
                                                     <td>
-                                                        <%= row.maxPurchase %>
+                                                        <%= rupee.format(row.maxPurchase) %>
                                                     </td>
                                                     <td>
                                                         <%= row.maxDiscount+'%' %>

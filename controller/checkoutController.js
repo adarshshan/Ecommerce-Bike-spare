@@ -2,6 +2,8 @@ const Cart = require('../models/cart')
 const addressModel = require('../models/userDetail')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
+const helpers = require('../utils/helpers')
+const localStorage = require("localStorage")
 
 
 
@@ -11,15 +13,25 @@ async function checkoutPage(req, res) {
     if (userId) {
         const address = await addressModel.findOne({ userId: userId })
         const cart = await Cart.findOne({ userId: userId })
+        var addressDetails
+        if (address && address !== null) {
+            addressDetails = address.address;
+        } else {
+            console.log('data not found')
+        }
+        if (localStorage.getItem("product")) {
+            console.log('Buy Now')
+            let product = JSON.parse(localStorage.getItem("product"));
+            console.log(product)
+            const totalDiscount = product.price * product.discount / 100;
+            const totalAmount = product.price - totalDiscount;
+            const totalProducts = 1;
+            return res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts, totalDiscount })
+        }
         if (cart && cart !== null && cart !== undefined && cart.products.length !== 0) {
 
-            const { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: user })
-            var addressDetails
-            if (address && address !== null) {
-                addressDetails = address.address;
-            } else {
-                console.log('data not found')
-            }
+            const { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: user })
+
             res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts, totalDiscount })
         } else {
             console.log('Cart is empty')
@@ -125,86 +137,3 @@ module.exports = {
     updateAddress,
     deleteAddress
 }
-
-const calculateTotalAmount = async (matchCriteria) => {
-    console.log('Matching criteria:', matchCriteria);
-
-    const result = await Cart.aggregate([
-        {
-            $match: matchCriteria
-        },
-        {
-            $unwind: "$products"
-        },
-        {
-            $lookup: {
-                from: "products",
-                localField: "products.productId",
-                foreignField: "_id",
-                as: "product"
-            }
-        },
-        {
-            $unwind: "$product"
-        },
-        {
-            $group: {
-                _id: null,
-                totalAmount: {
-                    $sum: {
-                        $cond: {
-                            if: { $ne: ["$product.discount", 0] },
-                            then: {
-                                $multiply: [
-                                    {
-                                        $subtract: [
-                                            "$product.price",
-                                            { $multiply: ["$product.price", { $divide: ["$product.discount", 100] }] }
-                                        ]
-                                    },
-                                    "$products.quantity"
-                                ]
-                            },
-                            else: { $multiply: ["$product.price", "$products.quantity"] }
-                        }
-                    }
-                },
-                totalDiscount: {
-                    $sum: {
-                        $cond: {
-                            if: { $ne: ["$product.discount", 0] },
-                            then: {
-                                $multiply: [
-                                    "$product.price",
-                                    { $divide: ["$product.discount", 100] },
-                                    "$products.quantity"
-                                ]
-                            },
-                            else: 0
-                        }
-                    }
-                },
-                totalProducts: { $sum: 1 }
-            }
-        }
-    ]);
-
-
-    console.log('Aggregation result:', result);
-
-
-
-
-    if (result.length > 0) {
-        console.log('Total Amount:', result[0].totalAmount);
-        console.log(`totalProducts ${result[0].totalProducts}`)
-        console.log(`totalDiscount ${result[0].totalDiscount}`)
-        let totalAmount = result[0].totalAmount
-        let totalProducts = result[0].totalProducts
-        let totalDiscount = result[0].totalDiscount
-        return { totalAmount, totalProducts, totalDiscount };
-    } else {
-        console.log('No results found.');
-        return 0; // Return 0 if no results
-    }
-};

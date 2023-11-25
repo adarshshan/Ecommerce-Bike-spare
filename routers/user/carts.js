@@ -8,7 +8,9 @@ const userAuth = require('../../middlware/userAuth')
 const adminAuth = require('../../middlware/adminAuth')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
-
+const localStorage = require("localStorage")
+const helpers = require('../../utils/helpers')
+const order = require('../../models/order')
 
 
 //----cart----
@@ -27,82 +29,43 @@ router.get('/orders', userAuth, orderController.orderHomePage)
 router.get('/view_order/:id/:Tamount/:Pmethod/:aName/:aPhone/:date/:invoice', userAuth, orderController.viewOrder)
 router.get('/cancelOrder/:id', userAuth, orderController.cancelOrder)
 router.get('/changeStatus/:id/:status', adminAuth, orderController.changeStatus)
-router.post('/veryfy-payment', (req, res) => {
-    const { payment, order } = req.body
-    veryfyPayment(payment, order).then(() => {
-        removeCart(req.session.currentUserId, req);//to delete the existing cart details
-        changePaymentStatus(order.receipt).then(() => {
-            console.log('payment successful');
-            res.json({ status: true, message: 'payment successful and status changed!.' });
-        }).catch((err) => {
-            console.log(err)
-            console.log('payment failed and status not updated.')
-            res.json({ status: false, message: 'payment failed and status not updated.' });
-        })
-    }).catch((err) => {
-        console.log(err)
-
-        res.json({ status: false, message: 'Somthing went wrong' })
-    })
-})
-router.get('/return-product/:id', async (req, res) => {
+router.post('/veryfy-payment', userAuth, orderController.verifyPayment)
+router.get('/return-product/:id', userAuth, orderController.returnProduct);
+router.get('/buy-now/:id/:name/:price/:image/:disc/:discount', async (req, res) => {
     try {
-        const orderId = req.params.id;
-        const Return = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': 'RETURN' } })
-        if (Return) {
-            await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.refund': true } })
-            console.log('product return approved.')
-            return res.json({ success: true, message: 'product return approved.' })
-        } else {
-            console.log('product return Failed.')
-            return res.json({ success: false, message: 'product return Failed.' })
+        const id = req.params.id//product id
+        const name = req.params.name
+        const price = req.params.price
+        const imageUri = req.params.image
+        const discription = req.params.disc;
+        const discount=req.params.discount
+        const userId = req.session.currentUserId
+        const item = {
+            id: id,
+            name: name,
+            price: price,
+            imageUri: imageUri,
+            discription: discription,
+            discount:discount
         }
-    } catch (error) {
-        console.log(error)
-        return res.json({ success: false, message: 'Somthing went wrong.' })
-    }
-})
-
-
-//additional functions:
-
-async function removeCart(userId, req) {
-    delete req.session.selectedAddress
-    const deleted = await Cart.findOneAndDelete({ userId: userId })
-    if (deleted) {
-        console.log('The cart is no more....')
-    } else {
-        console.log('somthing trouble while deleting the cart')
-    }
-}
-
-async function changePaymentStatus(orderId) {
-    try {
-        const updated = await Order.findOneAndUpdate({ 'orders._id': orderId }, { $set: { 'orders.$.products.$[].status': 'PLACED' } })
-        if (updated) {
-            console.log('order status updated...');
-        } else {
-            console.log('Order status Failed to update...');
+        localStorage.setItem('product', JSON.stringify(item))
+        // let newObject = localStorage.getItem("product");
+        // console.log(JSON.parse(newObject));
+        // let product = JSON.parse(localStorage.getItem("product"));
+        // console.log(product)
+        if(localStorage.getItem("product")){
+            res.json({success:true,message:'product Details successfully added to the localstorrage'})
+        }else{
+            res.json({success:false,message:'Failed to add product Details to localstorrage'})
         }
+        
+        
     } catch (error) {
         console.log(error)
     }
-}
-function veryfyPayment(payment, order) {
-    return new Promise((resolve, reject) => {
-        const Crypto = require('crypto')
-        let hmac = Crypto.createHmac('sha256', 'NH5mIiVcgS7yf9zr0iwQisAQ')
+})
 
-        hmac.update(payment.razorpay_order_id + '|' + payment.razorpay_payment_id)
-        hmac = hmac.digest('hex')
-        if (hmac == payment.razorpay_signature) {
-            resolve()
-            console.log('resolved')
-        } else {
-            reject()
-            console.log('rejected')
 
-        }
-    })
-}
+
+
 module.exports = router

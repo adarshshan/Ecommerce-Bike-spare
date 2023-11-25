@@ -12,6 +12,7 @@
     "express-session": "^1.17.3",
     "express-validator": "^7.0.1",
     "js-image-zoom": "^0.7.0",
+    "localStorage": "^1.0.4",
     "lodash": "^4.17.21",
     "mongodb": "^6.1.0",
     "mongoose": "^7.6.0",

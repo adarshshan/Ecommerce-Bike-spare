@@ -1,6 +1,7 @@
 const Cart = require('../models/cart')
 const product = require('../models/product')
 const notifier = require('node-notifier');
+const localStorage = require("localStorage")
 const path = require('path')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;

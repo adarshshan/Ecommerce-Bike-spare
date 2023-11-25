@@ -29,12 +29,16 @@
                 </tr>
               </thead>
               <tbody>
+                <% let rupee = new Intl.NumberFormat('en-IN', {
+                  style: 'currency',
+                  currency: 'INR',
+              }); %>
                 <% data.forEach((row,index) => { %>
                   <tr>
                     <td><%= index+1 %></td>
                     <td><img width="50" src="<%= row.image[0] %>" ></td>
                     <td><%= row.name %></td>
-                    <td><%= row.price %></td>
+                    <td><%= rupee.format(row.price) %></td>
                     <td><%= row.discount==0?' ':row.discount+' %off' %></td>
                     <td><%= row.brandId.name?row.brandId.name:'Brand name' %></td>
                     <td><%= row.categorieId ? row.categorieId.name:'N/A' %></td>
