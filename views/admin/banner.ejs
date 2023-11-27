@@ -1,0 +1,157 @@
+<%- include('head/header.ejs') %>
+    <div id="page-content-wrapper">
+        <div class="container" style="margin-left: 248px;">
+            <div class="row mt-5">
+                <div class="col-lg-12">
+
+                    <div class="container">
+                        <div style="display: flex;
+                    justify-content: space-between;">
+                            <h1>Banner Management</h1>
+                            <a href="/banners/add-banner" class="btn btn-outline-dark mb-5"><i
+                                    class="fa-solid fa-plus fs-2"></i></a>
+                            <!-- <button id="myButton" class="btn btn-outline-dark mb-5"><i class="fa-solid fa-plus fs-2"></i></button> -->
+                        </div>
+                        <div id="error"></div>
+
+
+
+                        <!-- Coupon Listing -->
+                        <div class="card row shadow mt-5" id="bannerlist">
+                            <div class="card-body col-12">
+                                <h2>Banner List</h2>
+
+
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Title</th>
+                                            <th scope="col">Image</th>
+                                            <th scope="col">Product</th>
+                                            <th scope="col">Discription</th>
+                                            <th scope="col">Start Date</th>
+                                            <th scope="col">End Date</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (bannerList && bannerList!==null && bannerList.length) { %>
+                                            <% bannerList.forEach((row,index)=> { %>
+                                                <tr>
+                                                    <td>
+                                                        <%= row.title %>
+                                                    </td>
+                                                    <td>
+                                                        <img width="50" src="<%= row.image_url %>">
+                                                    </td>
+                                                    <td>
+                                                        <%= row.product.name %>
+                                                    </td>
+                                                    <td>
+                                                        <%= row.description %>
+                                                    </td>
+                                                    <td>
+                                                        <%= row.startDate.toISOString().split('T')[0] %>
+                                                    </td>
+                                                    <td>
+                                                        <%= row.endDate.toISOString().split('T')[0] %>
+                                                    </td>
+                                                    <% if (row.isActive) { %>
+                                                        <td>Active</td>
+                                                        <% }else{ %>
+                                                            <td class="text-danger">Deactivated</td>
+                                                            <% } %>
+                                                                <td>
+                                                                    <i class="fa-solid fa-ellipsis-vertical dropdown-toggle-split"
+                                                                        data-bs-toggle="dropdown"
+                                                                        aria-expanded="false"></i>
+                                                                    <ul class="dropdown-menu shadow">
+                                                                        <% if (row.isActive) { %>
+                                                                            <li
+                                                                                onclick="deactivateBanner('<%= row._id %>')">
+                                                                                Deactivate
+                                                                            </li>
+                                                                            <% }else{ %>
+                                                                                <li
+                                                                                    onclick="ActivateBanner('<%= row._id %>')">
+                                                                                    Activate
+                                                                                </li>
+                                                                                <% } %>
+                                                                                    <li
+                                                                                        onclick="deleteBanner('<%= row._id %>')">
+                                                                                        Delete</li>
+                                                                                        <a href="/banners/edit-banner-form/<%= row.id %>/<%= row.title %>/<%= row.product.name %>/<%= row.product._id %>/<%= row.description %>/<%= row.image_url %>/<%= row.startDate %>/<%= row.endDate %>"><li>Edit</li></a>
+                                                                                    
+                                                                    </ul>
+                                                                </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% }else{ %>
+                                                        <div class="alert alert-dismissible fade show alert-warning"
+                                                            role="alert">
+                                                            <button class="btn-close" type="button"
+                                                                data-bs-dismiss="alert" aria-label="close"></button>
+                                                            <strong>
+                                                                Banner list is Empty!
+                                                            </strong>
+                                                        </div>
+                                                        <% } %>
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            async function deleteBanner(id) {
+                try {
+                    const response = await fetch(`/banners/delete-banner/${id}`, { method: 'get' })
+                    const resbody = await response.json()
+                    if (resbody.success) {
+                        location.reload()
+                    } else {
+                        alert(resbody.message)
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+            async function deactivateBanner(id) {
+                try {
+                    const response = await fetch(`/banners/deactivate-banner/${id}`, { method: 'get' })
+                    const resbody = await response.json()
+                    if (resbody.success) {
+                        location.reload()
+                    } else {
+                        alert(resbody.message)
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+            async function ActivateBanner(id) {
+                try {
+                    const response = await fetch(`/banners/activate-banner/${id}`, { method: 'get' })
+                    const resbody = await response.json()
+                    if (resbody.success) {
+                        location.reload()
+                    } else {
+                        alert(resbody.message)
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+
+        </script>
+        <%- include('head/footer.ejs') %>
+           

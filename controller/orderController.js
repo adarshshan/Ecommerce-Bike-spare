@@ -135,7 +135,7 @@ async function orderPost(req, res) {
 
                         //Stock Deduction
                         await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });
-                        
+
                         const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
                         console.log(`orderElement is ${orderElem}`);
                         if (value === 'COD') {
@@ -290,9 +290,104 @@ async function orderPost(req, res) {
         } else {
             try {
                 console.log('new in orderlist...')
+                //----buy now----//
+                if (localStorage.getItem("product")) {
+                    console.log('Buy Now')
+                    let product = JSON.parse(localStorage.getItem("product"));
+                    console.log(product)
+                    var totalDiscount = product.price * product.discount / 100;
+                    var totalAmount = product.price - totalDiscount;
+                    var totalProducts = 1;
+                    //coupon///
+                    var discount = 0;
+                    var couponCode
+                    var couponPercent = 0
+                    if (coupon && coupon !== null && coupon !== undefined) {
+                        console.log('Coupon Detected')
+                        totalAmount = coupon.total
+                        discount = coupon.discount
+                        couponCode = coupon.code
+                        couponPercent = coupon.couponPercent
+                    }
+                    if (value === 'online payment + wallet') {
+                        console.log('Its online payment + wallet methodd')
+                        const userDetails = await User.findById(user)
+                        if (!userDetails.wallet.balance) return res.json({ success: false, message: 'Wallet is Empty!' })
+                        if (userDetails.wallet.balance == 0) return res.json({ success: false, message: 'Wallet is Empty!!' })
+                        if (userDetails.wallet.balance < totalAmount) {
+                            var totalAmount = totalAmount - userDetails.wallet.balance;
+                            var wallet = userDetails.wallet.balance
+                        } else {
+                            var wallet = totalAmount;
+                            var totalAmount = 0;
+                        }
+                    }
+                    let items = [{
+                        product_id: product.id,
+                        productName: product.name,
+                        productPrice: product.price,
+                        productImage: product.imageUri,
+                        productDiscription: product.discription,
+                        quantity: 1,
+                        status: status,
+                    }]
+
+                    const invoiceData = helpers.getSampleData(invoiceNumber, items, name, phone, userName, userPhone, userEmail, value, date, discount, totalAmount, wallet, totalDiscount, couponPercent)
+                    const orderOk = await Order.insertMany({
+                        userId: user,
+                        orders: [{
+                            paymentMethod: value,
+                            invoice: invoiceNumber,
+                            totalAmount: totalAmount,
+                            couponDiscount: discount,
+                            ProductDiscount: totalDiscount,
+                            products: items,
+                            address: {
+                                addressId: addressId,
+                                addressName: name,
+                                addressPhone: phone
+                            },
+
+                        }]
+                    })
+                    if (orderOk) {
+                        console.log('order success pushed successfully into the existing order model..')
+
+                        //Stock Deduction
+                        await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });
+
+                        const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
+                        console.log(`orderElement is ${orderElem}`);
+                        if (value === 'COD') {
+                            await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
+                            return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
+                        } else {
+                            if (totalAmount === 0 && value === 'online payment + wallet') {
+                                await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
+                                console.log('order placed using wallet balance')
+                                helpers.changePaymentStatus(invoiceNumber)
+                                helpers.decreaseWalletBalance(user, wallet);
+                                return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
+                            }
+                            if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
+                            generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
+
+                                Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
+
+                                return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
+                            }).catch((err) => {
+                                console.log(`error is ${err}`);
+                            })
+                        }
+                    } else {
+                        console.log('somthing trouble while push the orders into the ordermodel..')
+                        return res.json({ success: false, message: 'somthing trouble while push the orders into the ordermodel..', invoiceData: '' })
+                    }
+
+                }
+                //-----/buy Now------//
                 if (cart && cart !== null) {
                     let items = []
-
                     var totalAmount;
                     var discount = 0;
                     var couponCode;
@@ -428,7 +523,7 @@ async function viewOrder(req, res) {
         const name = req.params.aName
         const phone = req.params.aPhone
         const date = req.params.date
-        const invoice = req.params.invoice;
+        const invoice = req.params.invoice
         const order = await Order.findOne({ 'orders._id': orderId })
         if (order && order !== undefined && order !== null) {
             const products = await Order.aggregate([
@@ -513,10 +608,6 @@ async function changeStatus(req, res) {
 
 function verifyPayment(req, res) {
     const { payment, order } = req.body
-    console.log('payment is ')
-    console.log(payment)
-    console.log('order id is ')
-    console.log(order.receipt);
     helpers.veryfyPayment(payment, order).then(() => {
         helpers.removeCart(req.session.currentUserId, req);//to delete the existing cart details
         helpers.changePaymentStatu(order.receipt).then(() => {
@@ -555,19 +646,12 @@ async function returnProduct(req, res) {
 async function adminOrderList(req, res) {
     try {
         const orderList = await Order.find()
-        // console.log('total order list is below')
-        // console.log(orderList)
         const allOrders = orderList.reduce((accumulator, currentOrder) => {
             return accumulator.concat(currentOrder.orders);
         }, []);
-        // console.log('all order is below')
-        // console.log(allOrders);
         allOrders.sort((a, b) => {
-            // Convert the date strings to actual Date objects for comparison
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
-
-            // Compare the dates and arrange them in descending order
             return dateB - dateA;
         });
 

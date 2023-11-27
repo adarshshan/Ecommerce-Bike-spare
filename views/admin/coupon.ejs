@@ -54,86 +54,88 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% let rupee = new Intl.NumberFormat('en-IN', {
-                                            style: 'currency',
-                                            currency: 'INR',
-                                        }); %>
-                                        <% if (couponList && couponList!==null && couponList.length) { %>
-                                            <% couponList.forEach((row,index)=> { %>
-                                                <tr>
-                                                    <td>
-                                                        <%= row.code %>
-                                                    </td>
-                                                    <td>
-                                                        <%= rupee.format(row.minPurchase) %>
-                                                    </td>
-                                                    <td>
-                                                        <%= row.minDiscount+'%' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= rupee.format(row.maxPurchase) %>
-                                                    </td>
-                                                    <td>
-                                                        <%= row.maxDiscount+'%' %>
-                                                    </td>
-                                                    <td>
-                                                        <%= row.maxusage %>
-                                                    </td>
-                                                    <td>
-                                                        <%= row.used_count %>
-                                                    </td>
-                                                    <td>
-                                                        <%= row.created_at.toISOString().split('T')[0] %>
-                                                    </td>
-                                                    <td>
-                                                        <% const currentDate=new Date().toISOString().split('T')[0]; %>
-                                                            <% if (row.expireDate < currentDate) { %>
-                                                                <p class="text-danger">coupon Expired <br> (<%=
-                                                                        row.expireDate %>)</p>
-                                                                <% }else{ %>
-                                                                    <%= row.expireDate %>
-                                                                        <% } %>
-                                                    </td>
-                                                    <td>
-                                                        <% if (row.isActive) { %>
-                                                            <p class="text-success">Active</p>
-                                                            <% }else{ %>
-                                                                <p class="text-danger">Deactivated</p>
-                                                                <% } %>
-                                                    </td>
-                                                    <td>
-                                                        <i class="fa-solid fa-ellipsis-vertical dropdown-toggle-split"
-                                                            data-bs-toggle="dropdown" aria-expanded="false"></i>
-                                                        <ul class="dropdown-menu shadow">
+                                        <% let rupee=new Intl.NumberFormat('en-IN', { style: 'currency' ,
+                                            currency: 'INR' , }); %>
+                                            <% if (couponList && couponList!==null && couponList.length) { %>
+                                                <% couponList.forEach((row,index)=> { %>
+                                                    <tr>
+                                                        <td>
+                                                            <%= row.code %>
+                                                        </td>
+                                                        <td>
+                                                            <%= rupee.format(row.minPurchase) %>
+                                                        </td>
+                                                        <td>
+                                                            <%= row.minDiscount+'%' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= rupee.format(row.maxPurchase) %>
+                                                        </td>
+                                                        <td>
+                                                            <%= row.maxDiscount+'%' %>
+                                                        </td>
+                                                        <td>
+                                                            <%= row.maxusage %>
+                                                        </td>
+                                                        <td>
+                                                            <%= row.used_count %>
+                                                        </td>
+                                                        <td>
+                                                            <%= row.created_at.toISOString().split('T')[0] %>
+                                                        </td>
+                                                        <td>
+                                                            <% const currentDate=new Date().toISOString().split('T')[0];
+                                                                %>
+                                                                <% if (row.expireDate < currentDate) { %>
+                                                                    <p class="text-danger">coupon Expired <br> (<%=
+                                                                            row.expireDate %>)</p>
+                                                                    <% }else{ %>
+                                                                        <%= row.expireDate %>
+                                                                            <% } %>
+                                                        </td>
+                                                        <td>
                                                             <% if (row.isActive) { %>
-                                                                <li onclick="deactivate('<%= row._id %>')">Deactivate
-                                                                </li>
+                                                                <p class="text-success">Active</p>
                                                                 <% }else{ %>
-                                                                    <li onclick="Activate('<%= row._id %>')">Activate
-                                                                    </li>
+                                                                    <p class="text-danger">Deactivated</p>
                                                                     <% } %>
-                                                                        <li onclick="deleteCoupon('<%= row._id %>')">
-                                                                            Delete</li>
-                                                                        <li
-                                                                            onclick="couponEditForm('<%= JSON.stringify({id:row._id,minDiscount:row.minDiscount,minPurchase:row.minPurchase,maxDiscount:row.maxDiscount,maxPurchase:row.maxPurchase,maxusage:row.maxusage,expireDate:row.expireDate}) %>')">
-                                                                            Edit</li>
-                                                        </ul>
-                                                    </td>
-                                                </tr>
-                                                <% }) %>
-                                                    <% }else{ %>
-                                                        <div class="alert alert-dismissible fade show alert-warning"
-                                                            role="alert">
-                                                            <button class="btn-close" type="button"
-                                                                data-bs-dismiss="alert" aria-label="close"></button>
-                                                            <strong>
-                                                                Coupon is Empty!
-                                                            </strong>
-                                                        </div>
-                                                        <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <i class="fa-solid fa-ellipsis-vertical dropdown-toggle-split"
+                                                                data-bs-toggle="dropdown" aria-expanded="false"></i>
+                                                            <ul class="dropdown-menu shadow">
+                                                                <% if (row.isActive) { %>
+                                                                    <li onclick="deactivate('<%= row._id %>')">
+                                                                        Deactivate
+                                                                    </li>
+                                                                    <% }else{ %>
+                                                                        <li onclick="Activate('<%= row._id %>')">
+                                                                            Activate
+                                                                        </li>
+                                                                        <% } %>
+                                                                            <li
+                                                                                onclick="deleteCoupon('<%= row._id %>')">
+                                                                                Delete</li>
+                                                                            <li
+                                                                                onclick="couponEditForm('<%= JSON.stringify({id:row._id,minDiscount:row.minDiscount,minPurchase:row.minPurchase,maxDiscount:row.maxDiscount,maxPurchase:row.maxPurchase,maxusage:row.maxusage,expireDate:row.expireDate}) %>')">
+                                                                                Edit</li>
+                                                            </ul>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                                        <% }else{ %>
+                                                            <div class="alert alert-dismissible fade show alert-warning"
+                                                                role="alert">
+                                                                <button class="btn-close" type="button"
+                                                                    data-bs-dismiss="alert" aria-label="close"></button>
+                                                                <strong>
+                                                                    Coupon is Empty!
+                                                                </strong>
+                                                            </div>
+                                                            <% } %>
 
 
-                                                            <!-- Add more rows for other coupons -->
+                                                                <!-- Add more rows for other coupons -->
                                     </tbody>
                                 </table>
                             </div>

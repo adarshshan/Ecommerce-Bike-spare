@@ -14,7 +14,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const Razorpay = require('razorpay')
 const Promise = require('promise')
 var instance = new Razorpay({ key_id: 'rzp_test_kxpY9d3K4xgnJt', key_secret: 'NH5mIiVcgS7yf9zr0iwQisAQ' })
-
+const Banner=require('../models/banner')
 
 
 async function personHome(req, res) {
@@ -25,6 +25,7 @@ async function personHome(req, res) {
         const userId = req.session.currentUserId;
         const productsPerPage = 12
         let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 }).populate("categorieId", { _id: 0, name: 1 })
+        let banners=await Banner.find();
 
         // console.log(productList)
         let categoryNames = [...new Set(
@@ -53,7 +54,8 @@ async function personHome(req, res) {
                 currenPage: page,
                 totaPages: Math.ceil(productList.length / productsPerPage),
                 wishlist,
-                categoryNames
+                categoryNames,
+                banners
             })
         }
     } catch (error) {
