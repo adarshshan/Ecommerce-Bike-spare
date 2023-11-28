@@ -25,7 +25,7 @@ async function personHome(req, res) {
         const userId = req.session.currentUserId;
         const productsPerPage = 12
         let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 }).populate("categorieId", { _id: 0, name: 1 })
-        let banners=await Banner.find();
+        let banners=await Banner.find({isDeleted:false});
 
         // console.log(productList)
         let categoryNames = [...new Set(

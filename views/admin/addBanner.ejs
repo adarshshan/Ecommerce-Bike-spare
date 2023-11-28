@@ -1,11 +1,14 @@
 <%- include('head/header') %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+
     <div id="page-content-wrapper">
         <div class="container" style="margin-left: 248px;">
             <div class="row mt-5">
                 <div class="col-lg-7 col-md-12">
                     <div class="container">
                         <h2>Add Banner</h2>
-                        <form action="/banners" method="post" class="shadow p-5 bg-light" enctype="multipart/form-data">
+                        <form id="bannerForm" action="/banners" method="post" class="shadow p-5 bg-light" enctype="multipart/form-data">
                             <label for="">Title</label>
                             <input type="text" name="title" id="title" class="form-control">
 
@@ -23,7 +26,12 @@
                             <input type="text" name="description" id="description" class="form-control">
 
                             <label for="">image</label>
-                            <input type="file" name="image" class="form-control" multiple>
+                            <input type="file" name="image" id="inputImage" class="form-control" accept="image/*"
+                                multiple>
+
+                            <div>
+                                <img style="width: 700px;" id="croppedImage" src="" alt="Cropped Image">
+                            </div>
 
                             <label for="">Start Date</label>
                             <input type="date" name="startDate" id="startDate" class="form-control">
@@ -40,7 +48,70 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.js" integrity="sha512-Zt7blzhYHCLHjU0c+e4ldn5kGAbwLKTSOTERgqSNyTB50wWSI21z0q6bn/dEIuqf6HiFzKJ6cfj2osRhklb4Og==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+   
     <script>
+        const input = document.getElementById('inputImage');
+        const image = document.getElementById('croppedImage');
+        let cropper;
 
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    image.src = event.target.result;
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(image, {
+                        aspectRatio: 25/9,
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('bannerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('title', document.getElementById('title').value);
+            formData.append('product', document.getElementById('product').value);
+            formData.append('startDate', document.getElementById('startDate').value);
+            formData.append('endDate', document.getElementById('endDate').value);
+            formData.append('description', document.getElementById('description').value);
+
+            const canvas = cropper.getCroppedCanvas();
+            canvas.toBlob((blob) => {
+                formData.append('image', blob, 'cropped_image.jpg');
+
+                fetch('/banners', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error uploading banner');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if(data.success){
+                            console.log('Banner added successfully:', data);
+                            location.href='/banners'
+                        }else{
+                            alert(data.message)
+                            location.href='/banners'
+                        }
+                        
+                    })
+                    .catch(error => {
+                        console.error('Error:', error.message);
+                    });
+            }, 'image/jpeg');
+        });
     </script>
     <%- include('head/footer') %>
