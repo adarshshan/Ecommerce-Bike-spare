@@ -5,12 +5,12 @@ const Product = require('../models/product')
 const Coupon = require('../models/coupon')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
-const Razorpay = require('razorpay')
+
 const Promise = require('promise')
 const Swal = require('sweetalert2')
 const helpers = require('../utils/helpers')
 const localStorage = require("localStorage")
-var instance = new Razorpay({ key_id: 'rzp_test_kxpY9d3K4xgnJt', key_secret: 'NH5mIiVcgS7yf9zr0iwQisAQ' })
+
 
 
 
@@ -67,9 +67,7 @@ async function orderPost(req, res) {
                 console.log('already have an order collection...')
                 //----buy now----//
                 if (localStorage.getItem("product")) {
-                    console.log('Buy Now')
                     let product = JSON.parse(localStorage.getItem("product"));
-                    console.log(product)
                     var totalDiscount = product.price * product.discount / 100;
                     var totalAmount = product.price - totalDiscount;
                     var totalProducts = 1;
@@ -85,7 +83,6 @@ async function orderPost(req, res) {
                         couponPercent = coupon.couponPercent
                     }
                     if (value === 'online payment + wallet') {
-                        console.log('Its online payment + wallet methodd')
                         const userDetails = await User.findById(user)
                         if (!userDetails.wallet.balance) return res.json({ success: false, message: 'Wallet is Empty!' })
                         if (userDetails.wallet.balance == 0) return res.json({ success: false, message: 'Wallet is Empty!!' })
@@ -150,7 +147,7 @@ async function orderPost(req, res) {
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
                             if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
-                            generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
+                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
 
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
 
@@ -266,7 +263,7 @@ async function orderPost(req, res) {
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
                             if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
-                            generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
+                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
                                 Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
                                 delete req.session.discount;//To delete the coupon discount details.
@@ -370,7 +367,7 @@ async function orderPost(req, res) {
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
                             if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
-                            generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
+                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
 
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
 
@@ -455,7 +452,7 @@ async function orderPost(req, res) {
                             await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
                             return res.json({ success: true, message: 'success part', invoiceData: invoiceData })
                         } else {
-                            generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
+                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id).then((result) => {
                                 Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
@@ -736,20 +733,4 @@ module.exports = {
 
 
 
-function generateRazorpay(total, orderId) {
-    return new Promise((resolve, reject) => {
-        var options = {
-            amount: total * 100,
-            currency: "INR",
-            receipt: orderId
-        };
-        instance.orders.create(options, function (err, order) {
-            if (err) {
-                console.log('error is here.')
-                console.log(err)
-            } else {
-                resolve(order);
-            }
-        });
-    })
-}
+

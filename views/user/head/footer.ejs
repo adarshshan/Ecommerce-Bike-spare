@@ -168,13 +168,10 @@
                             return Swal.showValidationMessage(`${JSON.stringify(await response.json())} `);
                         }
                         const resBody = await response.json();
-                        if (resBody.success) {
-                            alert(resBody.message)
+                        if (!resBody.success) {
                             Swal.fire({
-                                title: `Email succesfully send`
+                                title: `Email has been send succesfully`
                             });
-                        }else{
-                            alert(resBody.message)
                         }
                     } catch (error) {
                         Swal.showValidationMessage(`Request failed: ${error}`);

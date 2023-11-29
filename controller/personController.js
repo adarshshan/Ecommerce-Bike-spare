@@ -14,7 +14,8 @@ const ObjectId = mongoose.Types.ObjectId;
 const Razorpay = require('razorpay')
 const Promise = require('promise')
 var instance = new Razorpay({ key_id: 'rzp_test_kxpY9d3K4xgnJt', key_secret: 'NH5mIiVcgS7yf9zr0iwQisAQ' })
-const Banner=require('../models/banner')
+const Banner = require('../models/banner')
+const helpers = require('../utils/helpers')
 
 
 async function personHome(req, res) {
@@ -25,7 +26,7 @@ async function personHome(req, res) {
         const userId = req.session.currentUserId;
         const productsPerPage = 12
         let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 }).populate("categorieId", { _id: 0, name: 1 })
-        let banners=await Banner.find({isDeleted:false});
+        let banners = await Banner.find({ $and: [{ isDeleted: false }, { isActive: true }] });
 
         // console.log(productList)
         let categoryNames = [...new Set(
@@ -503,8 +504,8 @@ async function walletHome(req, res) {
             },
             { $project: { _id: 0, wallet: 1 } }
         ])
-        console.log(`wallet is ${wallet}`)
-        console.log(wallet);
+        // console.log(`wallet is ${wallet}`)
+        // console.log(wallet);
         // if(!wallet || wallet===undefined || wallet.length===0) return res.send('wallet is not defined')
         // console.log(wallet[0].wallet);
         // console.log(wallet[0]);
@@ -517,8 +518,12 @@ async function walletHome(req, res) {
 async function addWalletFund(req, res) {
     try {
         const amount = req.params.amount
-
-        generateRazorpay(amount, req.session.currentUserId).then((wallet) => {
+        console.log('Entered amount is ', amount)
+        const { v4: uuidv4 } = require('uuid');
+        const uniqueId = uuidv4().replace(/-/g, '');
+        generateRazorpay(amount, uniqueId, res).then((wallet) => {
+            console.log(`the wallet is ${wallet}`);
+            console.log(wallet);
             return res.json({ online: true, message: 'Wallet Recharge', wallet });
         }).catch((err) => {
             console.log(err)
@@ -529,23 +534,20 @@ async function addWalletFund(req, res) {
         console.log(error)
     }
 }
-function generateRazorpay(total, userId) {
+function generateRazorpay(total, uniqueId, res) {
     return new Promise((resolve, reject) => {
-        const { v4: uuidv4 } = require('uuid');
-        const uniqueId = uuidv4();
-        const shortUniqueId = `${uniqueId.substring(0, 8)}_${Date.now()}`
-
-        const receiptId = `${shortUniqueId}_${Date.now()}`;
         var options = {
             amount: total * 100,
             currency: "INR",
-            receipt: receiptId,
+            receipt: uniqueId,
             payment_capture: 1,
         };
         instance.orders.create(options, function (err, wallet) {
             if (err) {
                 console.log('error is here.')
                 console.log(err)
+                if(err.error) return res.json({ online: false, message: err.error.description });
+                return res.json({online:false,message:'make sure your internet is connected...'});
             } else {
                 resolve(wallet);
             }
@@ -573,6 +575,46 @@ async function refundWallet(req, res) {
     }
 }
 
+async function veryfyPay(req, res) {
+    try {
+        const { payment, wallet } = req.body
+        console.log('from veryftypayment api')
+        console.log(req.body);
+        const userId = req.session.currentUserId
+        helpers.veryfyPaymentwallt(payment, wallet).then(() => {
+            console.log('payment success in veryfypayment')
+            helpers.addWalletAmount(userId, wallet).then((updatedUser) => {
+                return res.json({ status: true, message: 'payment verifyed successfully and wallet amount updated.' })
+            }).catch((err) => console.log(err))
+
+        }).catch((err) => {
+            console.log(err)
+            res.json({ status: false, message: 'Somthing went wrong at catch block.' })
+        })
+    } catch (error) {
+        console.log('Error occured at veryfyPay')
+        console.log(error)
+    }
+}
+
+async function shareLink(req, res) {
+    try {
+        const Email = req.params.email
+        console.log(Email);
+        const sendUri = await helpers.sendUriToEmail(Email, req);
+        if (sendUri) {
+            console.log('email send success fully.')
+            return res.json({ success: true, message: 'email send success fully.' })
+        } else {
+            return res.json({ success: false, message: 'failed to send the email.' })
+        }
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     personHome,
     userDetailHome,
@@ -595,7 +637,9 @@ module.exports = {
     addWalletFund,
     addressBook,
     refundWallet,
-    categoryFilter
+    categoryFilter,
+    veryfyPay,
+    shareLink
 }
 
 //Functionss//
