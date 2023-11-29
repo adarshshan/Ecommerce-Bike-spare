@@ -28,14 +28,14 @@
     height: 100%;
     margin-left: -250px;
     overflow-y: auto;
-    background: rgb(5, 73, 28);
+    background: rgb(49, 49, 49);
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
     transition: all 0.5s ease;
   }
-  .navbar{
-    background: rgb(5, 73, 28);
+  .navbar,.dash-container{
+    background: rgb(49, 49, 49);
   }
   
   #wrapper.toggled #sidebar-wrapper {

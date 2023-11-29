@@ -26,6 +26,7 @@ async function cartHome(req, res) {
 
     } catch (error) {
         console.log(`An Error occured at ...${error}`)
+        res.redirect('/error-page');
     }
 
 }
@@ -74,7 +75,8 @@ async function addCart(req, res) {
 
     } catch (error) {
         console.log(`Error is at adding to cart ${error}`)
-        return res.json({ success: false, message: 'Error is at adding to cart' })
+        // return res.json({ success: false, message: 'Error is at adding to cart' })
+        res.redirect('/error-page');
     }
 
 
@@ -103,6 +105,7 @@ async function removeCart(req, res) {
         }
     } catch (error) {
         console.log('The Error is at Remove from cart.' + error)
+        res.redirect('/error-page');
     }
 }
 
@@ -146,6 +149,7 @@ async function increaseCount(req, res) {
 
     } catch (error) {
         console.log(`An error occured while increasing the Quantity...${error}`)
+        res.redirect('/error-page');
     }
 }
 
@@ -187,7 +191,8 @@ async function decreaseCount(req, res) {
 
     } catch (error) {
         console.log('An error occured while decreasing the quantity...' + error)
-        return res.json({ success: false })
+        // return res.json({ success: false })
+        res.redirect('/error-page');
     }
 }
 

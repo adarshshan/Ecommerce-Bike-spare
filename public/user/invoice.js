@@ -154,7 +154,10 @@ async function placeOrder(val) {
             razorpayPayment(resBody.result,receivedInvoiceData)
             document.getElementById('couponbox').style.display='none'
         }else{
-            alert(resBody.message)
+            document.getElementById('Errormsg').innerText=resBody.message;
+            setTimeout(() => {
+                document.getElementById('Errormsg').innerText='';
+            }, 5000);
         }
     } catch (error) {
         console.log(error)

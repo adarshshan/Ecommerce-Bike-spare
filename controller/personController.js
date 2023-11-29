@@ -61,6 +61,7 @@ async function personHome(req, res) {
         }
     } catch (error) {
         console.log("An Error occured at rendering the user home page..." + error)
+        res.redirect('/error-page');
     }
 
 
@@ -88,6 +89,7 @@ async function userDetailHome(req, res) {
     } catch (error) {
         console.log(error)
         console.log('An Error occured when Rendering the product Details...')
+        res.redirect('/error-page');
     }
 }
 
@@ -109,18 +111,23 @@ async function categoryFilter(req, res) {
         res.render('user/categorieproduct.ejs', { title: 'view-categoryProducts.', filterResult, categoryNames, categorie })
     } catch (error) {
         console.log(error)
+        res.redirect('/error-page');
     }
 }
 
 async function profilePage(req, res) {
-    const userId = req.session.currentUserId
-    if (userId) {
-        const user = await User.findById(userId)
-        res.render('user/profile.ejs', { title: 'Profile', user })
-    } else {
-        console.log('User did not logged in.')
+    try {
+        const userId = req.session.currentUserId
+        if (userId) {
+            const user = await User.findById(userId)
+            res.render('user/profile.ejs', { title: 'Profile', user })
+        } else {
+            console.log('User did not logged in.')
+        }
+    } catch (error) {
+        console.log(error)
+        res.redirect('/error-page');
     }
-
 }
 
 async function changeName(req, res) {
@@ -138,7 +145,8 @@ async function changeName(req, res) {
         }
     } catch (error) {
         console.log(error)
-        return res.json({ success: false, message: 'name updation failed false' })
+        res.redirect('/error-page');
+        // return res.json({ success: false, message: 'name updation failed false' })
     }
 }
 
@@ -157,7 +165,8 @@ async function changePhone(req, res) {
         }
     } catch (error) {
         console.log(error)
-        return res.json({ success: false, message: 'Phone number updation Failed..(false)' })
+        // return res.json({ success: false, message: 'Phone number updation Failed..(false)' })
+        res.redirect('/error-page');
     }
 }
 
@@ -191,7 +200,8 @@ async function changeEmail(req, res) {
         }
     } catch (error) {
         console.log(error)
-        return res.json({ success: false, message: 'Unknown Error' })
+        // return res.json({ success: false, message: 'Unknown Error' })
+        res.redirect('/error-page');
     }
 }
 
@@ -248,7 +258,8 @@ async function verifyOtpPost(req, res) {
         }
     } catch (error) {
         delete req.session.uesrid
-        return res.render('user/otppage_1', { title: 'OTP Login page.', msg: 'Somthing went wrong. Try again.', type: 'danger' })
+        // return res.render('user/otppage_1', { title: 'OTP Login page.', msg: 'Somthing went wrong. Try again.', type: 'danger' })
+        res.redirect('/error-page');
     }
 }
 
@@ -282,7 +293,8 @@ async function changePassword(req, res) {
         }
     } catch (error) {
         console.log(error)
-        return res.json({ success: false, message: 'Unknown Error' })
+        // return res.json({ success: false, message: 'Unknown Error' })
+        res.redirect('/error-page');
     }
 }
 
@@ -299,6 +311,7 @@ async function addressBook(req, res) {
     } catch (error) {
         console.log('Error occured at catch block...')
         console.log(error)
+        res.redirect('/error-page');
     }
 }
 
@@ -308,34 +321,40 @@ function forgotPasswordPage(req, res) {
         res.render('user/forgotpage.ejs', { title: 'forgot Password' })
     } catch (error) {
         console.log(error)
+        res.redirect('/error-page');
     }
 }
 
 async function forgotPasswordOtpSent(req, res) {
-    const userEmail = req.params.email
-    req.session.forgetpasswordEmail = userEmail
-    const isuser = await User.findOne({ email: userEmail });
-    console.log(isuser)
-    if (isuser) {
-        const userId = isuser._id
-        const user = {
-            _id: userId,
-            email: userEmail
-        }
-        console.log(`your userId is ${userId}.`)
-        await sendOtpVerificationEmail(user, req, res).then((result) => {
-            try {
-                console.log('otp has been sent to your Email')
-                return res.json({ success: true, message: 'Otp has been sent to your Email address.' })
-            } catch (error) {
-                console.log(error)
-                return res.json({ success: false, message: 'Unknown Errror' })
+    try {
+        const userEmail = req.params.email
+        req.session.forgetpasswordEmail = userEmail
+        const isuser = await User.findOne({ email: userEmail });
+        console.log(isuser)
+        if (isuser) {
+            const userId = isuser._id
+            const user = {
+                _id: userId,
+                email: userEmail
             }
+            console.log(`your userId is ${userId}.`)
+            await sendOtpVerificationEmail(user, req, res).then((result) => {
+                try {
+                    console.log('otp has been sent to your Email')
+                    return res.json({ success: true, message: 'Otp has been sent to your Email address.' })
+                } catch (error) {
+                    console.log(error)
+                    return res.json({ success: false, message: 'Unknown Errror' })
+                }
 
-        })
-    } else {
-        console.log('Entered Email is not exist')
-        return res.json({ success: false, message: 'Entered Email is not exist' })
+            })
+        } else {
+            console.log('Entered Email is not exist')
+            return res.json({ success: false, message: 'Entered Email is not exist' })
+        }
+    } catch (error) {
+        console.log(error)
+        res.redirect('/error-page');
     }
 }
 
@@ -344,6 +363,7 @@ async function forgotOtpPage(req, res) {
         res.render('user/otppage_forgot.ejs', { title: 'forgot' })
     } catch (error) {
         console.log(error)
+        res.redirect('/error-page');
     }
 }
 
@@ -393,8 +413,8 @@ async function verifyForgotPost(req, res) {
         }
     } catch (error) {
         delete req.session.uesrid
-        // return res.json({success:false,message:'Somthing went wrong. Try again.'})
-        return res.render('user/otppage_1', { title: 'OTP Login page.', msg: 'Somthing went wrong. Try again.', type: 'danger' })
+        // return res.render('user/otppage_1', { title: 'OTP Login page.', msg: 'Somthing went wrong. Try again.', type: 'danger' })
+        res.redirect('/error-page');
     }
 }
 
@@ -424,7 +444,8 @@ async function newPasswordUpdate(req, res) {
         }
     } catch (error) {
         console.log(error)
-        return res.json({ success: false, message: 'Unknown Error' })
+        // return res.json({ success: false, message: 'Unknown Error' })
+        res.redirect('/error-page');
     }
 }
 
@@ -440,6 +461,7 @@ async function wishlistHome(req, res) {
         return res.render('user/wishlist.ejs', { title: 'wishlist', wishlist })
     } catch (error) {
         console.log(error)
+        res.redirect('/error-page');
     }
 }
 
@@ -463,7 +485,8 @@ async function addToWishlist(req, res) {
         return res.json({ success: true, message: 'Product added to wishlist.' });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ success: false, message: 'An error occurred while adding the product to wishlist.' });
+        // return res.status(500).json({ success: false, message: 'An error occurred while adding the product to wishlist.' });
+        res.redirect('/error-page');
     }
 }
 
@@ -481,7 +504,8 @@ async function removeWishlist(req, res) {
         }
     } catch (error) {
         console.log(error)
-        return res.json({ success: false, message: 'Unknown Error' });
+        // return res.json({ success: false, message: 'Unknown Error' });
+        res.redirect('/error-page');
     }
 }
 
@@ -512,6 +536,7 @@ async function walletHome(req, res) {
         res.render('user/wallet.ejs', { title: 'wallet', wallet, balance });
     } catch (error) {
         console.log(error)
+        res.redirect('/error-page');
     }
 }
 
@@ -532,6 +557,7 @@ async function addWalletFund(req, res) {
 
     } catch (error) {
         console.log(error)
+        res.redirect('/error-page');
     }
 }
 function generateRazorpay(total, uniqueId, res) {
@@ -546,8 +572,8 @@ function generateRazorpay(total, uniqueId, res) {
             if (err) {
                 console.log('error is here.')
                 console.log(err)
-                if(err.error) return res.json({ online: false, message: err.error.description });
-                return res.json({online:false,message:'make sure your internet is connected...'});
+                if (err.error) return res.json({ online: false, message: err.error.description });
+                return res.json({ online: false, message: 'make sure your internet is connected...' });
             } else {
                 resolve(wallet);
             }
@@ -571,7 +597,8 @@ async function refundWallet(req, res) {
         return res.json({ success: true, message: 'Cancellation amount added to the wallet' })
     } catch (error) {
         console.log(error)
-        return res.json({ success: false, message: 'Unknown Error occured.!' })
+        // return res.json({ success: false, message: 'Unknown Error occured.!' })
+        res.redirect('/error-page');
     }
 }
 
@@ -594,6 +621,7 @@ async function veryfyPay(req, res) {
     } catch (error) {
         console.log('Error occured at veryfyPay')
         console.log(error)
+        res.redirect('/error-page');
     }
 }
 
@@ -609,10 +637,14 @@ async function shareLink(req, res) {
             return res.json({ success: false, message: 'failed to send the email.' })
         }
 
-
     } catch (error) {
         console.log(error)
+        res.redirect('/error-page');
     }
+}
+
+function ErrorPage(req,res){
+    res.render('user/404.ejs')
 }
 
 module.exports = {
@@ -639,7 +671,8 @@ module.exports = {
     refundWallet,
     categoryFilter,
     veryfyPay,
-    shareLink
+    shareLink,
+    ErrorPage
 }
 
 //Functionss//
@@ -745,7 +778,8 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
     } catch (error) {
         console.log(error)
         console.log('Error is at Catch ')
-        return res.json({ success: false, message: 'Unknown Error.' })
+        // return res.json({ success: false, message: 'Unknown Error.' })
+        res.redirect('/error-page');
 
     }
 }

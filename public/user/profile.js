@@ -192,7 +192,13 @@ async function updatePass() {
             console.log(resBody.message)
             document.getElementById('passForm1').style.display = 'none'
             document.getElementById('passForm').style.display = 'block'
-            openPopup();
+            Swal.fire({
+                position: "top-center",
+                icon: "success",
+                title: "Password changed successfully.!",
+                showConfirmButton: false,
+                timer: 1500
+              });
         } else {
             console.log('somthing went wrong')
             console.log(resBody.message)

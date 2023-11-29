@@ -12,6 +12,7 @@ router.get('/', controller.personHome)
 router.get('/productDetails/:id', controller.userDetailHome)
 router.get('/view-categorie-products/:categoryname', controller.categoryFilter)
 router.get('/share-link/:email', controller.shareLink)
+router.get('/error-page',controller.ErrorPage)
 
 //--------Profile-----//
 router.get('/profile', userAuth, controller.profilePage)

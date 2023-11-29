@@ -311,7 +311,7 @@ async function sendUriToEmail(email, req) {
     })
 }
 
-function generateRazorpay(total, orderId) {
+function generateRazorpay(total, orderId,res) {
     return new Promise((resolve, reject) => {
         var options = {
             amount: total * 100,
@@ -322,6 +322,8 @@ function generateRazorpay(total, orderId) {
             if (err) {
                 console.log('error is here.')
                 console.log(err)
+                if(err.error) return res.json({online:false,message:err.error.description});
+                return res.json({ online: false, message: 'Make sure your Network is connected.!' });
             } else {
                 resolve(order);
             }
