@@ -213,49 +213,5 @@
                 <% } %>
         </ul>
     </section>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const scrollStep = 150; // Adjust as needed
-            const categoryItems = document.getElementById("category-items")
-            const scrollLeftBtn = document.getElementById('scroll-left')
-            const scrollRightBtn = document.getElementById('scroll-right')
-
-            scrollLeftBtn.addEventListener('click', function () {
-                categoryItems.scrollLeft -= scrollStep;
-            });
-
-            scrollRightBtn.addEventListener('click', function () {
-                const availableScroll = categoryItems.scrollWidth - categoryItems.clientWidth;
-                const currentPosition = categoryItems.scrollLeft;
-
-                if (currentPosition < availableScroll) {
-                    const nextScroll = currentPosition + scrollStep;
-                    categoryItems.scrollLeft = nextScroll < availableScroll ? nextScroll : availableScroll;
-                }
-            });
-        });
-
-
-
-
-        async function addToCart(data) {
-            const productDetails = JSON.parse(data);
-            const response = await fetch(`/carts/add/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}`, { method: 'get' })
-            const resBody = await response.json()
-            if (resBody.success) {
-                localStorage.removeItem('CouponDetails')
-            } else {
-                // alert(resBody.message)
-                location.href = '/carts'
-            }
-        }
-
-        async function addToWishlist(id) {
-            const response = await fetch(`/add-wishlist/${id}`, { method: 'get' })
-            const resBody = await response.json()
-            if (resBody.success) {
-                document.getElementById(`heart${id}`).style.color = 'red'
-            }
-        }
-    </script>
+    <script src="/static/user/common.js"></script>
     <%- include('head/footer') %>

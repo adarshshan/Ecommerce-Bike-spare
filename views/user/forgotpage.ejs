@@ -106,28 +106,5 @@
             </div>
         </div>
     </section>
-    <script>
-        async function getOtp() {
-            try {
-                const email = document.getElementById('email').value
-                const response = await fetch(`/forgotPassword/${email}`)
-                const resBody = await response.json()
-                if (resBody.success) {
-                    console.log(resBody.message)
-                    location='/verifyForgot';
-                    // document.getElementById('bttn').innerHTML=`<a href="/verifyForgot" class="btn btn-success">Continue</a>`
-                } else {
-                    console.log(resBody.message)
-                    document.getElementById('message').innerHTML=`
-                    <div class="alert alert-dismissible fade show alert-warning" role="alert">
-                    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-                     <strong>${resBody.message}</strong>
-                    </div>`
-                }
-            } catch (error) {
-                console.log(error)
-            }
-
-        }
-    </script>
+    <script src="/static/user/common.js"></script>
     <%- include('head/footer') %>

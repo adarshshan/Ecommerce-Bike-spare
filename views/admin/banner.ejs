@@ -111,47 +111,6 @@
                 </div>
             </div>
         </div>
-        <script>
-            async function deleteBanner(id) {
-                try {
-                    const response = await fetch(`/banners/delete-banner/${id}`, { method: 'get' })
-                    const resbody = await response.json()
-                    if (resbody.success) {
-                        location.reload()
-                    } else {
-                        alert(resbody.message)
-                    }
-                } catch (error) {
-                    console.log(error)
-                }
-            }
-            async function deactivateBanner(id) {
-                try {
-                    const response = await fetch(`/banners/deactivate-banner/${id}`, { method: 'get' })
-                    const resbody = await response.json()
-                    if (resbody.success) {
-                        location.reload()
-                    } else {
-                        alert(resbody.message)
-                    }
-                } catch (error) {
-                    console.log(error)
-                }
-            }
-            async function ActivateBanner(id) {
-                try {
-                    const response = await fetch(`/banners/activate-banner/${id}`, { method: 'get' })
-                    const resbody = await response.json()
-                    if (resbody.success) {
-                        location.reload()
-                    } else {
-                        alert(resbody.message)
-                    }
-                } catch (error) {
-                    console.log(error)
-                }
-            }
-
-        </script>
+        <script src="/static/admin/banner.js"></script>
         <%- include('head/footer.ejs') %>
            

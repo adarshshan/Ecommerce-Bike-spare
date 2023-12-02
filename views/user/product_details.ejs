@@ -108,77 +108,7 @@
         </div>
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script>
-            async function buyNow(data){
-                const productDetails = JSON.parse(data);
-                const response=await fetch(`/carts/buy-now/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}/${productDetails.discount}`,{method:'get'})
-                const resBody=await response.json()
-                if(resBody.success){
-                    console.log(resBody.message)
-                    localStorage.removeItem('CouponDetails')
-                    location.href='/users/checkout'
-                }else{
-                    alert(`Somthing went wrong at buyNow`);
-                }
-            }
-            async function addToCart(data) {
-                const productDetails = JSON.parse(data);
-                const response = await fetch(`/carts/add/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}`, { method: 'get' })
-                const resBody = await response.json()
-                if (resBody.success) {
-                    localStorage.removeItem('CouponDetails')
-                    location.href='/carts';
-                } else {
-                    // alert(resBody.message)
-                    location.href='/carts'
-                }
-            }
-
-            async function addToWishlist(id) {
-                const response = await fetch(`/add-wishlist/${id}`, { method: 'get' })
-                const resBody = await response.json()
-                if (resBody.success) {
-                    document.getElementById(`heart${id}`).style.color = 'red'
-                }
-            }
-
-            $(document).ready(function () {
-                $('.thumbnail-item').click(function () {
-                    // Remove the "active" class from all thumbnail items
-                    $('.thumbnail-item').removeClass('active');
-
-                    // Add the "active" class to the clicked thumbnail
-                    $(this).addClass('active');
-
-                    // Get the index of the clicked thumbnail
-                    let index = $(this).index();
-
-                    // Activate the corresponding carousel item
-                    $('#productCarousel').carousel(index);
-                });
-
-                $(".carousel-item").mousemove(function (e) {
-                    var img = $(".zoom_img");
-                    var offset = $(this).offset();
-                    var x = e.pageX - offset.left;
-                    var y = e.pageY - offset.top;
-                    var mouseX = (x / $(this).width()) * 100;
-                    var mouseY = (y / $(this).height()) * 100;
-
-                    img.css({
-                        "transform-origin": mouseX + "% " + mouseY + "%",
-                        "transform": "scale(3)" // Adjust the scale as needed
-                    });
-                });
-
-                $(".carousel-item").mouseleave(function () {
-                    $(".zoom_img").css({
-                        "transform-origin": "center",
-                        "transform": "scale(1)"
-                    });
-                });
-            });
-        </script>
+        <script src="/static/user/common.js"></script>
 
 
 

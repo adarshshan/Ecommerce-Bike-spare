@@ -1,4 +1,52 @@
 
+
+
+async function Graph(value) {
+    try {
+        const response = await fetch(`/dashboard/show-graph/${value}`, { method: 'get' })
+        const resbody = await response.json()
+        if (resbody.success) {
+            document.getElementById('container').innerHTML = '';
+            var chart = anychart.line();
+
+            var day = chart.line(resbody.ratio.value);
+            if (resbody.ratio.time == 'year') {
+                day.name(resbody.ratio.time)
+            }
+            if (resbody.ratio.time == 'month') {
+                day.name(resbody.ratio.time)
+            }
+            if (resbody.ratio.time == 'week') {
+                day.name(resbody.ratio.time)
+            }
+            if (resbody.ratio.time == 'day') {
+                day.name(resbody.ratio.time)
+            }
+
+            // add a legend
+            chart.legend().enabled(true);
+
+            // add a title
+            chart.title("Sales Report");
+
+            // specify where to display the chart
+            chart.container("container");
+
+            // draw the resulting chart
+            chart.draw();
+
+            chart.yAxis().title("Sales ");
+            chart.xAxis().title("Time");
+
+            day.hovered().markers().type("circle").size(8);
+
+        } else {
+            alert(resbody.message);
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
 async function deleteMessage(id) {
     try {
         const response = await fetch(`/dashboard/delete-todo-message/${id}`, { method: 'get' })
@@ -149,5 +197,31 @@ async function nextButton() {
     }
 }
 
+//download
+async function downloadInvoice() {
+    // Assume you have a function to convert HTML to a Blob
+    const containerHtml = document.getElementById('sales-report-container').innerHTML;
 
+    htmlToBlob(containerHtml, function (blob) {
+        // Create a download link and trigger the download
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'SalesReport.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+}
+
+function htmlToBlob(html, callback) {
+    html2pdf(html, {
+        margin: 10,
+        filename: 'SalesReport.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).then(function (pdf) {
+        callback(pdf.output('blob'));
+    });
+}
 
