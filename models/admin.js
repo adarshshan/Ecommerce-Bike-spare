@@ -9,6 +9,9 @@ const adminSchema=new mongoose.Schema({
         type:String,
         required:true
     },
+    todoList:[{
+        message:String,
+    }],
     password:{
         type:String
     },

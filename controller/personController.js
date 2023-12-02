@@ -24,19 +24,18 @@ async function personHome(req, res) {
             delete req.session.uesrid
         }
         const userId = req.session.currentUserId;
-        const productsPerPage = 12
         let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 }).populate("categorieId", { _id: 0, name: 1 })
         let banners = await Banner.find({ $and: [{ isDeleted: false }, { isActive: true }] });
 
         // console.log(productList)
         let categoryNames = [...new Set(
             productList
-                .filter(product => product.categorieId && product.categorieId.name) // Filter out null or undefined categorieId
+                .filter(product => product.categorieId && product.categorieId.name)
                 .map(product => product.categorieId.name)
         )];
 
 
-
+        const productsPerPage = 12
         const page = parseInt(req.query.page) || 1;
         const start = (page - 1) * productsPerPage;
         const end = start + productsPerPage;

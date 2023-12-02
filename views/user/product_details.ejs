@@ -115,6 +115,7 @@
                 const resBody=await response.json()
                 if(resBody.success){
                     console.log(resBody.message)
+                    localStorage.removeItem('CouponDetails')
                     location.href='/users/checkout'
                 }else{
                     alert(`Somthing went wrong at buyNow`);

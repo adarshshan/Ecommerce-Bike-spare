@@ -22,9 +22,10 @@ async function adminLogin(req, res) {
             if (admin) {
                 const ismatch = await bcrypt.compare(password, admin.password);
                 if (ismatch) {
-                    req.session.name = admin.email
+                    req.session.name = admin.name
+                    req.session.adminId=admin._id;
                     req.session.login = true
-                    res.redirect('/products')
+                    res.redirect('/dashboard')
                 } else {
                     req.session.message = {
                         message: 'You entered the wrong password.',

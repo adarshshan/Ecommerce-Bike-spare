@@ -55,9 +55,7 @@ app.use((req,res,next)=>{
     res.locals.message=req.session.message;
     res.locals.email=req.session.name
     res.locals.NoUser=req.session.userlogin
-    delete req.session.name
     delete req.session.message
-    
     next()
 })
 

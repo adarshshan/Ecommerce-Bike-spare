@@ -233,7 +233,7 @@ function closePopup() {
 
 async function downloadInvoice() {
     // Assume you have a function to convert HTML to a Blob
-    const containerHtml = await document.getElementById('invoice-container').innerHTML;
+    const containerHtml = document.getElementById('invoice-container').innerHTML;
 
     htmlToBlob(containerHtml, function (blob) {
         // Create a download link and trigger the download
