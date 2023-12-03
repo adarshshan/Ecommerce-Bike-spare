@@ -7,8 +7,6 @@ async function dashboardHome(req, res) {
     try {
         const allOrders = await helpers.getAllOrders();
         const todoMessage = await helpers.getTodoList();
-        // console.log('allOrdes is ')
-        // console.log(allOrders)
 
         var totalSales = 0;
         for (let i = 0; i < allOrders.length; i++) {
@@ -16,23 +14,20 @@ async function dashboardHome(req, res) {
         }
 
         const timeWiseOrders=await helpers.timeWiseOrders()
-        // console.log(timeWiseOrders)
 
         const newarr = helpers.newArray(timeWiseOrders);
         console.log(newarr);
-        const year=helpers.getYearRatio(newarr);
-        const month=helpers.getMonthRatio(newarr);
-        const week=helpers.getWeekRatio(newarr);
+        // const year=helpers.getYearRatio(newarr);
+        // const month=helpers.getMonthRatio(newarr);
+        // const week=helpers.getWeekRatio(newarr);
         const day=helpers.getDayRatio(newarr);
-        console.log(`dayRatio is `)
-        console.log(day);
         res.render('admin/dashboard.ejs', {
             title: 'Dashboard',
             allOrders,
             todoMessage,
             totalSales,
             newarr,
-            graph: { week, month, year, day }
+            graph: { day }
         });
     } catch (error) {
         console.log(error)

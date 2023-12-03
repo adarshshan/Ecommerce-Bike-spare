@@ -16,6 +16,7 @@ const Promise = require('promise')
 var instance = new Razorpay({ key_id: 'rzp_test_kxpY9d3K4xgnJt', key_secret: 'NH5mIiVcgS7yf9zr0iwQisAQ' })
 const Banner = require('../models/banner')
 const helpers = require('../utils/helpers')
+const localStorage = require('localStorage')
 
 
 async function personHome(req, res) {
@@ -645,6 +646,27 @@ async function shareLink(req, res) {
 function ErrorPage(req,res){
     res.render('user/404.ejs')
 }
+async function walletHistoryPagination(req, res) {
+    try {
+        const userId = req.session.currentUserId
+        const id = new ObjectId(userId)
+        const wallet = await helpers.walletTransactions(id)
+        let transactions = wallet[0].wallet.map(data => data);
+        if(localStorage.getItem('pageWalletHistory')){
+            localStorage.setItem('pageWalletHistory',parseInt(localStorage.getItem('pageWalletHistory')) + 1)
+        }else{
+            localStorage.setItem('pageWalletHistory',1);
+        }
+        const page =parseInt(localStorage.getItem('pageWalletHistory'));
+        let totalpages=Math.ceil(transactions.length/8)
+        if(page===totalpages){
+            localStorage.removeItem('pageWalletHistory');
+        }
+        return res.json({success:true,message:'Transactions found',transactions,page}) 
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 module.exports = {
     personHome,
@@ -671,7 +693,8 @@ module.exports = {
     categoryFilter,
     veryfyPay,
     shareLink,
-    ErrorPage
+    ErrorPage,
+    walletHistoryPagination
 }
 
 //Functionss//

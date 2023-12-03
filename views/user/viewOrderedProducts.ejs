@@ -1,30 +1,30 @@
 <%- include('head/header') %>
-<style>
-    a :hover{
-        background: rgb(97, 97, 96);
-        color: rgb(250, 249, 249);
-    }
-</style>
-    <div class="container-fluid"  style="background-color: #f7efef;">
+    <style>
+        a :hover {
+            background: rgb(97, 97, 96);
+            color: rgb(250, 249, 249);
+        }
+    </style>
+    <div class="container-fluid" style="background-color: #f7efef;">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-5 fw-normal" >
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-5 fw-normal">
                 <div class="position-sticky">
-                        <a class="nav-link text-dark" href="/profile">
-                            <div class="nav-item p-3">
+                    <a class="nav-link text-dark" href="/profile">
+                        <div class="nav-item p-3">
                             My Account
-                            </div>
-                        </a>
-                        <a class="nav-link text-dark" href="/carts/orders">
-                            <div class="nav-item p-3">
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="/carts/orders">
+                        <div class="nav-item p-3">
                             Orders
-                            </div>
-                        </a>
-                        <a class="nav-link text-dark" href="#">
-                            <div class="nav-item p-3">
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="#">
+                        <div class="nav-item p-3">
                             wishlist
-                            </div>
-                        </a>
+                        </div>
+                    </a>
                 </div>
             </nav>
 
@@ -35,45 +35,67 @@
                     <h1 class="h2">Ordered Products</h1>
                 </div>
                 <div class="col-md-12 container mb-5 pb-5" id="produc">
-                    <% products.forEach((row,index) => { %>
+                    <% products.forEach((row,index)=> { %>
                         <div class="row border p-5 mb-4 fs-4 bg-light shadow">
-                            <p><strong>INVOICE : </strong><%= invoice %></p>
-                            <div class="col-12 col-md-4"><img style=" width: 100%;" src="http://localhost:3000/<%= row.product.productImage %>" alt=""></div>
+                            <div class="d-flex justify-content-between">
+                                <p><strong>INVOICE : </strong>
+                                    <%= invoice %>
+                                </p>
+                                <% if (row.product.status==='DELIVERED' ) { %>
+                                    <a href="/carts/review-page/<%= row.product.product_id %>" class="rate text-primary"><i class="fa-regular fa-star"></i>Rate & Review product</a>
+                                    <% } %>
+                            </div>
+
+                            <div class="col-12 col-md-4"><img style=" width: 100%;"
+                                    src="http://localhost:3000/<%= row.product.productImage %>" alt=""></div>
                             <div class="col-md-4">
-                                <p class="fs-3 fw-bold"><%= row.product.productName %></p>
-                                <small><%= row.product.productDiscription %></small>
+                                <p class="fs-3 fw-bold">
+                                    <%= row.product.productName %>
+                                </p>
+                                <small>
+                                    <%= row.product.productDiscription %>
+                                </small>
                             </div>
 
                             <div class="col-md-4">
                                 <p class="fs-4 fw-bold">Order Details</p>
-                                <p>status:<%= row.product.status %></p>
-                                <p>quantity:<%= row.product.quantity %></p>
-                                <p>Payment method:<%= paymentMethod %></p>
-                                <p>Purchased Date:<%= date %></p>
+                                <p>status:<%= row.product.status %>
+                                </p>
+                                <p>quantity:<%= row.product.quantity %>
+                                </p>
+                                <p>Payment method:<%= paymentMethod %>
+                                </p>
+                                <p>Purchased Date:<%= date %>
+                                </p>
                                 <p class="fs-4 fw-bold">Delivery address</p>
-                                <p>Name : <%= name %></p>
-                                <p>Phone number : <%= phone %></p>
+                                <p>Name : <%= name %>
+                                </p>
+                                <p>Phone number : <%= phone %>
+                                </p>
                             </div>
                         </div>
-                    <% }) %>
-                    
+                        <% }) %>
+
                 </div>
             </main>
         </div>
         <ul class="pagination " style="margin-left: 47%;">
             <% for (let i=1; i <=totaPages; i++) { %>
                 <li class="page-item <%= i === currenPage ? 'active' : '' %> m-1">
-                    <a class="page-link" href="/carts/view_order/<%= id %>/<%= totalAmount %>/<%= paymentMethod %>/<%= name %>/<%= phone %>/<%= date %>/<%= invoice %>/?page=<%= i %>">
+                    <a class="page-link"
+                        href="/carts/view_order/<%= id %>/<%= totalAmount %>/<%= paymentMethod %>/<%= name %>/<%= phone %>/<%= date %>/<%= invoice %>/?page=<%= i %>">
                         <%= i %>
                     </a>
                 </li>
                 <% } %>
         </ul>
     </div>
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
 
+        
+    </script>
 
     <%- include('head/footer') %>

@@ -542,6 +542,8 @@ async function viewOrder(req, res) {
                     }
                 }
             ]);
+            console.log(`orderr is`)
+            console.log(order);
             const productsPerPage = 3;
             const page = parseInt(req.query.page) || 1;
             const start = (page - 1) * productsPerPage;
@@ -659,10 +661,11 @@ async function adminOrderList(req, res) {
         const start = (page - 1) * productsPerPage;
         const end = start + productsPerPage;
         const paginatedProducts = allOrders.slice(start, end)
-        res.render('admin/orders.ejs', {
-            title: 'orders', order: paginatedProducts, currenPage: page,
-            totaPages: Math.ceil(allOrders.length / productsPerPage)
-        })
+        res.render('admin/orders.ejs', {title: 'orders', order: allOrders})
+        // res.render('admin/orders.ejs', {
+        //     title: 'orders', order: paginatedProducts, currenPage: page,
+        //     totaPages: Math.ceil(allOrders.length / productsPerPage)
+        // })
     } catch (error) {
         console.log(error)
     }

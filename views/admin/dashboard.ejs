@@ -89,10 +89,10 @@
                                         <div class="d-flex row">
                                             <h6 class="mb-1">Sales Report</h6>
                                             <div class="d-flex flex-row-reverse">
-                                                <p onclick="Graph('year')" class="me-3" id="year">Year</p>
-                                                <p onclick="Graph('month')" class="me-3" id="month">Month</p>
-                                                <p onclick="Graph('week')" class="me-3" id="week">week</p>
-                                                <p onclick="Graph('day')" class="me-3" id="day">Day</p>
+                                                <p onclick="Graph('year')" class="me-3" id="year" style="cursor: pointer;">Year</p>
+                                                <p onclick="Graph('month')" class="me-3" id="month" style="cursor: pointer;">Month</p>
+                                                <p onclick="Graph('week')" class="me-3" id="week" style="cursor: pointer;">week</p>
+                                                <p onclick="Graph('day')" class="me-3" id="day" style="cursor: pointer;">Day</p>
                                             </div>
                                         </div>
 
@@ -112,7 +112,7 @@
                                     <!-- <a href="">Show All</a> -->
                                     <div class="d-flex">
                                         <i onclick="previousButton()" class="fa-solid fa-chevron-left me-2"></i>
-                                        <span id="pagenumber"></span>
+                                        <span id="pagenumber">1</span>
                                         <i onclick="nextButton()" class="fa-solid fa-chevron-right ms-2"></i>
                                     </div>
                                 </div>
@@ -132,7 +132,7 @@
                                                 <% for( let i=0; i < 8; i++ ) { %>
                                                     <tr>
                                                         <td>
-                                                            <%= allOrders[i].date %>
+                                                            <%= allOrders[i].date.toISOString().split('T')[0] %>
                                                         </td>
                                                         <td>
                                                             <%= allOrders[i].invoice %>

@@ -1,3 +1,4 @@
+let table = new DataTable('#bannerTable');
 async function deleteBanner(id) {
     try {
         const response = await fetch(`/banners/delete-banner/${id}`, { method: 'get' })

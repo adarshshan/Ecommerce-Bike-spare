@@ -330,6 +330,25 @@ function generateRazorpay(total, orderId,res) {
         });
     })
 }
+async function walletTransactions(id) {
+    try {
+        const wallet = await User.aggregate([
+            { $match: { _id: id } },
+            { $unwind: "$wallet.transactions" },
+            { $sort: { "wallet.transactions.time": -1 } },
+            {
+                $group: {
+                    _id: "$_id",
+                    wallet: { $push: "$wallet.transactions" }
+                }
+            },
+            { $project: { _id: 0, wallet: 1 } }
+        ])
+        return wallet
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 
 module.exports = {
@@ -344,6 +363,7 @@ module.exports = {
     veryfyPaymentwallt,
     addWalletAmount,
     sendUriToEmail,
-    generateRazorpay
+    generateRazorpay,
+    walletTransactions
 
 }

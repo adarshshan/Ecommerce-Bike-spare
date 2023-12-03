@@ -1,13 +1,13 @@
 <%- include('head/header') %>
-
-<div id="page-content-wrapper">
+  <link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+  <div id="page-content-wrapper">
     <div class="container" style="margin-left: 248px;">
       <div class="row mt-5">
         <div class="col-lg-12">
           <h1 class="shadow">USERS</h1>
-          
-          <% if (users!="") { %>
-            <table class="table border shadow mt-3">
+
+          <% if (users!="" ) { %>
+            <table class="table border shadow mt-3" id="usersTable">
               <thead>
                 <tr>
                   <th scope="col">sl.no</th>
@@ -18,30 +18,46 @@
                 </tr>
               </thead>
               <tbody>
-                <% users.forEach((row,index) => { %>
+                <% users.forEach((row,index)=> { %>
                   <tr>
-                    <td><%= index+1 %></td>
-                    <td><%= row.name %></td>
-                    <td><%= row.email %></td>
-                    <td><%= row.phone %></td>
-                    <td><% if (row.isDeleted) { %>
-                      <a style="width: 80px;" onclick="return confirm('You want to unblock this User ?')" class="text-success btn btn-success text-white fw-bold" href="/users/Unblock/<%= row._id %>">Unblock</a>
-                    <% }else{ %>
-                      <a style="width: 80px;" onclick="return confirm('You want to Block this User ?')" class="text-danger btn btn-danger text-white fw-bold" href="/users/block/<%= row._id %>">Block</a>
-                      <% } %>
-                  </td>
+                    <td>
+                      <%= index+1 %>
+                    </td>
+                    <td>
+                      <%= row.name %>
+                    </td>
+                    <td>
+                      <%= row.email %>
+                    </td>
+                    <td>
+                      <%= row.phone %>
+                    </td>
+                    <td>
+                      <% if (row.isDeleted) { %>
+                        <a style="width: 80px;" onclick="return confirm('You want to unblock this User ?')"
+                          class="text-success btn btn-success text-white fw-bold"
+                          href="/users/Unblock/<%= row._id %>">Unblock</a>
+                        <% }else{ %>
+                          <a style="width: 80px;" onclick="return confirm('You want to Block this User ?')"
+                            class="text-danger btn btn-danger text-white fw-bold"
+                            href="/users/block/<%= row._id %>">Block</a>
+                          <% } %>
+                    </td>
                   </tr>
-                <% }) %>
+                  <% }) %>
               </tbody>
             </table>
-          <% }else{ %>
-            <div class="text-center text-secondary mt-5">
-              <h1>No Users found in the Database</h1>
-          </div>
-            <% } %>
+            <% }else{ %>
+              <div class="text-center text-secondary mt-5">
+                <h1>No Users found in the Database</h1>
+              </div>
+              <% } %>
         </div>
       </div>
     </div>
   </div>
-
-<%- include('head/footer') %>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script>let table = new DataTable('#usersTable')</script>
+  <%- include('head/footer') %>

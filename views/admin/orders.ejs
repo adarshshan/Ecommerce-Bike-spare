@@ -1,4 +1,6 @@
 <%- include('head/header') %>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+
     <div id="page-content-wrapper">
         <div class="container" style="margin-left: 248px;">
             <div class="row mt-5">
@@ -15,7 +17,7 @@
                             <div class="col-md-6 container" id="select"></div>
 
                             <div style="padding-left: 20px; padding-right: 20px; margin-top: 80px;" id="inner">
-                                <table class="table table-top shadow">
+                                <table class="table table-top shadow" id="orderTable">
                                     <thead class="thead-dark">
                                         <tr>
                                             <th scope="col"> Invoice Number</th>
@@ -27,7 +29,6 @@
                                             <th scope="col">payment Method</th>
                                             <th scope="col">Order Status</th>
                                             <th scope="col"></th>
-                                            <th scope="col"></th>
 
                                         </tr>
                                     </thead>
@@ -36,57 +37,74 @@
                                         <% if (order && order!==null) { %>
                                             <% for( let i=0; i < order.length; i++ ) { %>
                                                 <tr style="height: 80px; ">
-                                                    <td><%= order[i].invoice %></td>
-                                                    <td style="width: 200px;"> <%= order[i].date.toISOString().split('T')[0] %></td>
-                                                    <% let rupee = new Intl.NumberFormat('en-IN', {
-                                                        style: 'currency',
-                                                        currency: 'INR',
-                                                    }); %>
-                                                    <td><%= rupee.format(order[i].couponDiscount) %></td>
-                                                    <td><%= rupee.format(order[i].ProductDiscount) %></td>
-                                                    <td><%= rupee.format(order[i].walletAmount) %></td>
-                                                    <td><%= rupee.format(order[i].totalAmount+order[i].couponDiscount+order[i].walletAmount+order[i].ProductDiscount) %></td>
-                                                    <td><%= order[i].paymentMethod %></td>
-                                                    <td><%= order[i].products[0].status %></td>
-                                                    <td class="d-flex">
-                                                        <button class="btn btn-outline-dark float-end" onclick="viewOrders(`<%= JSON.stringify({id:order[i]._id,totalAmount:order[i].totalAmount,paymentMethod:order[i].paymentMethod,addressName:order[i].address.addressName,addressPhone:order[i].address.addressPhone,date:order[i].date.toISOString().split('T')[0]}) %>`)"><i class="fa-solid fa-eye fs-4"></i></button>
-                                                        <% if (order[i].products[0].status!=='CANCELLED' || order[i].products[0].status!=='DELIVERED') { %>
-                                                            <% if (order[i].refund) { %>
-                                                                <button class="btn btn-outline-danger ms-2" onclick="refund('<%= order[i]._id %>')">Refund</button>
-                                                                <% }else{ %>
-                                                                    <button
-                                                                    onclick="showform('<%= order[i]._id %>')"
-                                                                    type="button" class="btn btn-outline-success ms-4"><i
-                                                                        class="fa-regular fa-pen-to-square"></i></button>
-                                                                    <% } %>
-                                                            
-                                                        <% }else{ %>
-                                                            <% if (order[i].refund) { %>
-                                                                <button class="btn btn-outline-danger ms-2" onclick="refund('<%= order[i]._id %>')">Refund</button>
-                                                            <% } %>
-                                                            <% } %>
+                                                    <td>
+                                                        <%= order[i].invoice %>
+                                                    </td>
+                                                    <td style="width: 200px;">
+                                                        <%= order[i].date.toISOString().split('T')[0] %>
+                                                    </td>
+                                                    <% let rupee=new Intl.NumberFormat('en-IN', { style: 'currency' ,
+                                                        currency: 'INR' , }); %>
+                                                        <td>
+                                                            <%= rupee.format(order[i].couponDiscount) %>
+                                                        </td>
+                                                        <td>
+                                                            <%= rupee.format(order[i].ProductDiscount) %>
+                                                        </td>
+                                                        <td>
+                                                            <%= rupee.format(order[i].walletAmount) %>
+                                                        </td>
+                                                        <td>
+                                                            <%= rupee.format(order[i].totalAmount+order[i].couponDiscount+order[i].walletAmount+order[i].ProductDiscount)
+                                                                %>
+                                                        </td>
+                                                        <td>
+                                                            <%= order[i].paymentMethod %>
+                                                        </td>
+                                                        <td>
+                                                            <%= order[i].products[0].status %>
+                                                        </td>
+                                                        <td class="d-flex">
+                                                            <button class="btn btn-outline-dark float-end"
+                                                                onclick="viewOrders(`<%= JSON.stringify({id:order[i]._id,totalAmount:order[i].totalAmount,paymentMethod:order[i].paymentMethod,addressName:order[i].address.addressName,addressPhone:order[i].address.addressPhone,date:order[i].date.toISOString().split('T')[0]}) %>`)"><i
+                                                                    class="fa-solid fa-eye fs-4"></i></button>
+                                                            <% if (order[i].products[0].status!=='CANCELLED' ||
+                                                                order[i].products[0].status!=='DELIVERED' ) { %>
+                                                                <% if (order[i].refund) { %>
+                                                                    <button class="btn btn-outline-danger ms-2"
+                                                                        onclick="refund('<%= order[i]._id %>')">Refund</button>
+                                                                    <% }else{ %>
+                                                                        <button
+                                                                            onclick="showform('<%= order[i]._id %>')"
+                                                                            type="button"
+                                                                            class="btn btn-outline-success ms-4"><i
+                                                                                class="fa-regular fa-pen-to-square"></i></button>
+                                                                        <% } %>
+
+                                                                            <% }else{ %>
+                                                                                <% if (order[i].refund) { %>
+                                                                                    <button
+                                                                                        class="btn btn-outline-danger ms-2"
+                                                                                        onclick="refund('<%= order[i]._id %>')">Refund</button>
+                                                                                    <% } %>
+                                                                                        <% } %>
                                                         </td>
                                                 </tr>
                                                 <% } %>
                                                     <% } %>
                                     </tbody>
                                 </table>
-                                <ul class="pagination " style="margin-left: 47%;">
-                                    <% for (let i=1; i <=totaPages; i++) { %>
-                                        <li class="page-item <%= i === currenPage ? 'active' : '' %> m-1">
-                                            <a class="page-link" href="/orders/?page=<%= i %>">
-                                                <%= i %>
-                                            </a>
-                                        </li>
-                                        <% } %>
-                                </ul>
                             </div>
                 </div>
             </div>
         </div>
     </div>
-    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="/static/admin/order.js"></script>
-
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script>
+        let table = new DataTable('#orderTable');
+    </script>
 
     <%- include('head/footer') %>

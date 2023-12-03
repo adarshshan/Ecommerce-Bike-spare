@@ -127,9 +127,10 @@ async function previousButton() {
             document.getElementById('pagenumber').innerText = resBody.page
             let order = ``;
             for (let i = 0; i < resBody.paginatedProducts.length; i++) {
+                let date = resBody.paginatedProducts[i].date.toString().split('T')[0]
                 order += `
         <tr>
-            <td> ${resBody.paginatedProducts[i].date}</td>
+            <td> ${date}</td>
            <td>${resBody.paginatedProducts[i].invoice}</td>
            <td>${resBody.paginatedProducts[i].address.addressName}</td>
            <td>${resBody.paginatedProducts[i].totalAmount + resBody.paginatedProducts[i].walletAmount}</td>
@@ -166,9 +167,10 @@ async function nextButton() {
             document.getElementById('pagenumber').innerText = resBody.page
             let order = ``;
             for (let i = 0; i < resBody.paginatedProducts.length; i++) {
+                let date = resBody.paginatedProducts[i].date.toString().split('T')[0]
                 order += `
         <tr>
-           <td> ${resBody.paginatedProducts[i].date}</td>
+           <td> ${date}</td>
            <td>${resBody.paginatedProducts[i].invoice}</td>
            <td>${resBody.paginatedProducts[i].address.addressName}</td>
            <td>${resBody.paginatedProducts[i].totalAmount + resBody.paginatedProducts[i].walletAmount}</td>

@@ -1,0 +1,130 @@
+<%- include('head/header') %>
+    <style>
+        a :hover {
+            background: rgb(97, 97, 96);
+            color: rgb(250, 249, 249);
+        }
+
+        .container {
+            background-color: aliceblue;
+        }
+
+        .star {
+            border: none;
+            background-color: unset;
+            color: goldenrod;
+            font-size: 3rem;
+        }
+
+        .rates p {
+            text-align: center;
+        }
+    </style>
+    <div class="container-fluid" style="background-color: #f7efef;">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-5 fw-normal">
+                <div class="position-sticky">
+                    <a class="nav-link text-dark" href="/profile">
+                        <div class="nav-item p-3">
+                            My Account
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="/carts/orders">
+                        <div class="nav-item p-3">
+                            Orders
+                        </div>
+                    </a>
+                    <a class="nav-link text-dark" href="#">
+                        <div class="nav-item p-3">
+                            wishlist
+                        </div>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 container">
+                <div class="bg-light mt-3 mb-3 p-4">
+                    <div
+                        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">Review Your product</h1>
+                    </div>
+                    <div class="container rates">
+                        <button class="star">&#9734;</button>
+                        <button class="star">&#9734;</button>
+                        <button class="star">&#9734;</button>
+                        <button class="star">&#9734;</button>
+                        <button class="star">&#9734;</button>
+                        <p class="current-rating">0 of 5</p>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label for="description">Description:</label>
+                            <textarea class="form-control" id="description" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="title">Title:</label>
+                            <input type="text" class="form-control" id="title">
+                            <input class="d-none" type="text" id="productId" value="<%= productId %>">
+                        </div>
+                        <button onclick="reviewSend()" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const stars = document.querySelectorAll('.star');
+        const current_rating = document.querySelector('.current-rating');
+        let current_star
+        stars.forEach((star, index) => {
+            star.addEventListener('click', () => {
+
+                current_star = index + 1;
+                current_rating.innerText = `${current_star} of 5`;
+
+                stars.forEach((star, i) => {
+                    if (current_star >= i + 1) {
+                        star.innerHTML = '&#9733;';
+                    } else {
+                        star.innerHTML = '&#9734;';
+                    }
+                });
+            });
+        });
+        async function reviewSend() {
+            try {
+                const score = current_star;
+                const description = document.getElementById('description').value
+                const title = document.getElementById('title').value
+                const productId = document.getElementById('productId').value
+                let data = JSON.stringify({
+                    title: title,
+                    description: description,
+                    score: score,
+                    productId: productId
+                })
+                const response = await fetch('/carts/review', {
+                    method: 'post',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: data,
+                })
+                const resBody = await response.json()
+                if (resBody.success) {
+                    alert(resBody.message)
+                } else {
+                    alert('somthing went wrong')
+                    alert(resBody.message)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    </script>
+
+    <%- include('head/footer') %>

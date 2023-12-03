@@ -42,7 +42,23 @@ const prouctSchema = new mongoose.Schema({
     discount:{
         type:Number,
         default:0
-    }
+    },reviews:[
+        {
+            title:{
+                type:String,
+            },
+            description:{
+                type:String
+            },
+            score:{
+                type:Number
+            },
+            time:{
+                type:Date,
+                default:Date.now()
+            }
+        }
+    ]
 })
 const product = mongoose.model('product', prouctSchema)
 module.exports = product;

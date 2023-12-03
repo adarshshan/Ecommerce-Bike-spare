@@ -6,13 +6,17 @@ const User = require('../../models/user')
 const nodemailer = require('nodemailer')
 const Order = require('../../models/order');
 const Products = require('../../models/product')
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId;
+const helpers=require('../../utils/helpers')
+const localStorage = require('localStorage')
 
 
 router.get('/', controller.personHome)
 router.get('/productDetails/:id', controller.userDetailHome)
 router.get('/view-categorie-products/:categoryname', controller.categoryFilter)
 router.get('/share-link/:email', controller.shareLink)
-router.get('/error-page',controller.ErrorPage)
+router.get('/error-page', controller.ErrorPage)
 
 //--------Profile-----//
 router.get('/profile', userAuth, controller.profilePage)
@@ -39,10 +43,11 @@ router.get('/remove-wishlist/:id', userAuth, controller.removeWishlist)
 
 
 //wallet
-router.get('/wallet',userAuth, controller.walletHome)
-router.get('/add-walletfund/:amount',userAuth, controller.addWalletFund)
+router.get('/wallet', userAuth, controller.walletHome)
+router.get('/add-walletfund/:amount', userAuth, controller.addWalletFund)
 router.get('/wallet-refund/:orderId', controller.refundWallet);
-router.post('/veryfy-payment',controller.veryfyPay)
+router.post('/veryfy-payment', controller.veryfyPay)
+router.get('/pagination', controller.walletHistoryPagination)
 
 
 

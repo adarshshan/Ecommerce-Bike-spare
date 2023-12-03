@@ -1,4 +1,5 @@
 <%- include('head/header.ejs') %>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <div id="page-content-wrapper">
         <div class="container" style="margin-left: 248px;">
             <div class="row mt-5">
@@ -22,7 +23,7 @@
                                 <h2>Banner List</h2>
 
 
-                                <table class="table">
+                                <table class="table" id="bannerTable">
                                     <thead>
                                         <tr>
                                             <th scope="col">Title</th>
@@ -81,8 +82,11 @@
                                                                                     <li
                                                                                         onclick="deleteBanner('<%= row._id %>')">
                                                                                         Delete</li>
-                                                                                        <a href="/banners/edit-banner-form/<%= row._id %>"><li>Edit</li></a>
-                                                                                    
+                                                                                    <a
+                                                                                        href="/banners/edit-banner-form/<%= row._id %>">
+                                                                                        <li>Edit</li>
+                                                                                    </a>
+
                                                                     </ul>
                                                                 </td>
                                                 </tr>
@@ -111,6 +115,9 @@
                 </div>
             </div>
         </div>
+        
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
         <script src="/static/admin/banner.js"></script>
         <%- include('head/footer.ejs') %>
-           

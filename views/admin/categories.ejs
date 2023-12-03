@@ -1,53 +1,63 @@
 <%- include('head/header') %>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <div id="page-content-wrapper">
         <div class="container" style="margin-left: 248px;">
             <div class="row mt-5">
                 <div class="col-lg-6 col-md-12">
                     <h1 class="shadow">CATEGORIES</h1>
-                    
+
                     <a href="/categories/add"><button type="button" class="btn btn-outline-success float-end mb-2">Add
                             Categories</button></a>
-                            <% if (locals.message) { %>
-                                <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
-                                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-                                 <strong><%= message.message %></strong>
-                               </div>
-                     
-                               <% } %>
-                    <% if (data!="" ) { %>
-                        <table class="table border shadow">
-                            <thead>
-                                <tr>
-                                    <th scope="col">sl.no</th>
-                                    <th scope="col">Name</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% data.forEach((row,index)=> { %>
-                                    <tr>
-                                        <td>
-                                            <%= index+1 %>
-                                        </td>
-                                        <td>
-                                            <%= row.name %>
-                                        </td>
-                                        <td><a href="/categories/edit/<%= row._id %>"><i
-                                                    class="fa-solid fa-pen-to-square text-success"></i></a><a
-                                                href="/categories/delete/<%= row._id %>" onclick="return confirm('You want to Delete this Category ?')" ><i
-                                                    class="fa-solid fa-trash text-danger ms-3"></i></a></td>
-                                    </tr>
-                                    <% }) %>
+                    <% if (locals.message) { %>
+                        <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
+                            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                            <strong>
+                                <%= message.message %>
+                            </strong>
+                        </div>
 
-                            </tbody>
-                        </table>
-                        <% }else{ %>
-                            <div class="text-center text-secondary mt-5">
-                                <h1>No Categories found in the Database</h1>
-                            </div>
-                            <% } %>
+                        <% } %>
+                            <% if (data!="" ) { %>
+                                <table class="table border shadow" id="categoryTable">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">sl.no</th>
+                                            <th scope="col">Name</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% data.forEach((row,index)=> { %>
+                                            <tr>
+                                                <td>
+                                                    <%= index+1 %>
+                                                </td>
+                                                <td>
+                                                    <%= row.name %>
+                                                </td>
+                                                <td><a href="/categories/edit/<%= row._id %>"><i
+                                                            class="fa-solid fa-pen-to-square text-success"></i></a><a
+                                                        href="/categories/delete/<%= row._id %>"
+                                                        onclick="return confirm('You want to Delete this Category ?')"><i
+                                                            class="fa-solid fa-trash text-danger ms-3"></i></a></td>
+                                            </tr>
+                                            <% }) %>
+
+                                    </tbody>
+                                </table>
+                                <% }else{ %>
+                                    <div class="text-center text-secondary mt-5">
+                                        <h1>No Categories found in the Database</h1>
+                                    </div>
+                                    <% } %>
                 </div>
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script>
+        let table = new DataTable('#categoryTable');
+    </script>
     <%- include('head/footer') %>

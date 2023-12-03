@@ -26,12 +26,13 @@ async function productHome(req, res) {
         const end = start + productsPerPage;
         const paginatedProducts = productList.slice(start, end)
         // res.send(productList)
-        res.render('admin/products.ejs', {
-            title: 'Produts',
-            data: paginatedProducts,
-            currentPage: page,
-            totalPages: Math.ceil(productList.length / productsPerPage)
-        })
+        // res.render('admin/products.ejs', {
+        //     title: 'Produts',
+        //     data: paginatedProducts,
+        //     currentPage: page,
+        //     totalPages: Math.ceil(productList.length / productsPerPage)
+        // })
+        res.render('admin/products.ejs', { title: 'Produts', data: productList })
     } catch (error) {
         console.log('Error is at productHome ' + error)
     }
@@ -79,7 +80,7 @@ function addProduct(req, res) {
                 categorieId: req.body.categorieId,
                 price: req.body.price,
                 stock: req.body.stock,
-                discount:req.body.discount,
+                discount: req.body.discount,
                 description: req.body.description,
                 image: arrayimage
             })
@@ -223,7 +224,7 @@ async function updateProduct(req, res) {
                 categorieId: req.body.categorieId,
                 price: req.body.price,
                 stock: req.body.stock,
-                discount:req.body.discount,
+                discount: req.body.discount,
                 description: req.body.description,
                 image: compimgpath
             }).then(() => {
