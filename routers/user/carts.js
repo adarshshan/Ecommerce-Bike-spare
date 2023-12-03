@@ -65,34 +65,32 @@ router.get('/buy-now/:id/:name/:price/:image/:disc/:discount', async (req, res) 
         console.log(error)
     }
 })
-router.get('/review-page/:productid', async (req, res) => {
+router.get('/review-page/:productid/:name', async (req, res) => {
     try {
         const productId = req.params.productid;
-        res.render('user/review.ejs', { title: 'Product-Review', productId });
+        const username=req.params.name;
+        res.render('user/review.ejs', { title: 'Product-Review', productId,username });
     } catch (error) {
         console.log(error)
     }
 })
 router.post('/review', async (req, res) => {
     try {
-        const { title, description, score, productId } = req.body;
+        const { title, description, score, productId,username} = req.body;
         console.log(title, description, score, productId)
-
-        const product = await Product.findById(productId);
-
         const updateReview = await Product.findByIdAndUpdate(productId, {
             $push: {
                 reviews: {
                     $each: [{
                         title: title,
                         description: description,
-                        score: score
+                        score: score,
+                        reviewer:username
                     }],
-                    $position: 0 // Adding at the beginning of the array
+                    $position: 0
                 }
             }
         });
-
         if (updateReview) {
             console.log('Review updated')
             return res.json({ success: true, message: 'Review completed' })

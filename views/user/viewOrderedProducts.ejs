@@ -42,7 +42,7 @@
                                     <%= invoice %>
                                 </p>
                                 <% if (row.product.status==='DELIVERED' ) { %>
-                                    <a href="/carts/review-page/<%= row.product.product_id %>" class="rate text-primary"><i class="fa-regular fa-star"></i>Rate & Review product</a>
+                                    <a href="/carts/review-page/<%= row.product.product_id %>/<%= name %>" class="rate text-primary"><i class="fa-regular fa-star"></i>Rate & Review product</a>
                                     <% } %>
                             </div>
 

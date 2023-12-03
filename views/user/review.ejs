@@ -67,64 +67,20 @@
                             <label for="title">Title:</label>
                             <input type="text" class="form-control" id="title">
                             <input class="d-none" type="text" id="productId" value="<%= productId %>">
+                            <input class="d-none" type="text" id="username" value="<%= username %>">
                         </div>
-                        <button onclick="reviewSend()" class="btn btn-primary">Submit Review</button>
+                        <span class="text-danger" id="errormsg"></span><br>
+                        <button onclick="validateReview()" class="btn btn-primary mt-3">Submit Review</button>
                     </div>
                 </div>
 
             </main>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        const stars = document.querySelectorAll('.star');
-        const current_rating = document.querySelector('.current-rating');
-        let current_star
-        stars.forEach((star, index) => {
-            star.addEventListener('click', () => {
-
-                current_star = index + 1;
-                current_rating.innerText = `${current_star} of 5`;
-
-                stars.forEach((star, i) => {
-                    if (current_star >= i + 1) {
-                        star.innerHTML = '&#9733;';
-                    } else {
-                        star.innerHTML = '&#9734;';
-                    }
-                });
-            });
-        });
-        async function reviewSend() {
-            try {
-                const score = current_star;
-                const description = document.getElementById('description').value
-                const title = document.getElementById('title').value
-                const productId = document.getElementById('productId').value
-                let data = JSON.stringify({
-                    title: title,
-                    description: description,
-                    score: score,
-                    productId: productId
-                })
-                const response = await fetch('/carts/review', {
-                    method: 'post',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: data,
-                })
-                const resBody = await response.json()
-                if (resBody.success) {
-                    alert(resBody.message)
-                } else {
-                    alert('somthing went wrong')
-                    alert(resBody.message)
-                }
-            } catch (error) {
-                console.log(error)
-            }
-        }
-    </script>
+    <script src="/static/user/review.js"></script>
 
     <%- include('head/footer') %>

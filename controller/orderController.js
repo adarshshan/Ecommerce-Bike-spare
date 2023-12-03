@@ -648,24 +648,14 @@ async function adminOrderList(req, res) {
         const allOrders = orderList.reduce((accumulator, currentOrder) => {
             return accumulator.concat(currentOrder.orders);
         }, []);
-        allOrders.sort((a, b) => {
+        const newone=allOrders.sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
-            return dateB - dateA;
+            return dateB-dateA;
         });
-
-        // orderList[0].orders.sort((a, b) => new Date(b.date) - new Date(a.date));
-        // let order = orderList[0].orders
-        const productsPerPage = 9
-        const page = parseInt(req.query.page) || 1;
-        const start = (page - 1) * productsPerPage;
-        const end = start + productsPerPage;
-        const paginatedProducts = allOrders.slice(start, end)
-        res.render('admin/orders.ejs', {title: 'orders', order: allOrders})
-        // res.render('admin/orders.ejs', {
-        //     title: 'orders', order: paginatedProducts, currenPage: page,
-        //     totaPages: Math.ceil(allOrders.length / productsPerPage)
-        // })
+        console.log(`allorders are`)
+        console.log(newone);
+        res.render('admin/orders.ejs', {title: 'orders', order: newone})
     } catch (error) {
         console.log(error)
     }

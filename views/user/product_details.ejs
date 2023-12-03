@@ -63,48 +63,83 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <% let rupee = new Intl.NumberFormat('en-IN', {
-                        style: 'currency',
-                        currency: 'INR',
-                    }); %>
-                    <h1>
-                        <%= products.name %>
-                    </h1>
-                    <p>
-                        <%= products.description %>
-                    </p>
-                    <% if (products.discount!==0) { %>
-                        <p class="text-success">Discount: <%= products.discount +' %off' %>
+                    <% let rupee=new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , }); %>
+                        <h1>
+                            <%= products.name %>
+                        </h1>
+                        <p>
+                            <%= products.description %>
                         </p>
-                        <p><strong>Price: <del class="text-danger">
-                                    <%= rupee.format(products.price) %>
-                                </del>
-                                <p class="fs-4 text-success">
-                                    <%= rupee.format(products.price-(products.price*products.discount/100)) %>
-                                </p>
-                            </strong></p>
-                        <% }else{ %>
-                            <p><strong>Price:<i class="fa-solid fa-indian-rupee-sign"></i>
-                                    <%= products.price %>
+                        <% if (products.discount!==0) { %>
+                            <p class="text-success">Discount: <%= products.discount +' %off' %>
+                            </p>
+                            <p><strong>Price: <del class="text-danger">
+                                        <%= rupee.format(products.price) %>
+                                    </del>
+                                    <p class="fs-4 text-success">
+                                        <%= rupee.format(products.price-(products.price*products.discount/100)) %>
+                                    </p>
                                 </strong></p>
-                            <% } %>
+                            <% }else{ %>
+                                <p><strong>Price:<i class="fa-solid fa-indian-rupee-sign"></i>
+                                        <%= products.price %>
+                                    </strong></p>
+                                <% } %>
 
-                                <p><strong>Availability: In Stock </strong>
-                                    <%= products.stock %><b> Nos</b>
-                                </p>
-                                <p><strong>Brand:<%= brandName %></strong></p>
-                                <p><strong>Category: <%= categoryName %> </strong></p>
+                                    <p><strong>Availability: In Stock </strong>
+                                        <%= products.stock %><b> Nos</b>
+                                    </p>
+                                    <p><strong>Brand:<%= brandName %></strong></p>
+                                    <p><strong>Category: <%= categoryName %> </strong></p>
 
-                                <div class="d-flex mt-5 mb-4 ms-3">
-                                    <% if (products.cart) { %>
-                                        <a href="/carts" class="btn btn-warning p-3 fw-bold">Go to carts</a>
-                                        <% }else{ %>
-                                            <button class="btn btn-warning p-3 fw-bold" onclick="addToCart('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description}) %>'); return false;">Add to Cart</button>
-                                            <% } %>
-                                                <button class="btn btn-success p-3 fw-bold ms-3" onclick="buyNow('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description,discount:products.discount}) %>'); return false;">Buy Now</button>
-                                </div>
+                                    <div class="d-flex mt-5 mb-4 ms-3">
+                                        <% if (products.cart) { %>
+                                            <a href="/carts" class="btn btn-warning p-3 fw-bold">Go to carts</a>
+                                            <% }else{ %>
+                                                <button class="btn btn-warning p-3 fw-bold"
+                                                    onclick="addToCart('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description}) %>'); return false;">Add
+                                                    to Cart</button>
+                                                <% } %>
+                                                    <button class="btn btn-success p-3 fw-bold ms-3"
+                                                        onclick="buyNow('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description,discount:products.discount}) %>'); return false;">Buy
+                                                        Now</button>
+                                    </div>
                 </div>
             </div>
+            <% if (products.reviews.length) { %>
+                <div class="row mb-4">
+                    <div class="col-md-6 col-12"></div>
+                    <div class="col-md-6 col-12">
+                        <h4 class="mb-4">Ratings & Reviews</h4>
+                        <% let score=0; for(let i=0;i<products.reviews.length;i++){ score+=products.reviews[i].score; }
+                            let avg=score/products.reviews.length %>
+                            <div class="d-flex border">
+                                <div class="p-4">
+                                    <h1><%= avg %><i class="fa-regular fa-star ms-1"></i></h1>
+                                </div>
+                                <div class="p-4 m-3"><h6><%= products.reviews.length %> Ratings & Reviews</h6></div>
+                            </div>
+                            <% for( let i=0; i < products.reviews.length; i++ ) { %>
+                                <div class="col-12 border p-2">
+                                    <h5 class="d-flex"><span class="badge bg-success">
+                                            <%= products.reviews[i].score %><i class="fa-regular fa-star ms-1"></i>
+                                        </span>
+                                        <p class="ms-4">
+                                            <%= products.reviews[i].title %>
+                                        </p>
+                                    </h5>
+                                    <p>
+                                        <%= products.reviews[i].description %>
+                                    </p>
+                                    <small>
+                                        <%= products.reviews[i].reviewer %>
+                                    </small>
+                                </div>
+                                <% } %>
+                    </div>
+                </div>
+                <% } %>
+
         </div>
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

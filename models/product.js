@@ -50,6 +50,9 @@ const prouctSchema = new mongoose.Schema({
             description:{
                 type:String
             },
+            reviewer:{
+                type:String,
+            },
             score:{
                 type:Number
             },
