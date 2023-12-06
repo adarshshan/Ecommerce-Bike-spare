@@ -4,13 +4,8 @@ const controller=require('../../controller/adminController')
 
 
 router.get('/login',controller.adminLoginPage )
-
 router.post('/login',controller.adminLogin)
-
-router.get('/signup',controller.adminSignupPage)
-
 router.post('/signup',controller.adminSignup)
-
 router.get('/logout',controller.adminLogout)
 
 

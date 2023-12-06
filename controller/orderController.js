@@ -642,6 +642,73 @@ async function returnProduct(req, res) {
     }
 }
 
+async function buyNow(req, res) {
+    try {
+        const id = req.params.id//product id
+        const name = req.params.name
+        const price = req.params.price
+        const imageUri = req.params.image
+        const discription = req.params.disc;
+        const discount = req.params.discount
+        const userId = req.session.currentUserId
+        const item = {
+            id: id,
+            name: name,
+            price: price,
+            imageUri: imageUri,
+            discription: discription,
+            discount: discount
+        }
+        localStorage.setItem('product', JSON.stringify(item))
+        if (localStorage.getItem("product")) {
+            res.json({ success: true, message: 'product Details successfully added to the localstorrage' })
+        } else {
+            res.json({ success: false, message: 'Failed to add product Details to localstorrage' })
+        }
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+function reviewPage(req, res) {
+    try {
+        const productId = req.params.productid;
+        const username=req.params.name;
+        res.render('user/review.ejs', { title: 'Product-Review', productId,username });
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function postReview(req, res) {
+    try {
+        const { title, description, score, productId,username} = req.body;
+        console.log(title, description, score, productId)
+        const updateReview = await Product.findByIdAndUpdate(productId, {
+            $push: {
+                reviews: {
+                    $each: [{
+                        title: title,
+                        description: description,
+                        score: score,
+                        reviewer:username
+                    }],
+                    $position: 0
+                }
+            }
+        });
+        if (updateReview) {
+            return res.json({ success: true, message: 'Review completed' })
+        } else {
+            return res.json({ success: false, message: 'Failed to update the review.' });
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 async function adminOrderList(req, res) {
     try {
         const orderList = await Order.find()
@@ -717,7 +784,10 @@ module.exports = {
     adminOrderList,
     adminViewOrder,
     verifyPayment,
-    returnProduct
+    returnProduct,
+    buyNow,
+    reviewPage,
+    postReview
 }
 
 

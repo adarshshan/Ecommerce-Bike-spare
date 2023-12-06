@@ -9,31 +9,41 @@
                         <h2>Edit Banner</h2>
                         <form action="/banners/update-banner" id="bannerForm" method="post" class="shadow p-5 bg-light"
                             enctype="multipart/form-data">
-                            <label for="">Title</label>
-                            <input type="text" name="title" value="<%= data.title %>" id="title" class="form-control">
-                            <input type="text" name="title" value="<%= data._id %>" id="id" class="form-control d-none">
-
-                            <label for="">Select Product</label>
-                            <select name="product" id="product" class="form-control">
-                                <option value="<%= data.product._id %>">
-                                    <%= data.product.name %>
-                                </option>
-                                <% for(let product of products) { %>
-                                    <option value="<%= product._id %>">
-                                        <%= product.name %>
+                            <div>
+                                <label for="">Title</label>
+                                <input type="text" name="title" value="<%= data.title %>" id="title"
+                                    class="form-control">
+                                <input type="text" name="title" value="<%= data._id %>" id="id"
+                                    class="form-control d-none">
+                                <span id="title-error" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label for="">Select Product</label>
+                                <select name="product" id="product" class="form-control">
+                                    <option value="<%= data.product._id %>">
+                                        <%= data.product.name %>
                                     </option>
-                                    <% } %>
-                            </select>
-
-                            <label for="">Description</label>
-                            <input type="text" name="description" value="<%= data.description %>" id="description"
-                                class="form-control">
-
-                            <label for="">image</label>
-                            <input type="file" name="inputImage" id="inputImage" class="form-control" multiple>
-                            <input type="text" name="sameimage" id="sameimage" class="form-control  d-none"
-                                value="<%= data.image_url %>">
-
+                                    <% for(let product of products) { %>
+                                        <option value="<%= product._id %>">
+                                            <%= product.name %>
+                                        </option>
+                                        <% } %>
+                                </select>
+                                <span id="product-error" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label for="">Description</label>
+                                <input type="text" name="description" value="<%= data.description %>" id="description"
+                                    class="form-control">
+                                <span id="description-error" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label for="">image</label>
+                                <input type="file" name="inputImage" id="inputImage" class="form-control" multiple>
+                                <input type="text" name="sameimage" id="sameimage" class="form-control  d-none"
+                                    value="<%= data.image_url %>">
+                                <span id="inputImage-error" class="text-danger"></span>
+                            </div>
                             <div>
                                 <div>
                                     <img src="" id="croppedImage" alt="">
@@ -44,14 +54,18 @@
                                         id="image" alt="">
                                     <% } %>
                             </div>
-
-                            <label for="">Start Date</label>
-                            <input type="date" name="startDate" value="<%= data.startDate %>" id="startDate"
-                                class="form-control">
-                            <label for="">End Date</label>
-                            <input type="date" name="endDate" value="<%= data.endDate %>" id="endDate"
-                                class="form-control">
-
+                            <div>
+                                <label for="">Start Date</label>
+                                <input type="date" name="startDate" value="<%= data.startDate %>" id="startDate"
+                                    class="form-control">
+                                <span id="sdate-error" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label for="">End Date</label>
+                                <input type="date" name="endDate" value="<%= data.endDate %>" id="endDate"
+                                    class="form-control">
+                                <span id="edate-error" class="text-danger"></span>
+                            </div>
                             <!-- <button onclick="addBanner()" class="btn btn-success mt-4">Add Product</button> -->
                             <button type="submit" class="btn btn-success mt-4">Add Banner</button>
                         </form>
@@ -65,5 +79,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.js"
         integrity="sha512-Zt7blzhYHCLHjU0c+e4ldn5kGAbwLKTSOTERgqSNyTB50wWSI21z0q6bn/dEIuqf6HiFzKJ6cfj2osRhklb4Og=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script src="/static/admin/editBanner.js"></script>
+    <script src="/static/admin/editBanner.js"></script>
     <%- include('head/footer') %>

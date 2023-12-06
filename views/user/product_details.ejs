@@ -115,7 +115,7 @@
                             let avg=score/products.reviews.length %>
                             <div class="d-flex border">
                                 <div class="p-4">
-                                    <h1><%= avg %><i class="fa-regular fa-star ms-1"></i></h1>
+                                    <h1><%= avg.toFixed(1) %><i class="fa-regular fa-star ms-1 text-danger"></i></h1>
                                 </div>
                                 <div class="p-4 m-3"><h6><%= products.reviews.length %> Ratings & Reviews</h6></div>
                             </div>
@@ -144,7 +144,5 @@
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="/static/user/common.js"></script>
-
-
 
         <%- include('head/footer') %>

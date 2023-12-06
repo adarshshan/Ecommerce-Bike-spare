@@ -27,7 +27,6 @@ async function personHome(req, res) {
         const userId = req.session.currentUserId;
         let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 }).populate("categorieId", { _id: 0, name: 1 })
         let banners = await Banner.find({ $and: [{ isDeleted: false }, { isActive: true }] });
-
         // console.log(productList)
         let categoryNames = [...new Set(
             productList
@@ -643,7 +642,7 @@ async function shareLink(req, res) {
     }
 }
 
-function ErrorPage(req,res){
+function ErrorPage(req, res) {
     res.render('user/404.ejs')
 }
 async function walletHistoryPagination(req, res) {
@@ -652,17 +651,17 @@ async function walletHistoryPagination(req, res) {
         const id = new ObjectId(userId)
         const wallet = await helpers.walletTransactions(id)
         let transactions = wallet[0].wallet.map(data => data);
-        if(localStorage.getItem('pageWalletHistory')){
-            localStorage.setItem('pageWalletHistory',parseInt(localStorage.getItem('pageWalletHistory')) + 1)
-        }else{
-            localStorage.setItem('pageWalletHistory',1);
+        if (localStorage.getItem('pageWalletHistory')) {
+            localStorage.setItem('pageWalletHistory', parseInt(localStorage.getItem('pageWalletHistory')) + 1)
+        } else {
+            localStorage.setItem('pageWalletHistory', 1);
         }
-        const page =parseInt(localStorage.getItem('pageWalletHistory'));
-        let totalpages=Math.ceil(transactions.length/8)
-        if(page===totalpages){
+        const page = parseInt(localStorage.getItem('pageWalletHistory'));
+        let totalpages = Math.ceil(transactions.length / 8)
+        if (page === totalpages) {
             localStorage.removeItem('pageWalletHistory');
         }
-        return res.json({success:true,message:'Transactions found',transactions,page}) 
+        return res.json({ success: true, message: 'Transactions found', transactions, page })
     } catch (error) {
         console.log(error)
     }

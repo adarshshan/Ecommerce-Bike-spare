@@ -171,6 +171,16 @@ async function verifyCoupon(req, res) {
         console.log(error)
     }
 }
+function cancelCoupon(req,res){
+    try {
+        delete req.session.discount;
+        console.log('coupon cancelled.')
+        res.json({success:true,message:'coupon cancelled'})
+    } catch (error) {
+        console.log(error)
+        res.json({success:false,message:'Trouble while cancelling the coupon.'})
+    }
+}
 
 module.exports = {
     couponHome,
@@ -179,7 +189,8 @@ module.exports = {
     deleteCoupon,
     deactivateCoupon,
     activateCoupon,
-    verifyCoupon
+    verifyCoupon,
+    cancelCoupon
 }
 
 //additional functions

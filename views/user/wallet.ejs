@@ -112,13 +112,13 @@
                                                             <div>
                                                                 <% if (wallet[0].wallet[i].type==='credited' ) { %>
                                                                     <i
-                                                                        class="fas fa-arrow-circle-down text-danger me-2"></i>
+                                                                        class="fas fa-arrow-circle-up text-danger me-2"></i>
                                                                     <span class="text-danger">paid - Rs. <%=
                                                                             rupee.format(wallet[0].wallet[i].amount) %>
                                                                     </span>
                                                                     <% }else{ %>
                                                                         <i
-                                                                            class="fas fa-arrow-circle-up text-success me-2"></i>
+                                                                            class="fas fa-arrow-circle-down text-success me-2"></i>
                                                                         <span class="text-success">received -
                                                                             Rs. <%=
                                                                                 rupee.format(wallet[0].wallet[i].amount)

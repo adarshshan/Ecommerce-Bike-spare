@@ -45,6 +45,8 @@ const input = document.getElementById('inputImage');
 const image = document.getElementById('croppedImage');
 let cropper;
 
+
+
 input.addEventListener('change', (e) => {
     const file = e.target.files[0];
 
@@ -102,5 +104,6 @@ document.getElementById('bannerForm').addEventListener('submit', async (e) => {
             });
     }, 'image/jpeg');
 });
+
 
 

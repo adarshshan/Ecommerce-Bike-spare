@@ -23,8 +23,8 @@
                         <div style="display: flex;
                         justify-content: space-between;">
                             <h1>Coupon Management</h1>
-                            <button id="myButton" class="btn btn-outline-dark mb-5"><i
-                                    class="fa-solid fa-plus fs-2"></i></button>
+                            <button id="myButton" class="btn btn-outline-dark mb-5">
+                                <i class="fa-solid fa-plus fs-2"></i></button>
                         </div>
                         <div id="error"></div>
 
@@ -106,19 +106,27 @@
                                                             <ul class="dropdown-menu shadow">
                                                                 <% if (row.isActive) { %>
                                                                     <li onclick="deactivate('<%= row._id %>')">
+                                                                        <i class="fa-solid fa-circle text-danger"></i>
                                                                         Deactivate
                                                                     </li>
                                                                     <% }else{ %>
                                                                         <li onclick="Activate('<%= row._id %>')">
+                                                                            <i
+                                                                                class="fa-solid fa-circle text-success"></i>
                                                                             Activate
                                                                         </li>
                                                                         <% } %>
                                                                             <li
                                                                                 onclick="deleteCoupon('<%= row._id %>')">
-                                                                                Delete</li>
+                                                                                <i class="fa-solid fa-trash"></i>
+                                                                                Delete
+                                                                            </li>
                                                                             <li
                                                                                 onclick="couponEditForm('<%= JSON.stringify({id:row._id,minDiscount:row.minDiscount,minPurchase:row.minPurchase,maxDiscount:row.maxDiscount,maxPurchase:row.maxPurchase,maxusage:row.maxusage,expireDate:row.expireDate}) %>')">
-                                                                                Edit</li>
+                                                                                <i
+                                                                                    class="fa-regular fa-pen-to-square"></i>
+                                                                                Edit
+                                                                            </li>
                                                             </ul>
                                                         </td>
                                                     </tr>
@@ -182,32 +190,39 @@
                                     <label for="minDiscount">Discount in percentage</label>
                                     <input type="number" class="form-control" id="minDiscount" name="minDiscount"
                                         placeholder="" required>
+                                        <span id="minDiscount-error" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label for="maxDiscount">Maximum Discount in percentage(optional)</label>
                                     <input type="number" class="form-control" id="maxDiscount" name="maxDiscount"
                                         placeholder="">
+                                        <span id="maxDiscount-error" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label for="minPurchase">Minimum Purchase</label>
                                     <input type="number" class="form-control" id="minPurchase" name="minPurchase"
                                         placeholder="" required>
+                                        <span id="minPurchase-error" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label for="maxPurchase">Maximum Purchase for eligible maximum
                                         discount(Optional)</label>
                                     <input type="number" class="form-control" id="maxPurchase" name="maxPurchase"
                                         placeholder="">
+                                        <span id="maxPurchase-error" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label for="amount">Maximum usage</label>
                                     <input type="number" class="form-control" id="maxusage" name="maxusage"
                                         placeholder="" required>
+                                        <span id="maxusage-error" class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
                                     <label for="expireDate">Expiration Date</label>
                                     <input type="date" class="form-control" id="expireDate" name="expireDate" required>
+                                    <span id="expireDate-error" class="text-danger"></span>
                                 </div>
+                                <span id="common-error" class="text-danger"></span> <br>
                                 <button onclick="addCoupon()" class="btn btn-primary">Add Coupon</button>
                                 <!-- </form> -->
                             </div>
@@ -226,4 +241,8 @@
         </div>
     </div>
     <script src="/static/admin/coupon.js"></script>
+    <script>
+
+
+    </script>
     <%- include('head/footer') %>

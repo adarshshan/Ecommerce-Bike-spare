@@ -100,18 +100,9 @@ function adminLogout(req, res) {
     }
 }
 
-function adminSignupPage (req, res) {
-    try {
-        
-    } catch (error) {
-        console.log('Error is at adminSignupPage '+error)
-    }
-    res.render('admin/signup')
-}
 module.exports = {
     adminLoginPage,
     adminLogin,
     adminSignup,
-    adminLogout,
-    adminSignupPage
+    adminLogout
 }

@@ -49,6 +49,14 @@ async function addCategories(req, res) {
 
 }
 
+function addCategoryPage(req, res) {
+    try {
+        res.render('admin/add_categories', { title: 'add-category', msg: '' })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 async function deleteCategory(req, res) {
     try {
         let id = req.params.id;
@@ -116,5 +124,6 @@ module.exports = {
     addCategories,
     deleteCategory,
     editCategory,
-    updateCategory
+    updateCategory,
+    addCategoryPage
 }

@@ -1,6 +1,6 @@
 <%- include('head/header') %>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 
     <div id="page-content-wrapper">
         <div class="container" style="margin-left: 248px;">
@@ -8,37 +8,49 @@
                 <div class="col-lg-7 col-md-12">
                     <div class="container">
                         <h2>Add Banner</h2>
-                        <form id="bannerForm" action="/banners" method="post" class="shadow p-5 bg-light" enctype="multipart/form-data">
-                            <label for="">Title</label>
-                            <input type="text" name="title" id="title" class="form-control">
-
-                            <label for="">Select Product</label>
-                            <select name="product" id="product" class="form-control">
-                                <option value="">choose...</option>
-                                <% for(let product of products) { %>
-                                    <option value="<%= product._id %>">
-                                        <%= product.name %>
-                                    </option>
-                                    <% } %>
-                            </select>
-
-                            <label for="">Description</label>
-                            <input type="text" name="description" id="description" class="form-control">
-
-                            <label for="">image</label>
-                            <input type="file" name="image" id="inputImage" class="form-control" accept="image/*"
-                                multiple>
-
+                        <form id="bannerForm" action="/banners" method="post" class="shadow p-5 bg-light"
+                            enctype="multipart/form-data">
+                            <div>
+                                <label for="">Title</label>
+                                <input type="text" name="title" id="title" class="form-control">
+                                <span id="title-error" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label for="">Select Product</label>
+                                <select name="product" id="product" class="form-control">
+                                    <option value="">choose...</option>
+                                    <% for(let product of products) { %>
+                                        <option value="<%= product._id %>">
+                                            <%= product.name %>
+                                        </option>
+                                        <% } %>
+                                </select>
+                                <span id="product-error" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label for="">Description</label>
+                                <input type="text" name="description" id="description" class="form-control">
+                                <span id="description-error" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label for="">image</label>
+                                <input type="file" name="image" id="inputImage" class="form-control" accept="image/*"
+                                    multiple>
+                                <span id="inputImage-error" class="text-danger"></span>
+                            </div>
                             <div>
                                 <img style="width: 700px;" id="croppedImage" src="" alt="Cropped Image">
                             </div>
-
-                            <label for="">Start Date</label>
-                            <input type="date" name="startDate" id="startDate" class="form-control">
-
-                            <label for="">End Date</label>
-                            <input type="date" name="endDate" id="endDate" class="form-control">
-
+                            <div>
+                                <label for="">Start Date</label>
+                                <input type="date" name="startDate" id="startDate" class="form-control">
+                                <span id="sdate-error" class="text-danger"></span>
+                            </div>
+                            <div>
+                                <label for="">End Date</label>
+                                <input type="date" name="endDate" id="endDate" class="form-control">
+                                <span id="edate-error" class="text-danger"></span>
+                            </div>
                             <!-- <button onclick="addBanner()" class="btn btn-success mt-4">Add Product</button> -->
                             <button type="submit" class="btn btn-success mt-4">Add Banner</button>
                         </form>
@@ -48,8 +60,12 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.js" integrity="sha512-Zt7blzhYHCLHjU0c+e4ldn5kGAbwLKTSOTERgqSNyTB50wWSI21z0q6bn/dEIuqf6HiFzKJ6cfj2osRhklb4Og==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-   
-    <script src="/static/admin/banner.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.js"
+        integrity="sha512-Zt7blzhYHCLHjU0c+e4ldn5kGAbwLKTSOTERgqSNyTB50wWSI21z0q6bn/dEIuqf6HiFzKJ6cfj2osRhklb4Og=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- <script src="/static/admin/banner.js"></script> -->
+    <script src="/static/admin/addbanner.js"></script>
     <%- include('head/footer') %>

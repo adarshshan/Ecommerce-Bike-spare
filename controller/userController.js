@@ -343,10 +343,10 @@ async function blockUser(req, res) {
         user.isDeleted = true;
         user.blocked_at = Date.now()
         user.save().then((rsult) => {
-            res.redirect('/users')
+            res.json({success:true,message:'User Blocked'})
         }).catch((err) => {
             console.log(err)
-            res.send(err)
+            res.json({success:false,message:'Failed to Block'})
         })
     } catch (error) {
         console.log('Error is at blockUser ' + error)
@@ -361,10 +361,10 @@ async function unBlockUser(req, res) {
         user.isDeleted = false;
         user.unBlocked_at = Date.now()
         user.save().then((result) => {
-            res.redirect('/users')
+            res.json({success:true,message:'User has been unblocked'})
         }).catch((err) => {
             console.log(err)
-            res.send(err)
+            res.json({success:false,message:'Failed to unblock user'})
         })
     } catch (error) {
         console.log('Error is at unBlockUser ' + error)

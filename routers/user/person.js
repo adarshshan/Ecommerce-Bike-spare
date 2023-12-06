@@ -8,7 +8,7 @@ const Order = require('../../models/order');
 const Products = require('../../models/product')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
-const helpers=require('../../utils/helpers')
+const helpers = require('../../utils/helpers')
 const localStorage = require('localStorage')
 
 
@@ -47,7 +47,7 @@ router.get('/wallet', userAuth, controller.walletHome)
 router.get('/add-walletfund/:amount', userAuth, controller.addWalletFund)
 router.get('/wallet-refund/:orderId', controller.refundWallet);
 router.post('/veryfy-payment', controller.veryfyPay)
-router.get('/pagination', controller.walletHistoryPagination)
+router.get('/pagination', userAuth, controller.walletHistoryPagination)
 
 
 

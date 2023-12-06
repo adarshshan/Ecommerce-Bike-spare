@@ -31,7 +31,8 @@ input.addEventListener('change', (e) => {
 });
 document.getElementById('bannerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-
+    const validate = validateBanner()
+    if (!validate) return 0;
     const formData = new FormData();
     formData.append('title', document.getElementById('title').value);
     formData.append('id', document.getElementById('id').value);
@@ -71,3 +72,33 @@ document.getElementById('bannerForm').addEventListener('submit', async (e) => {
             });
     }, 'image/jpeg');
 });
+function validateBanner() {
+    try {
+        const title = document.getElementById('title').value.split(' ').join('')
+        const product = document.getElementById('product').value
+        const sdate = document.getElementById('startDate').value
+        const edate = document.getElementById('endDate').value
+        const description = document.getElementById('description').value.split(' ').join('')
+        const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        document.getElementById('title-error').innerText = ''; document.getElementById('product-error').innerText = '';
+        document.getElementById('sdate-error').innerText = ''; document.getElementById('edate-error').innerText = '';
+        document.getElementById('description-error').innerText = '';
+        let flag = 0;
+        if (specialChars.test(title)) {
+            document.getElementById('title-error').innerText = 'Special characters are not accepted!'
+            flag = 1;
+        }
+        if (!title || !product || !sdate || !edate || !description) {
+            flag = 1;
+            if (!title) document.getElementById('title-error').innerText = '* This field is required.';
+            if (!product) document.getElementById('product-error').innerText = '* This field is required!';
+            if (!sdate) document.getElementById('sdate-error').innerText = '* This field is required!';
+            if (!edate) document.getElementById('edate-error').innerText = '*This field is required!';
+            if (!description) document.getElementById('description-error').innerText = '*This field is required!';
+        }
+        if (flag === 0) return true;
+        return false;
+    } catch (error) {
+        console.log(error)
+    }
+}

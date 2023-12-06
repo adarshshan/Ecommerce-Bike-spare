@@ -44,6 +44,14 @@ async function addBrand(req, res) {
 
 }
 
+function addBrandPage(req, res) {
+    try {
+        res.render('admin/add_brands', { title: 'add-brand', msg: '' })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 async function deleteBrand(req, res) {
     try {
         let id = req.params.id
@@ -115,5 +123,6 @@ module.exports = {
     addBrand,
     deleteBrand,
     editBrand,
-    updateBrand
+    updateBrand,
+    addBrandPage
 }
