@@ -49,7 +49,7 @@ async function Graph(value) {
 }
 async function deleteMessage(id) {
     try {
-        const response = await fetch(`/dashboard/delete-todo-message/${id}`, { method: 'get' })
+        const response = await fetch(`/dashboard/delete-todo-message/${id}`, { method: 'delete' })
         const resBody = await response.json()
         if (resBody.success) {
             let messages = '';
@@ -221,7 +221,7 @@ function htmlToBlob(html, callback) {
         filename: 'SalesReport.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        jsPDF: { unit: 'mm', format: 'a2', orientation: 'portrait' }
     }).then(function (pdf) {
         callback(pdf.output('blob'));
     });

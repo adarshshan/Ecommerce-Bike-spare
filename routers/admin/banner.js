@@ -10,7 +10,7 @@ const adminAuth=require('../../middlware/adminAuth')
 router.get('/',controller.bannerHome );
 router.get('/add-banner',controller.addBannerPage);
 router.post('/', controller.addBannerPost);
-router.get('/delete-banner/:id', controller.deleteBanner);
+router.delete('/delete-banner/:id', controller.deleteBanner);
 router.get('/deactivate-banner/:id',controller.deactivateBanner );
 router.get('/activate-banner/:id', controller.activateBanner);
 router.get('/edit-banner-form/:id', controller.editBannerPage);

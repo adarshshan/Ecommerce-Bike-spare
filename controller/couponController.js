@@ -1,5 +1,5 @@
 const Coupon = require('../models/coupon')
-
+const User=require('../models/user')
 
 async function couponHome(req, res) {
     try {
@@ -134,7 +134,10 @@ async function verifyCoupon(req, res) {
         const totalAmount = req.params.total
         const couponCode = req.params.code
         const coupon = await Coupon.findOne({ code: couponCode })
+        const userId = req.session.currentUserId
         const currentDate = new Date().toISOString().split('T')[0];
+        const inUse=await User.findOne({_id:userId,usedCoupons:{$elemMatch:{couponCode:couponCode}}})
+        if(inUse) return res.json({success:false,message:'The coupon has already been redeemed.'});
         if (!coupon || coupon === null) return res.json({ success: false, message: 'Entered Coupon Code is Wrong' });
         if (coupon.minPurchase > totalAmount) return res.json({ success: false, message: `Purchase must not be less than ${coupon.minPurchase}rs for eligible for this coupon.` })
         if (coupon.isDeleted) return res.json({ success: false, message: 'Coupon is No longer Available' })

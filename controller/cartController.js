@@ -18,10 +18,10 @@ async function cartHome(req, res) {
             })
         if (cartList && cartList.length > 0 && cartList !== undefined) {
             let { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: use })
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList, totalAmount, totalProducts, totalDiscount })
+            return res.render('user/cart.ejs', { title: 'shopping_Cart', cartList, totalAmount, totalProducts, totalDiscount })
 
         } else {
-            return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0, totalDiscount: 0 })
+            return res.render('user/cart.ejs', { title: 'shopping_Cart', cartList: '', totalAmount: 0, totalProducts: 0, totalDiscount: 0 })
         }
 
     } catch (error) {

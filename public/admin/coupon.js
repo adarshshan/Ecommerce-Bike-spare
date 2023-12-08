@@ -34,14 +34,42 @@ async function deactivate(id) {
 }
 async function deleteCoupon(id) {
     try {
-        const response = await fetch(`/coupons/delete-coupon/${id}`, { method: 'get' })
-        const resbody = await response.json()
-        if (resbody.success) {
-            document.getElementById('message-alert').innerText = resbody.message
-            openPopup();
-        } else {
-            alert(resbody.message)
-        }
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/coupons/delete-coupon/${id}`, { method: 'delete' }).then((response) => {
+                    return response.json()
+                }).then((resbody) => {
+                    if (resbody.success) {
+                        document.getElementById('message-alert').innerText = resbody.message
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: resbody.message,
+                            icon: "success"
+                        });
+                        setTimeout(() => {
+                            location.reload()
+                        }, 500);
+                    } else {
+                        Swal.fire({
+                            title: "Oops!",
+                            text: resbody.message
+                        });
+                    }
+                })
+
+            }
+        });
+        // const response = await fetch(`/coupons/delete-coupon/${id}`, { method: 'delete' })
+        // const resbody = await response.json()
+
     } catch (error) {
         alert(error)
     }
@@ -121,7 +149,7 @@ function validateCoupon() {
 }
 async function addCoupon() {
     try {
-        let validate=false;
+        let validate = false;
         validate = validateCoupon();
         if (!validate) return 0;
         const minDiscount = document.getElementById('minDiscount').value

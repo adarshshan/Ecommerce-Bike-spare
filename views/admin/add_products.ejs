@@ -67,6 +67,7 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
+
     document.getElementById('product-form').addEventListener('submit', async (e) => {
       try {
         e.preventDefault();
@@ -79,8 +80,12 @@
         formData.append('discount', document.getElementById('discount').value);
         formData.append('description', document.getElementById('description').value.trim());
         const imageInput = document.getElementById('image');
+        console.log('Input images are ...')
+        console.log(imageInput.files)
         if (imageInput.files.length > 0) {
           for (let i = 0; i < imageInput.files.length; i++) {
+            const validImage = await validateImageFile(imageInput.files[i]);
+            if (!validImage) return Swal.fire("Invalid image file detected", "", "info");
             formData.append('image', imageInput.files[i]);
           }
         }
@@ -99,7 +104,7 @@
             timer: 1500
           });
           setTimeout(() => {
-            location.href='/products';
+            location.href = '/products';
           }, 500);
         } else {
           document.getElementById('error-show').innerHTML = `
@@ -112,5 +117,19 @@
         console.log(error);
       }
     })
+    function validateImageFile(file) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = function () {
+          // Image is valid if it loads properly
+          resolve(true);
+        };
+        img.onerror = function () {
+          // Image failed to load, hence invalid
+          resolve(false);
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    }
   </script>
   <%- include('head/footer') %>

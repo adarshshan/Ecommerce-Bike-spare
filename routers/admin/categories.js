@@ -8,7 +8,7 @@ router.use(adminAuth)
 router.get('/', categoryController.categoryHome)
 router.post('/', categoryController.addCategories)
 router.get('/add', categoryController.addCategoryPage)
-router.get('/delete/:id', categoryController.deleteCategory)
+router.delete('/delete/:id', categoryController.deleteCategory)
 router.get('/edit/:id', categoryController.editCategory)
 router.post('/update/:id', categoryController.updateCategory)
 

@@ -595,6 +595,7 @@ async function viewOrder(req, res) {
             const end = start + productsPerPage;
             const paginatedProducts = products.slice(start, end)
             return res.render('user/viewOrderedProducts.ejs', {
+                title:'View-ordered-products',
                 products: paginatedProducts,
                 currenPage: page,
                 id: orderId,

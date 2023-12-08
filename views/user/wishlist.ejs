@@ -118,7 +118,7 @@
                 confirmButtonText: "Yes, delete it!"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`/remove-wishlist/${id}`, { method: 'get' }).then((response) => {
+                    fetch(`/remove-wishlist/${id}`, { method: 'delete' }).then((response) => {
                         if (!response.ok) {
                             console.log('there is an error...')
                             throw new Error('Network response was not ok');

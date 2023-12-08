@@ -12,15 +12,17 @@ async function dashboardHome(req, res) {
         for (let i = 0; i < allOrders.length; i++) {
             totalSales += allOrders[i].totalAmount + allOrders[i].walletAmount
         }
-
-        const timeWiseOrders=await helpers.timeWiseOrders()
+        const topProduct=await mostPurchasedProducts();
+        console.log(`Top products are ${topProduct}`);
+        console.log(topProduct)
+        const timeWiseOrders = await helpers.timeWiseOrders()
 
         const newarr = helpers.newArray(timeWiseOrders);
         console.log(newarr);
         // const year=helpers.getYearRatio(newarr);
         // const month=helpers.getMonthRatio(newarr);
         // const week=helpers.getWeekRatio(newarr);
-        const day=helpers.getDayRatio(newarr);
+        const day = helpers.getDayRatio(newarr);
         res.render('admin/dashboard.ejs', {
             title: 'Dashboard',
             allOrders,
@@ -33,7 +35,26 @@ async function dashboardHome(req, res) {
         console.log(error)
     }
 }
-
+async function mostPurchasedProducts() {
+    try {
+        const product = await Order.aggregate([
+            { $unwind: "$orders" },
+            { $unwind: "$orders.products" },
+            {
+                $group: {
+                    _id: "$orders.products.product_id",
+                    productName: { $first: "$orders.products.productName" },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { count: -1 } },
+            { $limit: 10 }
+        ])
+return product;
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 async function orderPagination(req, res) {
     try {
@@ -120,7 +141,7 @@ async function showGraph(req, res) {
             const dayRatio = helpers.getDayRatio(newarr);
             return res.json({ success: true, ratio: { time: timetype, value: dayRatio } })
         }
-        return res.json({success:false,message:'Somthing Trouble detected.'})
+        return res.json({ success: false, message: 'Somthing Trouble detected.' })
     } catch (error) {
         console.log(error)
     }

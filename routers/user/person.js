@@ -39,7 +39,7 @@ router.get('/newpassword/:password/:cpassword', controller.newPasswordUpdate)
 //wishlist
 router.get('/wishlist', userAuth, controller.wishlistHome)
 router.get('/add-wishlist/:id', userAuth, controller.addToWishlist);
-router.get('/remove-wishlist/:id', userAuth, controller.removeWishlist)
+router.delete('/remove-wishlist/:id', userAuth, controller.removeWishlist)
 
 
 //wallet

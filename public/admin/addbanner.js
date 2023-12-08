@@ -30,6 +30,10 @@ document.getElementById('bannerForm').addEventListener('submit', async (e) => {
     formData.append('endDate', document.getElementById('endDate').value);
     formData.append('description', document.getElementById('description').value);
 
+    const imageInput = document.getElementById('inputImage')
+    const validImage = await validateImageFile(imageInput.files[0]);
+    if (!validImage) return Swal.fire("Invalid image file detected", "", "info");
+
     const canvas = cropper.getCroppedCanvas();
     canvas.toBlob((blob) => {
         formData.append('image', blob, 'cropped_image.jpg');
@@ -68,6 +72,21 @@ document.getElementById('bannerForm').addEventListener('submit', async (e) => {
     }, 'image/jpeg');
 });
 
+function validateImageFile(file) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = function () {
+            // Image is valid if it loads properly
+            resolve(true);
+        };
+        img.onerror = function () {
+            // Image failed to load, hence invalid
+            resolve(false);
+        };
+        img.src = URL.createObjectURL(file);
+    });
+}
+
 function validateBanner() {
     try {
         const title = document.getElementById('title').value.split(' ').join('')
@@ -76,9 +95,9 @@ function validateBanner() {
         const edate = document.getElementById('endDate').value
         const description = document.getElementById('description').value.split(' ').join('')
         const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-        document.getElementById('title-error').innerText ='';document.getElementById('product-error').innerText ='';
-        document.getElementById('sdate-error').innerText ='';document.getElementById('edate-error').innerText ='';
-        document.getElementById('description-error').innerText ='';
+        document.getElementById('title-error').innerText = ''; document.getElementById('product-error').innerText = '';
+        document.getElementById('sdate-error').innerText = ''; document.getElementById('edate-error').innerText = '';
+        document.getElementById('description-error').innerText = '';
         let flag = 0;
         if (specialChars.test(title)) {
             document.getElementById('title-error').innerText = 'Special characters are not accepted!'

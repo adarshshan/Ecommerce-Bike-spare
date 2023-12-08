@@ -1,13 +1,39 @@
 let table = new DataTable('#bannerTable');
+
 async function deleteBanner(id) {
     try {
-        const response = await fetch(`/banners/delete-banner/${id}`, { method: 'get' })
-        const resbody = await response.json()
-        if (resbody.success) {
-            location.reload()
-        } else {
-            alert(resbody.message)
-        }
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/banners/delete-banner/${id}`, { method: 'delete' }).then((response) => {
+                    return response.json()
+                }).then((resbody) => {
+                    if (resbody.success) {
+                        Swal.fire({
+                            title: "Deleted!",
+                            text: "Your file has been deleted.",
+                            icon: "success"
+                        });
+                        setTimeout(() => {
+                            location.reload()
+                        }, 500);
+                    } else {
+                        Swal.fire({
+                            title: "oops!",
+                            text: resbody.message
+                        });
+                    }
+                })
+
+            }
+        });
     } catch (error) {
         console.log(error)
     }
@@ -74,6 +100,7 @@ document.getElementById('bannerForm').addEventListener('submit', async (e) => {
     formData.append('startDate', document.getElementById('startDate').value);
     formData.append('endDate', document.getElementById('endDate').value);
     formData.append('description', document.getElementById('description').value);
+
 
     const canvas = cropper.getCroppedCanvas();
     canvas.toBlob((blob) => {

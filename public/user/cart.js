@@ -132,7 +132,7 @@ function removeItem(productId) {
         confirmButtonText: "Yes, delete it!"
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/carts/remove/${productId}`, { method: 'GET' }).then((response) => {
+            fetch(`/carts/remove/${productId}`, { method: 'DELETE' }).then((response) => {
                 if (!response.ok) {
                     console.log('there is an error...')
                     throw new Error('Network response was not ok');

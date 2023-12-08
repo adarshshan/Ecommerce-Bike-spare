@@ -8,7 +8,7 @@ const userAuth = require('../../middlware/userAuth')
 router.get('/', controller.couponHome);
 router.post('/', controller.addCoupon);
 router.get('/edit-coupon/:id/:minDiscount/:minPurchase/:maxDiscount/:maxPurchase/:date/:maxusage', adminAuth, controller.editCoupon);
-router.get('/delete-coupon/:couponId', adminAuth, controller.deleteCoupon);
+router.delete('/delete-coupon/:couponId', adminAuth, controller.deleteCoupon);
 router.get('/coupon-deactivate/:couponId', adminAuth, controller.deactivateCoupon);
 router.get('/coupon-activate/:id', adminAuth, controller.activateCoupon);
 

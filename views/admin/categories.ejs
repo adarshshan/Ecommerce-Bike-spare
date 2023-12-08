@@ -72,7 +72,7 @@
                     confirmButtonText: "Yes, delete it!"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`/categories/delete/${id}`, { method: 'get' }).then((response) => {
+                        fetch(`/categories/delete/${id}`, { method: 'delete' }).then((response) => {
                             if (!response.ok) {
                                 console.log('there is an error...')
                                 throw new Error('Network response was not ok');
