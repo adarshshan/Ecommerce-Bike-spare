@@ -183,8 +183,33 @@ async function updatePass() {
     console.log('Entered into updatepass function')
     try {
         const oldpassword = document.getElementById('oldpassword').value
-        const newpassword = document.getElementById('newpassword').value
-        console.log(`1 :${oldpassword}  2:${newpassword}`)
+        const newpassword = document.getElementById('newpassword').value.trim()
+        if(!newpassword || !oldpassword){
+            document.getElementById('message').innerHTML = `
+                            <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                                <strong>input field must not be blank.</strong>
+                            </div>
+            `
+            return 0;
+        }
+        if(newpassword.length < 8 || newpassword.length > 20){
+            document.getElementById('message').innerHTML = `
+                            <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                                <strong>password must be atlest 8 charachers</strong>
+                            </div>
+            `
+            return 0;
+        }
+        if(!/[A-Z]/.test(newpassword) || !/[a-z]/.test(newpassword) || !/\d/.test(newpassword) || ! /[!@#$%^&*]/.test(newpassword)){
+            document.getElementById('message').innerHTML = `
+            <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                <strong>password is weak. please make a strong password.</strong>
+            </div>`
+            return 0;
+        }
         const response = await fetch(`/changePassword/${oldpassword}/${newpassword}`, { method: 'get' })
         const resBody = await response.json()
         if (resBody.success) {
@@ -198,7 +223,12 @@ async function updatePass() {
                 title: "Password changed successfully.!",
                 showConfirmButton: false,
                 timer: 1500
-              });
+            });
+            document.getElementById('message').innerHTML = `
+            <div class="alert alert-dismissible fade show alert-success" role="alert">
+                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+                <strong>Password changed successfully.</strong>
+            </div>`
         } else {
             console.log('somthing went wrong')
             console.log(resBody.message)
@@ -218,11 +248,12 @@ async function editEmail(data) {
     console.log(`Your new Email is ${emailData.email}`)
     document.getElementById('emailData').innerHTML = `
                                 <div class="col-sm-9 mb-3 col-12" id="verify">
-                                    <p class="mb-0">Name</p>
+                                    <p class="mb-0">Email</p>
                                     <div class="form-outline">
-                                        <input type="text" id="email" value="${emailData.email}" placeholder="Type here"
+                                        <input type="email" id="email" value="${emailData.email}" placeholder="Type here"
                                             class="form-control p-3" />
                                     </div>
+                                    <span class="text-danger" id="email-error"></span>
                                     <button onclick="updateEmail()" class="btn btn-primary px-3 float-end border-0"><i
                                     class="fa fa-address-card mr-1"></i> save changes</button>
                                 </div>`
@@ -230,6 +261,7 @@ async function editEmail(data) {
 async function updateEmail() {
     try {
         const email = document.getElementById('email').value
+        if (!email) return document.getElementById('email-error').innerText = 'Input field must not be blank!';
         console.log(`Your new Email is ${email}`)
         const response = await fetch(`/changeEmail/${email}`, { method: 'get' })
         const resBody = await response.json()
@@ -243,11 +275,7 @@ async function updateEmail() {
             </a>`
         } else {
             console.log(resBody.message)
-            document.getElementById('message').innerHTML = `
-                        <div class="alert alert-dismissible fade show alert-warning" role="alert">
-                                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-                                <strong>${resBody.message}</strong>
-                        </div>`
+            document.getElementById('email-error').innerText = resBody.message;
         }
     } catch (error) {
         console.log(error)
@@ -259,11 +287,12 @@ async function editPhone(data) {
     console.log(`Your new phone number is ${phoneData.phone}`)
     document.getElementById('phoneData').innerHTML = `
                                 <div class="col-sm-9 mb-3 col-12">
-                                    <p class="mb-0">Name</p>
+                                    <p class="mb-0">Mobile Number</p>
                                     <div class="form-outline">
-                                        <input type="text" id="phone" value="${phoneData.phone}" placeholder="Type here"
+                                        <input type="Number" id="phone" value="${phoneData.phone}" placeholder="Type here"
                                             class="form-control p-3" />
                                     </div>
+                                    <span class="text-danger" id="phone-error"></span>
                                     <button onclick="updatePhone()" class="btn btn-primary px-3 float-end border-0"><i
                                     class="fa fa-address-card mr-1"></i> save changes</button>
                                 </div>`
@@ -276,48 +305,19 @@ async function updatePhone() {
         const resBody = await response.json()
         if (resBody.success) {
             document.getElementById('message-alert').innerHTML = 'Mobile number updated successfully.'
-            openPopup()
-            document.getElementById('phoneData').innerHTML = `
-            <div class="col-sm-3">
-                            <p class="mb-0 fs-5"><strong>Mobile Number</strong></p>
-                        </div>
-                        <div class="col-sm-6">
-
-                            <p class="mb-0">
-                                ${phone}
-                            </p>
-
-                        </div>
-                        <div class="col-sm-3">
-                            <button class="border-0 bg-light" onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')"><i class="fa-regular fa-pen-to-square text-primary"></i>EDIT</button>
-                        </div> `
-            document.getElementById('message').innerHTML = `
-                        <div class="alert alert-dismissible fade show alert-success" role="alert">
-                                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-                                <strong>${resBody.message}</strong>
-                        </div>`
-            document.getElementById('customer-phone').innerHTML = phone
+            Swal.fire({
+                position: "top-center",
+                icon: "success",
+                title: "Mobile Number has been saved",
+                showConfirmButton: false,
+                timer: 1500
+            });
+            setTimeout(() => {
+                location.reload()
+            }, 1000);
         } else {
             console.log(resBody.message)
-            document.getElementById('message').innerHTML = `
-                        <div class="alert alert-dismissible fade show alert-warning" role="alert">
-                                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-                                <strong>${resBody.message}</strong>
-                        </div>`
-            document.getElementById('phoneData').innerHTML = `
-                    <div class="col-sm-3">
-                            <p class="mb-0 fs-5">Mobile</p>
-                        </div>
-                        <div class="col-sm-6">
-
-                            <p class="text-muted mb-0">
-                                <%= user.phone %>
-                            </p>
-
-                        </div>
-                        <div class="col-sm-3">
-                            <button class="border-0 bg-light" onclick="editPhone('<%= JSON.stringify({phone:user.phone}) %>')"><i class="fa-regular fa-pen-to-square text-primary"></i>EDIT</button>
-                    </div>`
+            document.getElementById('phone-error').innerText = resBody.message;
         }
     } catch (error) {
         console.log(error)
@@ -334,45 +334,30 @@ async function editNameForm(data) {
                                         <input type="text" id="name" value="${nameData.name}" placeholder="Type here"
                                             class="form-control p-3" />
                                     </div>
+                                    <span class="text-danger" id="name-error"></span>
                                     <button onclick="updateName()" class="btn btn-primary px-3 float-end"><i
                                 class="fa fa-address-card mr-1"></i> Update address</button>
                                 </div>`
-
 }
 async function updateName() {
-    const name = document.getElementById('name').value
-    console.log(`Your namve is ${name}`)
+    const name = document.getElementById('name').value.trim()
+    if (!name) return document.getElementById('name-error').innerText = 'Input field must not be blank!';
     const response = await fetch(`/changeName/${name}`, { method: 'get' })
     const resBody = await response.json()
     if (resBody.success) {
-        document.getElementById('message-alert').innerHTML = 'Name updated successfully.'
-        openPopup()
-        document.getElementById('message').innerHTML = `
-                        <div class="alert alert-dismissible fade show alert-success" role="alert">
-                                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-                                <strong>${resBody.message}</strong>
-                        </div>`
-        document.getElementById('nameData').innerHTML = `
-                        <div class="col-sm-3">
-                            <p class="mb-0 fs-5"><strong>Full Name</strong></p>
-                        </div>
-                        <div class="col-sm-6">
-                            <p class="mb-0">
-                                ${name}
-                            </p>
-                        </div>
-                        <div class="col-sm-3">
-                            <button class="border-0 bg-light"
-                                onclick="editNameForm('<%= JSON.stringify({name:user.name}) %>')"><i class="fa-regular fa-pen-to-square text-primary"></i>EDIT</button>
-                        </div>`
-        document.getElementById('customer-name').innerHTML = name
+        Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: "Name has been saved",
+            showConfirmButton: false,
+            timer: 1500
+        });
+        setTimeout(() => {
+            location.reload()
+        }, 1000);
     } else {
         console.log(resBody.message)
-        document.getElementById('message').innerHTML = `
-                        <div class="alert alert-dismissible fade show alert-warning" role="alert">
-                                <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-                                <strong>${resBody.message}</strong>
-                        </div>`
+        document.getElementById('name-error').innerText = resBody.message;
     }
 
 }
@@ -400,8 +385,8 @@ async function logOut() {
                         text: "Visit again, Thank you.",
                         icon: "success"
                     });
-                    location.href='/';
-                }else{
+                    location.href = '/';
+                } else {
                     alert(resBody.message)
                 }
             })

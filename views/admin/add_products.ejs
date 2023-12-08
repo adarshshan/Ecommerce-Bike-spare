@@ -1,53 +1,116 @@
 <%- include('head/header') %>
-<div class="container" style="margin-left: 248px;">
+  <div class="container" style="margin-left: 248px;">
     <div class="row mt-5 pt-3 ps-3">
       <div class="col-lg-6">
         <h1>Add Products</h1>
-        <% if (locals.message) { %>
-          <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
-           <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-           <strong><%= message.message %></strong>
-         </div>
-         <% } %>
-          <form action="/products" method="post" enctype="multipart/form-data">
+        <div id="error-show"></div>
+        <form action="/products" method="post" enctype="multipart/form-data" id="product-form">
+          <div>
             <label for="">Title</label>
-            <input type="text" name="name" class="form-control">
-
+            <input type="text" name="name" id="name" class="form-control">
+            <span id="name-error" class="text-danger"></span>
+          </div>
+          <div>
             <label for="">Select Brand</label>
-            <select name="brandId" id="" class="form-control">
-               <option value="">choose...</option>
-               <% for( let brand of showData.brandList ) { %>
-               <option value="<%= brand._id %>"><%= brand.name %></option>
-               <% } %>
-            </select>
-
-            <label for="">Select Categorie</label>
-            <select name="categorieId" id="" class="form-control">
-                <option value="">choose...</option>
-                <% for( let categorie of viewData.categorieList) { %>
-                <option value="<%= categorie._id %>"><%= categorie.name %></option>
+            <select name="brandId" value="" id="brandId" class="form-control">
+              <option value="">choose...</option>
+              <% for( let brand of showData.brandList ) { %>
+                <option value="<%= brand._id %>">
+                  <%= brand.name %>
+                </option>
                 <% } %>
             </select>
-
+            <span id="brand-error" class="text-danger"></span>
+          </div>
+          <div>
+            <label for="">Select Category</label>
+            <select name="categorieId" value="" id="categorieId" class="form-control">
+              <option value="">choose...</option>
+              <% for( let categorie of viewData.categorieList) { %>
+                <option value="<%= categorie._id %>">
+                  <%= categorie.name %>
+                </option>
+                <% } %>
+            </select>
+            <span id="category-error" class="text-danger"></span>
+          </div>
+          <div>
             <label for="">Price</label>
-            <input type="number" name="price" class="form-control">
-
+            <input type="number" name="price" id="price" class="form-control">
+            <span id="price-error" class="text-danger"></span>
+          </div>
+          <div>
             <label for="">Stock Quantity</label>
-            <input type="number" name="stock" class="form-control">
-
+            <input type="number" name="stock" id="stock" class="form-control">
+            <span id="stock-error" class="text-danger"></span>
+          </div>
+          <div>
             <label for="">Product Discount</label>
-            <input type="number" name="discount" class="form-control">
-
+            <input type="number" name="discount" id="discount" class="form-control">
+            <span id="discount-error" class="text-danger"></span>
+          </div>
+          <div>
             <label for="">Description</label>
-            <input type="text" name="description" class="form-control">
-
+            <input type="text" name="description" id="description" class="form-control">
+            <span id="description-error" class="text-danger"></span>
+          </div>
+          <div>
             <label for="">image</label>
-            <input type="file" name="image" class="form-control" multiple>
-
-            <button type="submit" class="btn btn-success mt-4">Add Product</button>
-          </form>
+            <input type="file" name="image" id="image" class="form-control" multiple>
+            <span id="image-error" class="text-danger"></span>
+          </div>
+          <button type="submit" class="btn btn-success mt-4">Add Product</button>
+        </form>
       </div>
     </div>
   </div>
-</div>
-<%- include('head/footer') %>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.getElementById('product-form').addEventListener('submit', async (e) => {
+      try {
+        e.preventDefault();
+        const formData = new FormData()
+        formData.append('name', document.getElementById('name').value.trim())
+        formData.append('brandId', document.getElementById('brandId').value);
+        formData.append('categorieId', document.getElementById('categorieId').value);
+        formData.append('price', document.getElementById('price').value);
+        formData.append('stock', document.getElementById('stock').value);
+        formData.append('discount', document.getElementById('discount').value);
+        formData.append('description', document.getElementById('description').value.trim());
+        const imageInput = document.getElementById('image');
+        if (imageInput.files.length > 0) {
+          for (let i = 0; i < imageInput.files.length; i++) {
+            formData.append('image', imageInput.files[i]);
+          }
+        }
+
+        const response = await fetch(`/products`, {
+          method: 'post',
+          body: formData
+        })
+        const resbody = await response.json()
+        if (resbody.success) {
+          Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: "New Product has been saved",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          setTimeout(() => {
+            location.href='/products';
+          }, 500);
+        } else {
+          document.getElementById('error-show').innerHTML = `
+          <div class="alert alert-dismissible fade show alert-warning" role="alert">
+            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+            <strong>${resbody.message}</strong>
+          </div>`
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    })
+  </script>
+  <%- include('head/footer') %>

@@ -46,45 +46,58 @@
                 </div>
             </nav>
             <div class="col-lg-7 col-md-9">
-                <% let rupee = new Intl.NumberFormat('en-IN', {
-                    style: 'currency',
-                    currency: 'INR',
-                }); %>
-                <% if (wishlist && wishlist!==null && wishlist.length) { %>
-                    <% wishlist.forEach((row,index)=> { %>
-                        <a style="text-decoration: none; color: black;" href="/productDetails/<%= row.productId._id %>">
-                            <div class="row shadow bg-light mt-4 mb-4 wallet-card">
-                                <div class="col-12 col-md-3"><img src="<%= row.productId.image[0] %>"
-                                        alt="Image will load..." style="width: 100%;"></div>
-                                <div class="col-12 col-md-9">
-                                    <i class="fa-solid fa-trash float-end mt-5 me-5 fs-4 text-danger"
-                                        onclick="removeWishlist('<%= row._id %>'); return false;"></i>
-                                    <h3 class="mt-5">
-                                        <%= row.productId.name %>
-                                    </h3>
-                                    <% if (row.productId.discount!==0) { %>
-                                        <p class="text-success">Discount: <%= row.productId.discount +' %off' %>
-                                        </p>
-                                        <p><strong>Price: <del class="text-danger"><%= rupee.format(row.productId.price) %></del>
-                                                <p class="fs-4 text-success">
-                                                    <%= rupee.format(row.productId.price-(row.productId.price*row.productId.discount/100)) %>
-                                                </p>
-                                            </strong></p>
-                                        <% }else{ %>
-                                            <p class="fw-bold">
-                                                <%= row.productId.price %>
-                                                    <% } %>
-
+                <% let rupee=new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , }); %>
+                    <% if (wishlist && wishlist!==null && wishlist.length) { %>
+                        <% wishlist.forEach((row,index)=> { %>
+                            <a style="text-decoration: none; color: black;"
+                                href="/productDetails/<%= row.productId._id %>">
+                                <div class="row shadow bg-light mt-4 mb-4 wallet-card">
+                                    <div class="col-12 col-md-3"><img src="<%= row.productId.image[0] %>"
+                                            alt="Image will load..." style="width: 100%;"></div>
+                                    <div class="col-12 col-md-9">
+                                        <i class="fa-solid fa-trash float-end mt-5 me-5 fs-4 text-danger"
+                                            onclick="removeWishlist('<%= row._id %>'); return false;"></i>
+                                        <h3 class="mt-5">
+                                            <%= row.productId.name %>
+                                        </h3>
+                                        <% if (row.productId.discount!==0) { %>
+                                            <p class="text-success">Discount: <%= row.productId.discount +' %off' %>
                                             </p>
+                                            <p><strong>Price: <del class="text-danger">
+                                                        <%= rupee.format(row.productId.price) %>
+                                                    </del>
+                                                    <p class="fs-4 text-success">
+                                                        <%= rupee.format(row.productId.price-(row.productId.price*row.productId.discount/100))
+                                                            %>
+                                                    </p>
+                                                </strong></p>
+                                            <% }else{ %>
+                                                <p class="fw-bold">
+                                                    <%= row.productId.price %>
+                                                </p>
+                                                <% } %>
+                                                    <% if (row.productId.stock==0 || row.productId.stock<0) { %>
+                                                        <p class="text-danger">Out of stock</p>
+                                                        <button disabled class="btn btn-secondary fw-bold"
+                                                                onclick="addToCart('<%= JSON.stringify({id:row.productId._id,name:row.productId.name,price:row.productId.price,image:row.productId.image[0],description:row.productId.description}) %>'); return false;">Add
+                                                                to Cart</button>
+                                                        <% }else{ %>
+                                                            <button class="btn btn-warning fw-bold"
+                                                                onclick="return addToCart('<%= JSON.stringify({id:row.productId._id,name:row.productId.name,price:row.productId.price,image:row.productId.image[0],description:row.productId.description}) %>'); return false;">Add
+                                                                to Cart</button>
+                                                        <% } %>
+                                                            
+
+
+                                    </div>
                                 </div>
-                            </div>
-                        </a>
-                        <% }) %>
-                            <% }else{ %>
-                                <div class="bg-light w-100 p-5 shadow mt-5 mb-5">
-                                    <h2 class="p-5 border shadow">Wishlist is Empty!</h2>
-                                </div>
-                                <% } %>
+                            </a>
+                            <% }) %>
+                                <% }else{ %>
+                                    <div class="bg-light w-100 p-5 shadow mt-5 mb-5">
+                                        <h2 class="p-5 border shadow">Wishlist is Empty!</h2>
+                                    </div>
+                                    <% } %>
 
             </div>
 
@@ -92,6 +105,7 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/static/user/common.js"></script>
     <script>
         async function removeWishlist(id) {
             Swal.fire({

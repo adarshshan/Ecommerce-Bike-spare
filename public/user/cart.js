@@ -11,45 +11,54 @@ function increaseProductQuantity(productId, productPrice, actualPrice) {
         return response.json();
     })
         .then((data) => {
-            let total = data.productQuantity * productPrice
-            let quantity = data.productQuantity
-            let totalAmount = data.totalAmount
-            let totalDiscount = data.totalDiscount
-            let totalProducts = data.totalProducts
-            let actualamount = data.productQuantity * actualPrice
-            localStorage.removeItem('CouponDetails')
+            if (data.success) {
+                let total = data.productQuantity * productPrice
+                let quantity = data.productQuantity
+                let totalAmount = data.totalAmount
+                let totalDiscount = data.totalDiscount
+                let totalProducts = data.totalProducts
+                let actualamount = data.productQuantity * actualPrice
+                localStorage.removeItem('CouponDetails')
 
-            const quantityInput = document.getElementById(`form${productId}`);
-            if (quantityInput) {
-                quantityInput.value = quantity;
-            }
-            const totalPriceElement = document.getElementById(`totalproductPrice${productId}`);
-            if (totalPriceElement) {
-                totalPriceElement.innerHTML = total;
-            }
-            const totalDiscountElement = document.getElementById('discountamount')
-            if (totalDiscountElement) {
-                totalDiscountElement.innerHTML = totalDiscount;
-            }
-            const ActualPriceElement = document.getElementById(`tprice${productId}`)
-            if (ActualPriceElement) {
-                ActualPriceElement.innerHTML = actualamount;
-            }
-            const totalAmountElement = document.getElementById('totalAmount')
-            if (totalAmountElement) {
-                totalAmountElement.innerHTML = totalAmount
-            }
-            const totalProductsElement = document.getElementById('totalProducts')
-            if (totalProductsElement) {
-                totalProductsElement.innerHTML = `(${totalProducts})items`
-            }
-            const taem = document.getElementById('actualamount')
-            if (taem) {
-                taem.innerHTML = totalAmount
+                const quantityInput = document.getElementById(`form${productId}`);
+                if (quantityInput) {
+                    quantityInput.value = quantity;
+                }
+                const totalPriceElement = document.getElementById(`totalproductPrice${productId}`);
+                if (totalPriceElement) {
+                    totalPriceElement.innerHTML = total;
+                }
+                const totalDiscountElement = document.getElementById('discountamount')
+                if (totalDiscountElement) {
+                    totalDiscountElement.innerHTML = totalDiscount;
+                }
+                const ActualPriceElement = document.getElementById(`tprice${productId}`)
+                if (ActualPriceElement) {
+                    ActualPriceElement.innerHTML = actualamount;
+                }
+                const totalAmountElement = document.getElementById('totalAmount')
+                if (totalAmountElement) {
+                    totalAmountElement.innerHTML = totalAmount
+                }
+                const totalProductsElement = document.getElementById('totalProducts')
+                if (totalProductsElement) {
+                    totalProductsElement.innerHTML = `(${totalProducts})items`
+                }
+                const taem = document.getElementById('actualamount')
+                if (taem) {
+                    taem.innerHTML = totalAmount
+                }
+            } else {
+                Swal.fire({
+                    title: "Sorry!",
+                    text: data.message
+                  });
+                console.log(data.message)
             }
         })
         .catch(error => {
             console.error('Error increasing product quantity:', error);
+            location.href = '/error-page';
         });
 }
 
@@ -66,41 +75,45 @@ function decreaseProductQuantity(productId, productPrice, actualPrice) {
         return response.json();
     })
         .then((data) => {
-            let total = data.productQuantity * productPrice
-            let quantity = data.productQuantity
-            let totalAmount = data.totalAmount
-            let totalDiscount = data.totalDiscount
-            let totalProducts = data.totalProducts
-            let actualamount = data.productQuantity * actualPrice
-            localStorage.removeItem('CouponDetails')
+            if (data.success) {
+                let total = data.productQuantity * productPrice
+                let quantity = data.productQuantity
+                let totalAmount = data.totalAmount
+                let totalDiscount = data.totalDiscount
+                let totalProducts = data.totalProducts
+                let actualamount = data.productQuantity * actualPrice
+                localStorage.removeItem('CouponDetails')
 
-            const quantityInput = document.getElementById(`form${productId}`);
-            if (quantityInput) {
-                quantityInput.value = quantity;
-            }
-            const ActualPriceElement = document.getElementById(`tprice${productId}`)
-            if (ActualPriceElement) {
-                ActualPriceElement.innerHTML = actualamount;
-            }
-            const totalDiscountElement = document.getElementById('discountamount')
-            if (totalDiscountElement) {
-                totalDiscountElement.innerHTML = totalDiscount;
-            }
-            const totalPriceElement = document.getElementById(`totalproductPrice${productId}`);
-            if (totalPriceElement) {
-                totalPriceElement.innerHTML = total;
-            }
-            const totalAmountElement = document.getElementById('totalAmount')
-            if (totalAmountElement) {
-                totalAmountElement.innerHTML = totalAmount
-            }
-            const totalProductsElement = document.getElementById('totalProducts')
-            if (totalProductsElement) {
-                totalProductsElement.innerHTML = `(${totalProducts})items`
-            }
-            const taem = document.getElementById('actualamount')
-            if (taem) {
-                taem.innerHTML = totalAmount
+                const quantityInput = document.getElementById(`form${productId}`);
+                if (quantityInput) {
+                    quantityInput.value = quantity;
+                }
+                const ActualPriceElement = document.getElementById(`tprice${productId}`)
+                if (ActualPriceElement) {
+                    ActualPriceElement.innerHTML = actualamount;
+                }
+                const totalDiscountElement = document.getElementById('discountamount')
+                if (totalDiscountElement) {
+                    totalDiscountElement.innerHTML = totalDiscount;
+                }
+                const totalPriceElement = document.getElementById(`totalproductPrice${productId}`);
+                if (totalPriceElement) {
+                    totalPriceElement.innerHTML = total;
+                }
+                const totalAmountElement = document.getElementById('totalAmount')
+                if (totalAmountElement) {
+                    totalAmountElement.innerHTML = totalAmount
+                }
+                const totalProductsElement = document.getElementById('totalProducts')
+                if (totalProductsElement) {
+                    totalProductsElement.innerHTML = `(${totalProducts})items`
+                }
+                const taem = document.getElementById('actualamount')
+                if (taem) {
+                    taem.innerHTML = totalAmount
+                }
+            } else {
+                console.log(data.message)
             }
         })
         .catch(error => {

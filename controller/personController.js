@@ -45,8 +45,7 @@ async function personHome(req, res) {
         } else {
             if (userId && userId !== null && userId !== undefined) {
                 const user = await User.findById(userId)
-                var wishlist = user.wishlist
-
+                if (user) var wishlist = user.wishlist
             }
             res.render('user/home_page', {
                 title: 'home_page',
@@ -132,8 +131,15 @@ async function profilePage(req, res) {
 async function changeName(req, res) {
     try {
         const name = req.params.name
-        console.log('yea Iam reached here.')
         console.log(`name is ${name}`)
+        const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        console.log(`name is ${name}`)
+        if (!name) return res.json({ success: false, message: 'Input field must not be blank!' });
+        if (specialChars.test(name)) return res.json({ success: false, message: 'Special charactors are not allowed!' })
+        if (name.length < 9) return res.json({ success: false, message: 'Name shold be atlest 8 charactors!' })
+        if (!name.match(/^[A-Za-z]*\s{1}[A-Za-z]*$/)) return res.json({ success: false, message: 'Enter Full name!' });
+
+
         const updated = await User.findByIdAndUpdate(req.session.currentUserId, { $set: { name: name } })
         if (updated) {
             console.log('Name updated.')
@@ -151,9 +157,10 @@ async function changeName(req, res) {
 
 async function changePhone(req, res) {
     try {
-        const phone = req.params.phone
-        const ph = parseInt(phone)
-        console.log('your new phone number is ' + phone)
+        const ph = req.params.phone
+        console.log('your new phone number is ' + ph)
+        if (ph[0] == 0) return res.json({ success: false, message: 'Phone number is not valid' });
+        if (ph.length !== 10) return res.json({ success: false, message: 'Mobile number should be 10 numbers' });
         const updated = await User.findByIdAndUpdate(req.session.currentUserId, { $set: { phone: ph } })
         if (updated) {
             console.log('Phone Number updated.')
@@ -173,7 +180,10 @@ async function changeEmail(req, res) {
     try {
         const email = req.params.email
         req.session.newEmail = email
+        const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         const isEmail = await User.findOne({ email: email })
+        if (!pattern.test(email)) return res.json({ success: false, message: 'Email is invalid!' })
+        if (isEmail) return res.json({ success: false, message: 'You provided Email is already been using!' })
         const userId = req.session.currentUserId
         const currentUser = await User.findById(userId)
         const id = currentUser._id
@@ -182,21 +192,15 @@ async function changeEmail(req, res) {
             email: email
 
         }
-        console.log(`there are ${isEmail} numbers`)
-        if (!isEmail) {
-            await sendOtpVerificationEmail(user, req, res).then((result) => {
-                try {
-                    console.log('otp has been sent to your Email')
-                    return res.json({ success: true, message: 'Otp has been sent to your Email address.' })
-                } catch (error) {
-                    console.log(error)
-                }
+        await sendOtpVerificationEmail(user, req, res).then((result) => {
+            try {
+                console.log('otp has been sent to your Email')
+                return res.json({ success: true, message: 'Otp has been sent to your Email address.' })
+            } catch (error) {
+                console.log(error)
+            }
 
-            })
-        } else {
-            console.log('You provided Email is already been using ...')
-            return res.json({ success: false, message: 'You provided Email is already using!' })
-        }
+        })
     } catch (error) {
         console.log(error)
         // return res.json({ success: false, message: 'Unknown Error' })
@@ -472,7 +476,7 @@ async function addToWishlist(req, res) {
         // Check if the product already exists in the user's wishlist
         const user = await User.findOneAndUpdate(
             { _id: userId, 'wishlist.productId': { $ne: productId } },
-            { $push: { wishlist: { productId: productId } } },
+            { $push: { wishlist: {$each:[{ productId: productId }],$position:0} } },
             { new: true }
         );
 
@@ -515,6 +519,7 @@ async function walletHome(req, res) {
         const id = new ObjectId(userId)
         const userwallet = await User.findById(userId, { _id: 0, wallet: 1 })
         const balance = userwallet.wallet.balance
+        console.log(`balance is ${balance}`);
         const wallet = await User.aggregate([
             { $match: { _id: id } },
             { $unwind: "$wallet.transactions" },
@@ -527,12 +532,12 @@ async function walletHome(req, res) {
             },
             { $project: { _id: 0, wallet: 1 } }
         ])
-        // console.log(`wallet is ${wallet}`)
-        // console.log(wallet);
-        // if(!wallet || wallet===undefined || wallet.length===0) return res.send('wallet is not defined')
-        // console.log(wallet[0].wallet);
-        // console.log(wallet[0]);
-        res.render('user/wallet.ejs', { title: 'wallet', wallet, balance });
+        console.log(`wallet is ${wallet}`)
+        res.render('user/wallet.ejs', {
+            title: 'wallet',
+            wallet: wallet[0]?wallet[0].wallet:[],
+            balance
+        });
     } catch (error) {
         console.log(error)
         res.redirect('/error-page');

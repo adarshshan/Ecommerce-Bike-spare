@@ -115,10 +115,15 @@ async function increaseCount(req, res) {
         const idd = req.params.id
         const id = new ObjectId(idd)
         const userId = req.session.currentUserId
-        const cartId = req.session.cartId
         const use = new ObjectId(userId)
-        if (!userId) return res.json({ success: false });
-
+        if (!userId) return res.json({ success: false, message: 'user not logined' });
+        let productdetails = await product.findById(idd);
+        console.log(`the product details are ${productdetails}`);
+        const currQuantity = await Cart.findOne({ userId: userId, 'products.productId': id }, { _id: 0, 'products.quantity': 1 })
+        if (currQuantity) {
+            let currentQuantity = currQuantity.products[0].quantity
+            if (currentQuantity === productdetails.stock || currentQuantity > productdetails.stock) return res.json({ success: false, message: 'Out of stock' });
+        }
         await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': 1 } })
         let { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: use })
         const q = await Cart.aggregate([
@@ -143,14 +148,15 @@ async function increaseCount(req, res) {
             }
         ])
         let productQuantity = q[0].quantity
-        console.log(`Quantity: ${productQuantity}`);
+        // console.log(`Quantity: ${productQuantity}`);
         if (req.session.discount) delete req.session.discount;
-        res.json({ success: true, productQuantity, totalAmount, totalProducts, totalDiscount })
+        return res.json({ success: true, productQuantity, totalAmount, totalProducts, totalDiscount })
 
 
     } catch (error) {
         console.log(`An error occured while increasing the Quantity...${error}`)
-        res.redirect('/error-page');
+        // res.redirect('/error-page');
+        return res.json({ success: false, message: 'failed to add Quantity.' })
     }
 }
 
@@ -160,10 +166,15 @@ async function decreaseCount(req, res) {
         const id = new ObjectId(idd)
         const userId = req.session.currentUserId
         const use = new ObjectId(userId)
-        if (!userId) return res.json({ success: false });
-
+        if (!userId) return res.json({ success: false, message: 'user not logined!' });
+        const currQuantity = await Cart.findOne({ userId: userId, 'products.productId': id }, { _id: 0, 'products.quantity': 1 })
+        if (currQuantity) {
+            let currentQuantity = currQuantity.products[0].quantity
+            if (currentQuantity === 1) return res.json({ success: false, message: 'Quantity must be more than 1.' });
+        }
         await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
         let { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: use })
+        // console.log(`totalAmount ${totalAmount} totalProducts ${totalProducts} totalDiscount ${totalDiscount}`);
         const q = await Cart.aggregate([
             {
                 $match: {
@@ -185,15 +196,16 @@ async function decreaseCount(req, res) {
                 }
             }
         ])
+        // console.log('quantity details is')
+        // console.log(q)
         let productQuantity = q[0].quantity
-        console.log(`Quantity: ${productQuantity}`);
+        // console.log(`Quantity: ${productQuantity}`);
         if (req.session.discount) delete req.session.discount;
         return res.json({ success: true, productQuantity, totalAmount, totalProducts, totalDiscount })
 
     } catch (error) {
         console.log('An error occured while decreasing the quantity...' + error)
-        // return res.json({ success: false })
-        res.redirect('/error-page');
+        return res.json({ success: false, message: 'failed to decrement quantity' })
     }
 }
 

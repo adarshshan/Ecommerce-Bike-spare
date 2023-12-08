@@ -12,8 +12,7 @@ async function validateEmail() {
         document.getElementById('email-error').innerHTML = 'Email with user is not exist'
         return false;
     }
-    document.getElementById('email-error').style.color = 'green'
-    document.getElementById('email-error').innerHTML = 'Email is valid'
+    document.getElementById('email-error').innerHTML = ''
     return true;
 }
 

@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema({
             default: Date.now()
         }
     }],
+    usedCoupons: [{
+        couponCode: {
+            type: String
+        }
+    }],
     wallet: {
         balance: {
             type: Number,

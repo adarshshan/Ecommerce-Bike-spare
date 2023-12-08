@@ -3,46 +3,42 @@
     <div class="row mt-5">
       <div class="col-lg-7 ms-5 mt-5 bg-light border pb-4 px-4">
         <h1>Edit Product Details</h1>
-        <% if (locals.message) { %>
-          <div class="alert alert-dismissible fade show alert-<%= message.type%>" role="alert">
-           <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-           <strong><%= message.message %></strong>
-         </div>
-         <% } %>
-          <form action="/products/update/<%= product.id %>" method="post" enctype="multipart/form-data">
+        <div id="show-error"></div>
+          <form action="/products/update/<%= product.id %>" method="post" enctype="multipart/form-data" id="edit-product">
             <label for="">Title</label>
-            <input type="text" name="name" class="form-control" value="<%= product.name %>">
+            <input type="text" name="name" id="name" class="form-control" value="<%= product.name %>">
+            <input type="text" value="<%= product._id %>" id="productId" class="d-none">
 
             <label for="">Select Brand</label>
-            <select name="brandId" id="" class="form-control">
-               <option value="<%= brand[0]._id %>"><%= brand[0].name %></option>
-               <% for( let brand of showData.brandList ) { %>
+            <select name="brandId" id="brandId" class="form-control">
+               <option value="<%= product.brandId._id %>"><%= product.brandId.name %></option>
+               <% for( let brand of brandList ) { %>
                <option value="<%= brand._id %>"><%= brand.name %></option>
                <% } %>
             </select>
 
             <label for="">Select Categorie</label>
-            <select name="categorieId" id="" class="form-control">
-                <option value="<%= category[0]._id %>"><%= category[0].name %></option>
-                <% for( let categorie of viewData.categorieList) { %>
+            <select name="categorieId" id="categorieId" class="form-control">
+                <option value="<%= product.categorieId._id %>"><%= product.categorieId.name %></option>
+                <% for( let categorie of categorieList) { %>
                 <option value="<%= categorie._id %>"><%= categorie.name %></option>
                 <% } %>
             </select>
 
             <label for="">Price</label>
-            <input type="number" name="price" class="form-control" value="<%= product.price %>">
+            <input type="number" name="price" id="price" class="form-control" value="<%= product.price %>">
 
             <label for="">Stock Quantity</label>
-            <input type="number" name="stock" class="form-control" value="<%= product.stock %>">
+            <input type="number" name="stock" id="stock" class="form-control" value="<%= product.stock %>">
 
             <label for="">Product Discount</label>
-            <input type="number" name="discount" class="form-control" value="<%= product.discount %>">
+            <input type="number" name="discount" id="discount" class="form-control" value="<%= product.discount %>">
 
             <label for="">Description</label>
-            <input type="text" name="description" class="form-control" value="<%= product.description %>">
+            <input type="text" name="description" id="description" class="form-control" value="<%= product.description %>">
 
             <label for="">image</label>
-            <input type="file" name="image" class="form-control" multiple>
+            <input type="file" name="image" id="image" class="form-control" multiple>
 
             <% for (let i = 0; i < product.image.length; i++) { %>
               <img src="http://localhost:3000/<%= product.image[i] %>" style="height: 40px;width: 60px;" alt="http://localhost:3000/<%= product.image[i] %>">
@@ -55,4 +51,52 @@
     </div>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.getElementById('edit-product').addEventListener('submit', async (e) => {
+      try {
+        e.preventDefault();
+        const formData = new FormData()
+        formData.append('name', document.getElementById('name').value.trim())
+        formData.append('brandId', document.getElementById('brandId').value);
+        formData.append('categorieId', document.getElementById('categorieId').value);
+        formData.append('price', document.getElementById('price').value);
+        formData.append('stock', document.getElementById('stock').value);
+        formData.append('discount', document.getElementById('discount').value);
+        formData.append('description', document.getElementById('description').value.trim());
+        const imageInput = document.getElementById('image');
+        if (imageInput.files.length > 0) {
+          for (let i = 0; i < imageInput.files.length; i++) {
+            formData.append('image', imageInput.files[i]);
+          }
+        }
+        const id=document.getElementById('productId').value;
+        const response = await fetch(`/products/update/${id}`, {
+          method: 'post',
+          body: formData
+        })
+        const resbody = await response.json()
+        if (resbody.success) {
+          Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: "Product has been updated",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          setTimeout(() => {
+            location.href='/products';
+          }, 500);
+        } else {
+          document.getElementById('show-error').innerHTML = `
+          <div class="alert alert-dismissible fade show alert-warning" role="alert">
+            <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+            <strong>${resbody.message}</strong>
+          </div>`
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    })
+</script>
 <%- include('head/footer') %>

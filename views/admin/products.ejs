@@ -49,10 +49,10 @@
                             <%= row.discount==0?' ':row.discount+' %off' %>
                           </td>
                           <td>
-                            <%= row.brandId.name?row.brandId.name:'Brand name' %>
+                            <%= row.brandId?row.brandId.name:'Brand name' %>
                           </td>
                           <td>
-                            <%= row.categorieId ? row.categorieId.name:'N/A' %>
+                            <%= row.categorieId ? row.categorieId.name:'Category name' %>
                           </td>
                           <td>
                             <%= row.stock %>
@@ -62,7 +62,7 @@
                           </td>
                           <td class="d-flex p-4"><a href="/products/update/<%= row._id %>"><i
                                 class="fa-solid fa-pen-to-square text-success me-1"></i></a>
-                            <a href="/products/delete/<%= row._id %>" onclick=" return confirm('Are you sure ?')"><i
+                            <a  onclick="deleteProduct('<%= row._id %>')"><i
                                 class="fa-solid fa-trash text-danger ms-5"></i></a>
                           </td>
 
@@ -79,12 +79,62 @@
       </div>
     </div>
   </div>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script>
     let table = new DataTable('#productTable');
     $(document).ready(function () {
       $('#myTable').DataTable();
     });
+    function deleteProduct(id) {
+      try {
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch(`/products/delete/${id}`, { method: 'get' }).then((response) => {
+              if (!response.ok) {
+                console.log('there is an error...')
+                throw new Error('Network response was not ok');
+              }
+              return response.json();
+            }).then((resbody) => {
+              if (resbody.success) {
+                Swal.fire({
+                  title: "Deleted!",
+                  text: "Your Product has been deleted.",
+                  icon: "success"
+                });
+                setTimeout(() => {
+                  location.href='/products'
+                }, 500);
+              } else {
+                alert('oops')
+                Swal.fire({
+                  title: "oops!",
+                  text: `${resbody.message}`,
+                  icon: "failure"
+                });
+              }
+            }).catch((err) => {
+              console.log(err)
+              alert(err)
+            })
+
+
+          }
+        });
+      } catch (error) {
+        console.log(error)
+      }
+    }
   </script>
   <%- include('head/footer') %>

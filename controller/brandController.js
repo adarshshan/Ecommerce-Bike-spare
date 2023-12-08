@@ -15,28 +15,21 @@ async function brandHome(req, res) {
 
 async function addBrand(req, res) {
     try {
-        const isBrand = await Brand.findOne({ $and: [{ name: req.body.name }, { isDeleted: false }] })
-        if (!req.body.name) {
-            return res.render('admin/add_brands', { title: 'add-brand', msg: 'Input field must not be blank!' })
-        } else if (isBrand !== null) {
-            return res.render('admin/add_brands', { title: 'add-brand', msg: 'Entered Brand is already exists.' })
-        } else if (req.body.name.length < 2 || req.body.name.length > 25) {
-            return res.render('admin/add_brands', { title: 'add-brand', msg: 'must have below 25 charactors.' })
-        }
+        const isBrand = await Brand.findOne({ $and: [{ name: req.body.name }, { isDeleted: false }] });
+        const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if(specialChars.test(req.body.name)) return res.json({success:false,message:'Special charactors are not allowed!'})
+        if (!req.body.name) return res.json({ success: false, message: 'Input field must not be blank!' });
+        if (isBrand !== null) return res.json({ success: false, message: 'Entered Brand is already exists.' });
+        if (req.body.name.length < 2 || req.body.name.length > 25) return res.json({ success: false, message: 'must have below 25 charactors.' });
         const brands = new Brand({
             name: req.body.name
         })
         brands.save()
             .then((brandCreated) => {
-                // res.status(201).json(brandCreated)
-                req.session.message = {
-                    type: 'success',
-                    message: 'Product Add successfully.'
-                }
-                res.redirect('/brands')
+                return res.json({success:true,message:'New brand added successfully'})
             })
             .catch((err) => {
-                return res.render('admin/add_brands', { title: 'add-brand', msg: 'UNKNOWN ERROR!!!' })
+                return res.json({success:false,message:'Failed to add the new brand!'})
             })
     } catch (error) {
         console.log('Error is at addBrand' + error)
@@ -59,13 +52,14 @@ async function deleteBrand(req, res) {
         brand.isDeleted = true
         brand.deleted_at = Date.now()
         brand.save().then((s) => {
-            res.redirect('/brands')
+            return res.json({success:true,message:'deleted'})
         }).catch((err) => {
             console.log(err)
-            res.send(err)
+            return res.json({success:false,message:'Failed to add new brand!'})
         })
     } catch (error) {
         console.log('Error is at deleteBrand ' + error)
+        return res.json({success:'Somthing went wrong.'})
     }
 
 }
@@ -91,8 +85,8 @@ function editBrand(req, res) {
 function updateBrand(req, res) {
     try {
         let id = req.params.id
-        Brand.find({$and:[{name: req.body.name},{isDeleted:false}]}).count().then((resu) => {
-            if (resu == 1 || resu==2) {
+        Brand.find({ $and: [{ name: req.body.name }, { isDeleted: false }] }).count().then((resu) => {
+            if (resu == 1 || resu == 2) {
                 console.log(`numbers : ${resu}`)
                 req.session.message = {
                     message: 'This name is already exist please try another one',

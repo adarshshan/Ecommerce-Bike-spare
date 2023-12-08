@@ -68,7 +68,6 @@ async function addFunds() {
         const resBody = await response.json()
         if (resBody.online) {
             razorpayPayment(resBody.wallet)
-
         } else {
             document.getElementById('Errormsg').innerText = resBody.message
             setTimeout(() => {

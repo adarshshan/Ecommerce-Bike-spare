@@ -25,45 +25,21 @@ async function adminLogin(req, res) {
                     req.session.name = admin.name
                     req.session.adminId=admin._id;
                     req.session.login = true
-                    res.redirect('/dashboard')
+                    return res.json({success:true,message:'Successfully logined.'})
+                    // res.redirect('/dashboard')
                 } else {
-                    req.session.message = {
-                        message: 'You entered the wrong password.',
-                        type: 'danger'
-                    }
-                    res.redirect('/admin/login')
+                    return res.json({success:false,message:'You Entered the wrong password.'})
                 }
-                // await bcrypt.compare(password,admin.password).then((result)=>{
-                //     req.session.name=admin.name
-                //     req.session.login=true
-                //     res.redirect('/products')
-                // }).catch((err)=>{
-                //     console.log('Incorrect password.')
-                //     console.log(err)
-                //     res.redirect('/admin/login')
-                // })
             } else {
-                req.session.message = {
-                    message: 'Admin with entered email is not exsts',
-                    type: 'warning'
-                }
-                res.redirect('/admin/login')
+                return res.json({success:false,message:'Entered username is incorrect.'})
             }
         } else {
-            req.session.message = {
-                message: 'The input field must not be blank!',
-                type: 'warning'
-            }
-            res.redirect('/admin/login')
+            return res.json({success:false,message:'The input field must not be blank!'})
         }
 
     } catch (error) {
         console.log(error)
-        req.session.message = {
-            message: '!Unknown error!',
-            type: 'danger'
-        }
-        res.redirect('/admin/login')
+        return res.json({success:false,message:'Unknown Error occured! keep try again'});
     }
 
 }

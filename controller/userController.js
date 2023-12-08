@@ -130,42 +130,49 @@ async function userSignup(req, res) {
         const refferalCode = req.query.refferalCode;
         const isuser = await User.findOne({ email: req.body.email })
         if (isuser !== null) {
+            console.log(`User with Entered Email address is already exists`)
             req.session.message = {
                 message: 'User with Entered Email address is already exists',
                 type: 'warning'
             }
             return res.redirect('/users/signup')
         } else if (name.length < 4 || name.length > 20) {
+            console.log('name must be 4-20 char')
             req.session.message = {
                 message: 'Name must be 4-20 characters',
                 type: 'warning'
             }
             return res.redirect('/users/signup')
         } else if (mobile.length !== 10) {
+            console.log('phone number must be 10 numbers')
             req.session.message = {
                 message: 'phone number must be 10 numbers',
                 type: 'warning'
             }
             return res.redirect('/users/signup')
         } else if (password.length < 8 || password.length > 20) {
+            console.log('password must be atlest 8 char...')
             req.session.message = {
                 message: 'password must be atleast 8 charectors!',
                 type: 'warning'
             }
             return res.redirect('/users/signup')
         } else if (password !== cpassword) {
+            console.log('password are not matching!')
             req.session.message = {
                 message: 'Passwords are not matching!!!',
                 type: 'danger'
             }
             return res.redirect('/users/signup')
         } else if (!pattern.test(email)) {
+            console.log('email is not valid')
             req.session.message = {
                 message: `${email} is not a valid email address.`,
                 type: 'danger'
             }
             return res.redirect('/users/signup')
         } else if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || ! /[!@#$%^&*]/.test(password)) {
+            console.log('password is too weak make another one.')
             req.session.message = {
                 message: `password is weak. please make a strong password.`,
                 type: 'warning'

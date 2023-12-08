@@ -105,43 +105,82 @@
                                             <% if (wallet.length) { %>
                                                 <% let rupee=new Intl.NumberFormat('en-IN', { style: 'currency' ,
                                                     currency: 'INR' , }); %>
-
-                                                    <% for( let i=0; i < 8; i++ ) { %>
-                                                        <li
-                                                            class="list-group-item d-flex justify-content-between align-items-center">
-                                                            <div>
-                                                                <% if (wallet[0].wallet[i].type==='credited' ) { %>
-                                                                    <i
-                                                                        class="fas fa-arrow-circle-up text-danger me-2"></i>
-                                                                    <span class="text-danger">paid - Rs. <%=
-                                                                            rupee.format(wallet[0].wallet[i].amount) %>
-                                                                    </span>
-                                                                    <% }else{ %>
+                                                    <% if (wallet.length<8) { %>
+                                                        <% for( let i=0; i < wallet.length; i++ ) { %>
+                                                            <li
+                                                                class="list-group-item d-flex justify-content-between align-items-center">
+                                                                <div>
+                                                                    <% if (wallet[i].type==='credited' ) { %>
                                                                         <i
-                                                                            class="fas fa-arrow-circle-down text-success me-2"></i>
-                                                                        <span class="text-success">received -
-                                                                            Rs. <%=
-                                                                                rupee.format(wallet[0].wallet[i].amount)
-                                                                                %></span>
+                                                                            class="fas fa-arrow-circle-up text-danger me-2"></i>
+                                                                        <span class="text-danger">paid - Rs. <%=
+                                                                                rupee.format(wallet[i].amount) %>
+                                                                        </span>
+                                                                        <% }else{ %>
+                                                                            <i
+                                                                                class="fas fa-arrow-circle-down text-success me-2"></i>
+                                                                            <span class="text-success">received -
+                                                                                Rs. <%= rupee.format(wallet[i].amount)
+                                                                                    %></span>
+                                                                            <% } %>
+
+                                                                                <p class="transaction-desc">
+                                                                                    <%= wallet[i].description %>
+                                                                                </p>
+                                                                </div>
+                                                                <span class="transaction-time">
+                                                                    <%= wallet[i].time.toLocaleDateString() %> -
+                                                                        <%= wallet[i].time.toLocaleTimeString([], {
+                                                                            hour: '2-digit' , minute: '2-digit' }); %>
+                                                                </span>
+                                                            </li>
+                                                            <% } %>
+                                                                <% }else{ %>
+                                                                    <% for( let i=0; i < 8; i++ ) { %>
+                                                                        <li
+                                                                            class="list-group-item d-flex justify-content-between align-items-center">
+                                                                            <div>
+                                                                                <% if (wallet[i].type==='credited' ) {
+                                                                                    %>
+                                                                                    <i
+                                                                                        class="fas fa-arrow-circle-up text-danger me-2"></i>
+                                                                                    <span class="text-danger">paid - Rs.
+                                                                                        <%= rupee.format(wallet[i].amount)
+                                                                                            %>
+                                                                                    </span>
+                                                                                    <% }else{ %>
+                                                                                        <i
+                                                                                            class="fas fa-arrow-circle-down text-success me-2"></i>
+                                                                                        <span
+                                                                                            class="text-success">received
+                                                                                            -
+                                                                                            Rs. <%=
+                                                                                                rupee.format(wallet[i].amount)
+                                                                                                %></span>
+                                                                                        <% } %>
+
+                                                                                            <p class="transaction-desc">
+                                                                                                <%= wallet[i].description
+                                                                                                    %>
+                                                                                            </p>
+                                                                            </div>
+                                                                            <span class="transaction-time">
+                                                                                <%= wallet[i].time.toLocaleDateString()
+                                                                                    %> -
+                                                                                    <%= wallet[i].time.toLocaleTimeString([],
+                                                                                        { hour: '2-digit' ,
+                                                                                        minute: '2-digit' }); %>
+                                                                            </span>
+                                                                        </li>
                                                                         <% } %>
-
-                                                                            <p class="transaction-desc">
-                                                                                <%= wallet[0].wallet[i].description %>
-                                                                            </p>
-                                                            </div>
-                                                            <span class="transaction-time">
-                                                                <%= wallet[0].wallet[i].time.toLocaleDateString() %> -
-                                                                    <%= wallet[0].wallet[i].time.toLocaleTimeString([],
-                                                                        { hour: '2-digit' , minute: '2-digit' }); %>
-                                                            </span>
-                                                        </li>
-                                                        <% } %>
+                                                                            <% } %>
 
 
 
-                                                            <% }else{ %>
-                                                                <h3>No transactions</h3>
-                                                                <% } %>
+
+                                                                                <% }else{ %>
+                                                                                    <h3>No transactions</h3>
+                                                                                    <% } %>
                                         </ul>
                                         <p onclick="lessPage()" style="display: none;" id="less">Less</p>
                                         <i onclick="morePage()"

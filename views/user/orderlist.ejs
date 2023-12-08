@@ -39,22 +39,23 @@
                     <h1 class="h2">Order Listing</h1>
                 </div>
                 <div class="table-responsive mb-5 mt-5">
-                    <table class="table table-bordered mb-5 shadow bg-light">
-                        <thead class="bg-dark text-white">
-                            <tr>
-                                <th>Customer Name</th>
-                                <th>Order Date</th>
-                                <th>Coupon Discount</th>
-                                <th>Discount on Products</th>
-                                <th>wallet Amount</th>
-                                <th>Total Amount</th>
-                                <th>Payment Method</th>
-                                <th>Status</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% if (data && data.length) { %>
+                    <% if (data && data.length) { %>
+                        <table class="table table-bordered mb-5 shadow bg-light">
+                            <thead class="bg-dark text-white">
+                                <tr>
+                                    <th>Customer Name</th>
+                                    <th>Order Date</th>
+                                    <th>Coupon Discount</th>
+                                    <th>Discount on Products</th>
+                                    <th>wallet Amount</th>
+                                    <th>Total Amount</th>
+                                    <th>Payment Method</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
                                 <% data.forEach((row,index)=> { %>
                                     <tr>
                                         <td>
@@ -118,31 +119,36 @@
                                     </tr>
 
                                     <% }) %>
-                                        <% }else{ %>
-                                            <H1>No data</H1>
-                                            <% } %>
 
-                        </tbody>
-                    </table>
+
+                            </tbody>
+                        </table>
+                        <% }else{ %>
+                            <H1>Order list is Empty</H1>
+                            <h5>order somthing.</h5>
+                            <% } %>
                 </div>
 
             </main>
         </div>
     </div>
-    <ul class="pagination " style="margin-left: 47%;">
-        <% for (let i=1; i <=totaPages; i++) { %>
-            <li class="page-item <%= i === currenPage ? 'active' : '' %> m-1">
-                <a class="page-link" href="/carts/orders/?page=<%= i %>">
-                    <%= i %>
-                </a>
-            </li>
-            <% } %>
-    </ul>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/static/user/orderlist.js"></script>
+    <%if(data && data.length){%>
+        <ul class="pagination " style="margin-left: 47%;">
+            <% for (let i=1; i <=totaPages; i++) { %>
+                <li class="page-item <%= i === currenPage ? 'active' : '' %> m-1">
+                    <a class="page-link" href="/carts/orders/?page=<%= i %>">
+                        <%= i %>
+                    </a>
+                </li>
+                <% } %>
+        </ul>
+        <%}%>
 
 
-    <%- include('head/footer') %>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <script src="/static/user/orderlist.js"></script>
+
+
+            <%- include('head/footer') %>

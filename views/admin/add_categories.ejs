@@ -1,23 +1,59 @@
 <%- include('head/header') %>
-<div id="page-content-wrapper">
+  <div id="page-content-wrapper">
     <div class="container" style="margin-left: 248px;">
       <div class="row mt-5">
         <div class="col-lg-12">
           <h1>Insert Categories</h1>
-          <% if (locals.msg) { %>
-            <div class="alert alert-dismissible fade show alert-danger alert-<%= msg.type%>" role="alert">
-             <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-             <strong><%= msg %></strong>
-           </div>
-  
-           <% } %>
-            <form action="/categories" method="post">
-                <label for="name">Categorie Name</label>
-                <input type="text" id="name" name="name">
-                <input type="submit" value="Insert Categorie">
-            </form>
+          <div id="category-error"></div>
+          <form action="/categories" method="post" id="category-form">
+            <label for="name">Category Name</label>
+            <input type="text" id="name" name="name">
+            <input type="submit" value="Insert Category">
+          </form>
         </div>
       </div>
     </div>
   </div>
-<%- include('head/footer') %>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    function validateCategory(){
+      try {
+        const name=document.getElementById('name').value.split(' ').join('')
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    document.getElementById('category-form').addEventListener('submit', async (e) => {
+      try {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('name',document.getElementById('name').value.trim());
+        const response = await fetch(`/categories`, {
+          method: 'post',
+          body: formData
+        })
+        const resbody = await response.json()
+        if (resbody.success) {
+          Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: "New category has been saved",
+            showConfirmButton: false,
+            timer: 1500
+          });
+          setTimeout(() => {
+            location.href='/categories';
+          }, 1000);
+        } else {
+          document.getElementById('category-error').innerHTML = `
+      <div class="alert alert-dismissible fade show alert-danger alert-danger" role="alert">
+             <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
+             <strong>${resbody.message}</strong>
+           </div>`
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    })
+  </script>
+  <%- include('head/footer') %>

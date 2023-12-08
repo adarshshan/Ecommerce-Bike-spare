@@ -16,32 +16,24 @@ async function categoryHome(req, res) {
 
 async function addCategories(req, res) {
     try {
-        // const iscategory = await Category.findOne({ name: req.body.name })
         const iscategory = await Category.findOne({ $and: [{ name: req.body.name }, { isDeleted: false }] })
-        if (!req.body.name) {
-            return res.render('admin/add_categories', { title: 'aaai', msg: 'The input field must not be blank!' })
-        } else if (iscategory !== null) {
-            return res.render('admin/add_categories', { title: 'aaai', msg: 'Entered Category name is already exists' })
-        } else if (req.body.name.length < 2 || req.body.name.length > 25) {
-            return res.render('admin/add_categories', { title: 'aaai', msg: 'category name must be below 25 charactors!' })
-        }
+        const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+        if (!req.body.name) return res.json({ success: false, message: 'The input field must not be blank!' });
+        if(req.body.name.length<4) return res.json({success:false,message:'name should be atlest 4 charactors'});
+        if(specialChars.test(req.body.name)) return res.json({success:false,message:'Special charactors are not accepted!'});
+        if (iscategory !== null) return res.json({ success: false, message: 'Entered Category name is already exists!' });
+        if (req.body.name.length < 2 || req.body.name.length > 25) return res.json({ success: false, message: 'category name must be below 25 charactors!' });
         const categorie = new Category({
             name: req.body.name
         })
         categorie.save()
-            .then((categorieCreated) => {
-                // res.status(201).json(categorieCreated)
-                req.session.message = {
-                    type: 'success',
-                    message: 'Product Add successfully.'
-                }
-                res.redirect('/categories')
+            .then(() => {
+                console.log(`category added successfully`);
+                return res.json({ success: true, message: 'Category added successfully!' });
             })
             .catch((err) => {
-                res.status(500).json({
-                    error: err,
-                    success: false
-                })
+                console.log(err)
+                return res.json({ success: false, message: 'Failed to added category!' });
             })
     } catch (error) {
         console.log('error at addcategory' + error)
@@ -64,10 +56,10 @@ async function deleteCategory(req, res) {
         category.isDeleted = true
         category.deleted_at = Date.now();
         category.save().then((result) => {
-            res.redirect('/categories')
+            return res.json({success:true,message:'category deleted.'})
         }).catch((err) => {
-            res.send(err)
             console.log(err)
+            return res.json({success:false,message:'Failed to deleted.'})
         })
     } catch (error) {
         console.log('Error is at deleteCategory ' + error)

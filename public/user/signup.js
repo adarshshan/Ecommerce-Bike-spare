@@ -4,41 +4,47 @@ const phoneError = document.getElementById('phone-error')
 let passwordError = document.getElementById('password-error')
 const cpasswordError = document.getElementById('cpassword-error')
 const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-function validateCpassword(){
+function validateCpassword() {
   try {
     let password = document.getElementById('password').value
-    let cpassword=document.getElementById('cpassword').value
-    if(cpassword.length==0){
-      cpasswordError.style.color='red'
-      cpasswordError.innerHTML='This field is required!'
+    let cpassword = document.getElementById('cpassword').value
+    if (cpassword.length == 0) {
+      cpasswordError.style.color = 'red'
+      cpasswordError.innerHTML = 'This field is required!'
       return false;
-    }else if(cpassword !==password){
-      cpasswordError.style.color='red'
-      cpasswordError.innerHTML='passwords must be same'
+    }
+    if (cpassword !== password) {
+      cpasswordError.style.color = 'red'
+      cpasswordError.innerHTML = 'passwords must be same'
       return false
     }
-    cpasswordError.style.color='green'
-    cpasswordError.innerHTML='valid'
+    cpasswordError.innerHTML = ''
     return true
-    
+
   } catch (error) {
     console.log(error)
     console.log('Error is at ValidateCpassword')
   }
 }
 function validatePassword() {
-  let password = document.getElementById('password').value
+  let password = document.getElementById('password').value.trim();
   if (password.length == 0) {
     document.getElementById('password-error').style.color = 'red'
-    passwordError.innerHTML = 'password field must not be blank!'
+    passwordError.innerHTML = 'This field is required! (white space not allowed)'
     return false
-  } else if (password.length < 8 || password.length > 20) {
+  }
+  if (password.length < 8 || password.length > 20) {
     document.getElementById('password-error').style.color = 'red'
     passwordError.innerHTML = 'password must be atlest 8 charachers'
     return false
   }
-  document.getElementById('password-error').style.color = 'green'
-  passwordError.innerHTML = 'valid'
+  if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || ! /[!@#$%^&*]/.test(password)) {
+    document.getElementById('password-error').style.color = 'red'
+    passwordError.innerHTML = 'password is weak. please make a strong password.'
+    return false
+  }
+  passwordError.innerHTML = ''
+  return true;
 
 }
 async function validatePhone() {
@@ -49,15 +55,19 @@ async function validatePhone() {
       document.getElementById('phone-error').style.color = 'red';
       phoneError.innerHTML = 'Phone Number is required !';
       return false;
-    } else if (phone.length !== 10) {
+    }
+    if (phone[0] == 0) {
+      document.getElementById('phone-error').style.color = 'red'
+      phoneError.innerHTML = 'not a valid phone number'
+      return false;
+    }
+    if (phone.length !== 10) {
       document.getElementById('phone-error').style.color = 'red';
       phoneError.innerHTML = 'phone number must be 10 numbers !';
-    } else {
-      document.getElementById('phone-error').style.color = 'green';
-      phoneError.innerHTML = 'valid <i class="fa-solid fa-check"></i>';
+      return false;
     }
-
-
+    phoneError.innerHTML = '';
+    return true;
   } catch (error) {
     console.log(error)
     console.log('Error is at validatePhone')
@@ -65,24 +75,25 @@ async function validatePhone() {
 }
 async function validateEmail() {
   try {
-    var email = document.getElementById('email').value
+    var email = document.getElementById('email').value;
     const response = await fetch(`/users/validateEmail/${email}`, { method: 'get' })
     const resBody = await response.json()
-    if (email.length==0) {
+    if (email.length == 0) {
       document.getElementById('email-error').style.color = 'red';
-      emailError.innerHTML = 'Email is required'
+      emailError.innerHTML = 'Email is required!'
       return false
-    } else if (!pattern.test(email)) {
+    }
+    if (!pattern.test(email)) {
       document.getElementById('email-error').style.color = 'red';
       emailError.innerHTML = 'Email is invalid'
       return false
-    } else if (resBody && resBody !== null) {
+    }
+    if (resBody && resBody.success) {
       document.getElementById('email-error').style.color = 'red';
       emailError.innerHTML = resBody.message
       return false
     }
-    document.getElementById('email-error').style.color = 'red';
-    emailError.innerHTML = resBody.message
+    emailError.innerHTML = ''
     return true
   } catch (error) {
     console.log(error)
@@ -90,7 +101,7 @@ async function validateEmail() {
   }
 }
 function validateName() {
-  var name = document.getElementById('name').value;
+  var name = document.getElementById('name').value.trim();
   if (name.length == 0) {
     document.getElementById('name-error').style.color = 'red';
     nameError.innerHTML = 'Name is required ! ';
@@ -103,11 +114,10 @@ function validateName() {
   }
   if (name.length < 9) {
     document.getElementById('name-error').style.color = 'red';
-    nameError.innerHTML = 'Name must be at least 8 characters';
+    nameError.innerHTML = 'Name must be atleast 8 characters';
     return false;
   }
-  document.getElementById('name-error').style.color = 'green';
-  nameError.innerHTML = 'valid <i class="fa-solid fa-check"></i>';
+  nameError.innerHTML = '';
 
   return true;
 
@@ -115,14 +125,14 @@ function validateName() {
 
 function validateForm() {
   // Get the form elements by their IDs
-  var name = document.getElementById("name").value;
+  var name = document.getElementById("name").value.trim();
   var email = document.getElementById("email").value;
   var phone = document.getElementById("phone").value;
   var password = document.getElementById("password").value;
   var cpassword = document.getElementById("cpassword").value;
 
   // Basic validation (you can add more specific checks)
-  if (name === "" || email === "" || phone === "" || password === "" || cpassword === "") {
+  if (!name || !email || !phone || !password || !cpassword) {
     document.getElementById('submessage').innerHTML = `
                   <div class="alert alert-dismissible fade show alert-danger" role="alert">
                     <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>

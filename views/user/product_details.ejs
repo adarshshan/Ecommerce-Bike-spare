@@ -64,9 +64,15 @@
                 </div>
                 <div class="col-md-6">
                     <% let rupee=new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , }); %>
+                    <div class="d-flex justify-content-between">
                         <h1>
                             <%= products.name %>
                         </h1>
+                        <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                                            onclick="addToWishlist('<%= products._id %>'); return false;"
+                                            id="heart<%= products._id %>"></i>
+                    </div>
+                        
                         <p>
                             <%= products.description %>
                         </p>
@@ -85,24 +91,34 @@
                                         <%= products.price %>
                                     </strong></p>
                                 <% } %>
-
-                                    <p><strong>Availability: In Stock </strong>
-                                        <%= products.stock %><b> Nos</b>
-                                    </p>
+                                    <% if (products.stock==0) { %>
+                                        <p><strong>Availability: </strong><b class="text-danger">Out of Stock!</b></p>
+                                    <% }else{ %>
+                                        <p><strong>Availability: In Stock </strong>
+                                            <%= products.stock %><b> Nos</b>
+                                        </p>
+                                        <% } %>
+                                    
                                     <p><strong>Brand:<%= brandName %></strong></p>
                                     <p><strong>Category: <%= categoryName %> </strong></p>
 
                                     <div class="d-flex mt-5 mb-4 ms-3">
-                                        <% if (products.cart) { %>
-                                            <a href="/carts" class="btn btn-warning p-3 fw-bold">Go to carts</a>
+                                        <% if (products.stock==0) { %>
+                                            <button disabled class="btn btn-secondary p-3 fw-bold"
+                                                    onclick="addToCart('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description}) %>'); return false;">Add
+                                                    to Cart</button>
+                                                    <button disabled class="btn btn-secondary p-3 fw-bold ms-3"
+                                                        onclick="buyNow('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description,discount:products.discount}) %>'); return false;">Buy
+                                                        Now</button>
                                             <% }else{ %>
                                                 <button class="btn btn-warning p-3 fw-bold"
                                                     onclick="addToCart('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description}) %>'); return false;">Add
                                                     to Cart</button>
-                                                <% } %>
                                                     <button class="btn btn-success p-3 fw-bold ms-3"
                                                         onclick="buyNow('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description,discount:products.discount}) %>'); return false;">Buy
                                                         Now</button>
+                                                <% } %>
+                                                    
                                     </div>
                 </div>
             </div>

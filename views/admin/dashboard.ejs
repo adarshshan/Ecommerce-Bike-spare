@@ -89,10 +89,14 @@
                                         <div class="d-flex row">
                                             <h6 class="mb-1">Sales Report</h6>
                                             <div class="d-flex flex-row-reverse">
-                                                <p onclick="Graph('year')" class="me-3" id="year" style="cursor: pointer;">Year</p>
-                                                <p onclick="Graph('month')" class="me-3" id="month" style="cursor: pointer;">Month</p>
-                                                <p onclick="Graph('week')" class="me-3" id="week" style="cursor: pointer;">week</p>
-                                                <p onclick="Graph('day')" class="me-3" id="day" style="cursor: pointer;">Day</p>
+                                                <p onclick="Graph('year')" class="me-3" id="year"
+                                                    style="cursor: pointer;">Year</p>
+                                                <p onclick="Graph('month')" class="me-3" id="month"
+                                                    style="cursor: pointer;">Month</p>
+                                                <p onclick="Graph('week')" class="me-3" id="week"
+                                                    style="cursor: pointer;">week</p>
+                                                <p onclick="Graph('day')" class="me-3" id="day"
+                                                    style="cursor: pointer;">Day</p>
                                             </div>
                                         </div>
 
@@ -140,10 +144,13 @@
                                                         <td>
                                                             <%= allOrders[i].address.addressName %>
                                                         </td>
-                                                        <td>
-                                                            <%= allOrders[i].totalAmount+allOrders[i].walletAmount %>
-                                                        </td>
-                                                        <td>Paid</td>
+                                                        <% let rupee=new Intl.NumberFormat('en-IN', { style: 'currency'
+                                                            , currency: 'INR' , }); %>
+                                                            <td>
+                                                                <%= rupee.format(allOrders[i].totalAmount+allOrders[i].walletAmount)
+                                                                    %>
+                                                            </td>
+                                                            <td>Paid</td>
                                                     </tr>
                                                     <% } %>
 

@@ -130,13 +130,16 @@ async function orderPost(req, res) {
                     if (orderOk) {
                         console.log('order success pushed successfully into the existing order model..')
 
-                        //Stock Deduction
-                        await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });
+
+
 
                         const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
                         console.log(`orderElement is ${orderElem}`);
                         if (value === 'COD') {
                             await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
+                            await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });//Stock Deduction
+                            if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
+                            delete req.session.discount;//To delete the coupon discount details.
                             return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
                         } else {
                             if (totalAmount === 0 && value === 'online payment + wallet') {
@@ -144,13 +147,17 @@ async function orderPost(req, res) {
                                 console.log('order placed using wallet balance')
                                 helpers.changePaymentStatus(invoiceNumber)
                                 helpers.decreaseWalletBalance(user, wallet);
+                                await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });//Stock Deduction
+                                if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
+                                delete req.session.discount;//To delete the coupon discount details.
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
                             if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
-                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id,res).then((result) => {
-
+                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id, res).then((result) => {
+                                Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } }).then(() => console.log('Stock deducted'))
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
-
+                                if (couponCode) User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true }).then(() => console.log(''));//add used coupon in user collection.
+                                delete req.session.discount;//To delete the coupon discount details.
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
                             }).catch((err) => {
                                 console.log(`error is ${err}`);
@@ -239,18 +246,20 @@ async function orderPost(req, res) {
                     if (orderOk) {
                         console.log('order success pushed successfully into the existing order model..')
 
-                        //Stock Deduction
-                        for (let i = 0; i < products.products.length; i++) {
-                            let proid = products.products[i].productId
-                            let qty = products.products[i].quantity
-                            await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
-                        }
+
                         const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
                         console.log(`orderElement is ${orderElem}`);
                         if (value === 'COD') {
                             await Cart.findOneAndDelete({ userId: user })//to Delete the order completed cart
                             await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
+                            if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
                             delete req.session.discount;//To delete the coupon discount details.
+                            //Stock Deduction
+                            for (let i = 0; i < products.products.length; i++) {
+                                let proid = products.products[i].productId
+                                let qty = products.products[i].quantity
+                                await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
+                            }
                             return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
                         } else {
                             if (totalAmount === 0 && value === 'online payment + wallet') {
@@ -259,14 +268,28 @@ async function orderPost(req, res) {
                                 console.log('order placed using wallet balance')
                                 helpers.changePaymentStatus(invoiceNumber)
                                 helpers.decreaseWalletBalance(user, wallet);
+                                if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
                                 delete req.session.discount;//To delete the coupon discount details.
+                                //Stock Deduction
+                                for (let i = 0; i < products.products.length; i++) {
+                                    let proid = products.products[i].productId
+                                    let qty = products.products[i].quantity
+                                    await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
+                                }
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
                             if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
-                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id,res).then((result) => {
+                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id, res).then((result) => {
                                 Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
+                                if (couponCode) User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true }).then(() => console.log(''));//add used coupon in user collection.
                                 delete req.session.discount;//To delete the coupon discount details.
+                                //Stock Deduction
+                                for (let i = 0; i < products.products.length; i++) {
+                                    let proid = products.products[i].productId
+                                    let qty = products.products[i].quantity
+                                    Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } }).then(() => console.log(''))
+                                }
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
                             }).catch((err) => {
                                 console.log(`error is ${err}`);
@@ -350,13 +373,13 @@ async function orderPost(req, res) {
                     if (orderOk) {
                         console.log('order success pushed successfully into the existing order model..')
 
-                        //Stock Deduction
-                        await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });
-
                         const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
                         console.log(`orderElement is ${orderElem}`);
                         if (value === 'COD') {
                             await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
+                            await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });//Stock Deduction
+                            delete req.session.discount;//To delete the coupon discount details.
+                            if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
                             return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
                         } else {
                             if (totalAmount === 0 && value === 'online payment + wallet') {
@@ -364,13 +387,18 @@ async function orderPost(req, res) {
                                 console.log('order placed using wallet balance')
                                 helpers.changePaymentStatus(invoiceNumber)
                                 helpers.decreaseWalletBalance(user, wallet);
+                                await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });//Stock Deduction
+                                delete req.session.discount;//To delete the coupon discount details.
+                                if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
                             if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
-                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id,res).then((result) => {
+                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id, res).then((result) => {
 
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
-
+                                Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } }).then(() => { console.log('') })//Stock Deduction
+                                delete req.session.discount;//To delete the coupon discount details.
+                                if (couponCode) User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true }).then(() => console.log(''));//add used coupon in user collection.
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
                             }).catch((err) => {
                                 console.log(`error is ${err}`);
@@ -439,22 +467,33 @@ async function orderPost(req, res) {
                     if (orderOk) {
                         console.log('Order placed successfully')
 
-                        //Stock Deduction
-                        for (let i = 0; i < products.products.length; i++) {
-                            let proid = products.products[i].productId
-                            let qty = products.products[i].quantity
-                            await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
-                        }
+
 
                         const orderElem = await Order.findOne({ userId: user }, { orders: { $elemMatch: { invoice: invoiceNumber } } })
                         if (value === 'COD') {
                             await Cart.findOneAndDelete({ userId: user })//to Delete the order completed cart
                             await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
+                            //Stock Deduction
+                            for (let i = 0; i < products.products.length; i++) {
+                                let proid = products.products[i].productId
+                                let qty = products.products[i].quantity
+                                await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
+                            }
+                            delete req.session.discount;//To delete the coupon discount details.
+                            if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
                             return res.json({ success: true, message: 'success part', invoiceData: invoiceData })
                         } else {
-                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id,res).then((result) => {
+                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id, res).then((result) => {
                                 Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
+                                //Stock Deduction
+                                for (let i = 0; i < products.products.length; i++) {
+                                    let proid = products.products[i].productId
+                                    let qty = products.products[i].quantity
+                                    Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } }).then(() => console.log(''))
+                                }
+                                delete req.session.discount;//To delete the coupon discount details.
+                                if (couponCode) User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true }).then(() => console.log(''));//add used coupon in user collection.
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
                             }).catch((err) => {
                                 console.log(`error is ${err}`);
@@ -502,8 +541,14 @@ async function orderHomePage(req, res) {
                 totaPages: Math.ceil(data.orders.length / productsPerPage)
             });
         } else {
-            res.send('NO orders')
             console.log('data not found...')
+            return res.render('user/orderlist.ejs', {
+                title: 'orderList',
+                data: [],
+                currenPage: 0,
+                totalpages: 0
+            })
+
         }
 
     } catch (error) {
@@ -675,8 +720,8 @@ async function buyNow(req, res) {
 function reviewPage(req, res) {
     try {
         const productId = req.params.productid;
-        const username=req.params.name;
-        res.render('user/review.ejs', { title: 'Product-Review', productId,username });
+        const username = req.params.name;
+        res.render('user/review.ejs', { title: 'Product-Review', productId, username });
     } catch (error) {
         console.log(error)
     }
@@ -684,7 +729,7 @@ function reviewPage(req, res) {
 
 async function postReview(req, res) {
     try {
-        const { title, description, score, productId,username} = req.body;
+        const { title, description, score, productId, username } = req.body;
         console.log(title, description, score, productId)
         const updateReview = await Product.findByIdAndUpdate(productId, {
             $push: {
@@ -693,7 +738,7 @@ async function postReview(req, res) {
                         title: title,
                         description: description,
                         score: score,
-                        reviewer:username
+                        reviewer: username
                     }],
                     $position: 0
                 }
@@ -715,14 +760,14 @@ async function adminOrderList(req, res) {
         const allOrders = orderList.reduce((accumulator, currentOrder) => {
             return accumulator.concat(currentOrder.orders);
         }, []);
-        const newone=allOrders.sort((a, b) => {
+        const newone = allOrders.sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
-            return dateB-dateA;
+            return dateB - dateA;
         });
         console.log(`allorders are`)
         console.log(newone);
-        res.render('admin/orders.ejs', {title: 'orders', order: newone})
+        res.render('admin/orders.ejs', { title: 'orders', order: newone })
     } catch (error) {
         console.log(error)
     }

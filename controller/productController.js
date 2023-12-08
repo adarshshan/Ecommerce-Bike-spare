@@ -41,65 +41,39 @@ async function productHome(req, res) {
 
 function addProduct(req, res) {
     try {
-        let data = req.body
         const name = req.body.name
-        if (!req.body.name || !req.body.brandId || !req.body.categorieId || !req.body.price || !req.body.stock || !req.body.description) {
-            req.session.message = {
-                message: 'Input fields must not be blank!',
-                type: 'danger'
-            }
-            return res.redirect('/products/add')
-        } else if (name.length < 2 || name.length > 40) {
-            req.session.message = {
-                message: 'The title name must be within 2-30 charachers',
-                type: 'warning'
-            }
-            return res.redirect('/products/add')
-        } else if (req.body.description.length < 10) {
-            req.session.message = {
-                message: 'The discription is too short.',
-                type: 'warning'
-            }
-            return res.redirect('/products/add')
-        } else if (!req.files.length) {
-            req.session.message = {
-                message: 'please add atleast one image!',
-                type: 'warning'
-            }
-            return res.redirect('/products/add')
-        }
-        if (data !== null) {
-            let arrayimage = []
-            for (let i = 0; i < req.files.length; i++) {
-                arrayimage[i] = req.files[i].filename
-            }
+        const specialChars = /[`!@#$%^&*_+\=\[\]{};':"\\|,<>\/?~]/;
+        if (!req.body.name || !req.body.brandId || !req.body.categorieId || !req.body.price || !req.body.stock || !req.body.description) return res.json({ success: false, message: 'Input fields must not be blank!' });
+        if (specialChars.test(name)) return res.json({ success: false, message: 'Special charactors are not allowed for product name!' })
+        if (name.length < 2 || name.length > 40) return res.json({ success: false, message: 'The title name must be within 2-30 charactors!' });
+        if (req.body.description.length < 10) return res.json({ success: false, message: 'The discription is too short.' });
+        if (!req.files.length) return res.json({ success: false, message: 'please add atleast one image!' });
+        if (req.body.price < 1) return res.json({ success: false, message: 'Price must not be less than 1 rupee.' });
+        if (req.body.stock < 0) return res.json({ success: false, message: 'Stock must not be less than zero!' });
+        if (req.body.discount < 0 || req.body.discount > 100) return res.json({ success: false, message: 'Discount must be within 0 - 100%' })
 
-            const product = new Product({
-                name: req.body.name,
-                brandId: req.body.brandId,
-                categorieId: req.body.categorieId,
-                price: req.body.price,
-                stock: req.body.stock,
-                discount: req.body.discount,
-                description: req.body.description,
-                image: arrayimage
+        let arrayimage = []
+        for (let i = 0; i < req.files.length; i++) {
+            arrayimage[i] = req.files[i].filename
+        }
+
+        const product = new Product({
+            name: req.body.name,
+            brandId: req.body.brandId,
+            categorieId: req.body.categorieId,
+            price: req.body.price,
+            stock: req.body.stock,
+            discount: req.body.discount,
+            description: req.body.description,
+            image: arrayimage
+        })
+        product.save().then((createdProduct => {
+            res.json({ success: true, message: 'successfully add the product.' })
+        }))
+            .catch((err) => {
+                console.log('the problem is here')
+                return res.json({ success: false, message: 'Failed to add the product.' })
             })
-            product.save().then((createdProduct => {
-                // res.status(201).json(createdProduct)
-
-                req.session.message = {
-                    type: 'success',
-                    message: 'Product Add successfully.'
-                }
-                res.redirect('/products')
-            }))
-                .catch((err) => {
-                    console.log('the problem is here')
-                    res.status(500).json(console.log(err))
-                })
-        } else {
-            res.redirect('/products/add')
-        }
     } catch (error) {
         console.log('Error is at addProduct ' + error)
     }
@@ -133,10 +107,10 @@ async function deleteProduct(req, res) {
         product.isDeleted = true;
         product.deleted_at = Date.now()
         product.save().then((result) => {
-            res.redirect('/products')
+            return res.json({success:true,message:'Product deleted.'})
         }).catch((err) => {
             console.log(err)
-            res.send(err)
+            return res.json({success:false,message:'Failed to deleted.'})
         })
     } catch (error) {
         console.log('Error is at deleteProduct' + error)
@@ -147,34 +121,15 @@ async function deleteProduct(req, res) {
 async function updateProductpage(req, res) {
     try {
         let id = req.params.id
-        let categorieList = await Category.find();
-        const viewData = {
-            edit: false,
-            categorieList
-
-        }
-        let brandList = await Brand.find()
-        const showData = {
-            edit: false,
-            brandList
-        }
-        const product = await Product.findById(id).populate({
-            path: 'categorieId',
-            select: 'name',
-            select: '_id'
-        }).populate({
-            path: 'brandId',
-            select: 'name',
-            select: '_id'
+        let categorieList = await Category.find({ isDeleted: false });
+        let brandList = await Brand.find({ isDeleted: false })
+        const product = await Product.findById(id).populate('categorieId').populate('brandId');
+        res.render('admin/edit_product', {
+            product,
+            categorieList,
+            brandList,
+            title: 'edit_product'
         })
-        const bid = await Product.findById({ _id: id }, { _id: 0, brandId: 1 })
-        const cid = await Product.findById({ _id: id }, { _id: 0, categorieId: 1 })
-
-        const bname = await Brand.find({ _id: bid.brandId }, { _id: 1, name: 1 });
-        const cname = await Category.find({ _id: cid.categorieId }, { _id: 1, name: 1 });
-
-        console.log(`brandNmae:${bname} ,categoryNmae:${cname}`)
-        res.render('admin/edit_product', { product, viewData, showData, title: 'edit_product', brand: bname, category: cname })
     } catch (error) {
         console.log('Error is at updateProductPage ' + error)
     }
@@ -184,65 +139,50 @@ async function updateProductpage(req, res) {
 
 async function updateProduct(req, res) {
     try {
+        console.log(`its here boy`);
         let id = req.params.id;
         let name = req.body.name
-        if (!req.body.name || !req.body.brandId || !req.body.categorieId || !req.body.price || !req.body.stock || !req.body.description) {
-            req.session.message = {
-                message: 'Input fields must not be blank!',
-                type: 'danger'
-            }
-            return res.redirect(`/products/update/${id}`)
-        } else if (name.length < 2 || name.length > 30) {
-            req.session.message = {
-                message: 'The title name must be within 2-30 charachers',
-                type: 'warning'
-            }
-            return res.redirect(`/products/update/${id}`)
-        } else if (req.body.description.length < 10) {
-            req.session.message = {
-                message: 'The discription is too short.',
-                type: 'warning'
-            }
-            return res.redirect(`/products/update/${id}`)
-        } else {
-            let arrayimage = []
+        console.log(req.body)
+        console.log(req.files)
+        const specialChars = /[`!@#$%^&*_+\=\[\]{};':"\\|,<>\/?~]/;
+        if (!req.body.name || !req.body.brandId || !req.body.categorieId || !req.body.price || !req.body.stock || !req.body.description) return res.json({ success: false, message: 'Input fields must not be blank!' });
+        if (specialChars.test(name)) return res.json({ success: false, message: 'Special charactors are not allowed for product name!' })
+        if (name.length < 2 || name.length > 40) return res.json({ success: false, message: 'The title name must be within 2-30 charactors!' });
+        if (req.body.description.length < 10) return res.json({ success: false, message: 'The discription is too short.' });
+        if (req.body.price < 1) return res.json({ success: false, message: 'Price must not be less than 1 rupee.' });
+        if (req.body.stock < 0) return res.json({ success: false, message: 'Stock must not be less than zero!' });
+        if (req.body.discount < 0 || req.body.discount > 100) return res.json({ success: false, message: 'Discount must be within 0 - 100%' })
+
+        const product = await Product.findById(id)
+        var compimgpath = [...product.image]
+        let arrayimage = []
+        if (req.files.length) {
             for (let i = 0; i < req.files.length; i++) {
                 arrayimage[i] = req.files[i].filename
             }
-            const product = await Product.findById(id)
-            let files = req.files
-            // if(files){
-            //     files.map(file=>{
-            //         arrayimage.push(file.path)
-            //     })
-            // }
-            console.log(arrayimage)
-            const compimgpath = [...product.image, ...arrayimage]
-            Product.findByIdAndUpdate(id, {
-                name: req.body.name,
-                brandId: req.body.brandId,
-                categorieId: req.body.categorieId,
-                price: req.body.price,
-                stock: req.body.stock,
-                discount: req.body.discount,
-                description: req.body.description,
-                image: compimgpath
-            }).then(() => {
-                req.session.message = {
-                    message: 'Product updated successfully',
-                    type: 'success'
-                }
-                res.redirect('/products')
-            }).catch((err) => {
-                console.log('The errror iss' + err)
-            })
-
+            var compimgpath = [...product.image, ...arrayimage]
         }
+        console.log(arrayimage);
+
+
+        Product.findByIdAndUpdate(id, {
+            name: req.body.name,
+            brandId: req.body.brandId,
+            categorieId: req.body.categorieId,
+            price: req.body.price,
+            stock: req.body.stock,
+            discount: req.body.discount,
+            description: req.body.description,
+            image: compimgpath
+        }).then(() => {
+            return res.json({ success: true, message: 'Product updated successfully...' })
+        }).catch((err) => {
+            return res.json({ success: false, message: 'Failed to update the Product' });
+        })
+
     } catch (error) {
         console.log('Error is at updateProduct ' + error)
     }
-
-
 }
 async function deleteImage(req, res) {
     try {

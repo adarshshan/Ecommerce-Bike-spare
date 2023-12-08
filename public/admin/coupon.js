@@ -87,6 +87,7 @@ function validateCoupon() {
             flag = 1;
         }
         if (minPurchase > maxPurchase) {
+            alert('alert')
             maxPurchaseError.innerText = 'Maximum Purchase must be greater than minimum purchase.';
             flag = 1;
         }
@@ -120,7 +121,8 @@ function validateCoupon() {
 }
 async function addCoupon() {
     try {
-        const validate = validateCoupon();
+        let validate=false;
+        validate = validateCoupon();
         if (!validate) return 0;
         const minDiscount = document.getElementById('minDiscount').value
         const minPurchase = document.getElementById('minPurchase').value
