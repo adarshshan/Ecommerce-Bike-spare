@@ -392,6 +392,7 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
         req.session.emailAddress = email
         req.session.uesrid = _id
         const hashedOtp = await bcrypt.hash(otp, saltrounds);
+        await userOtpVerification.deleteMany({ userId: _id });
         const newOtpVerification = await new userOtpVerification({
             userId: _id,
             otp: hashedOtp,

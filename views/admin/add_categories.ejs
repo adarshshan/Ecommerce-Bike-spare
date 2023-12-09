@@ -15,45 +15,5 @@
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    function validateCategory(){
-      try {
-        const name=document.getElementById('name').value.split(' ').join('')
-      } catch (err) {
-        console.log(err)
-      }
-    }
-    document.getElementById('category-form').addEventListener('submit', async (e) => {
-      try {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('name',document.getElementById('name').value.trim());
-        const response = await fetch(`/categories`, {
-          method: 'post',
-          body: formData
-        })
-        const resbody = await response.json()
-        if (resbody.success) {
-          Swal.fire({
-            position: "top-center",
-            icon: "success",
-            title: "New category has been saved",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          setTimeout(() => {
-            location.href='/categories';
-          }, 1000);
-        } else {
-          document.getElementById('category-error').innerHTML = `
-      <div class="alert alert-dismissible fade show alert-danger alert-danger" role="alert">
-             <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
-             <strong>${resbody.message}</strong>
-           </div>`
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    })
-  </script>
+  <script src="/static/admin/addcategories.js"></script>
   <%- include('head/footer') %>

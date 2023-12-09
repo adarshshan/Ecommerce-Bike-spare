@@ -56,57 +56,6 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
         integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script>
-        let table = new DataTable('#brandTable');
-        function deleteBrand(id) {
-            try {
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to revert this!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes, delete it!"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch(`/brands/delete/${id}`, { method: 'delete' }).then((response) => {
-                            if (!response.ok) {
-                                console.log('there is an error...')
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        }).then((resbody) => {
-                            if (resbody.success) {
-
-                                Swal.fire({
-                                    title: "Deleted!",
-                                    text: "Your brand has been deleted.",
-                                    icon: "success"
-                                });
-                                setTimeout(() => {
-                                    location.reload()
-                                }, 1000);
-                            } else {
-                                alert('oops')
-                                Swal.fire({
-                                    title: "oops!",
-                                    text: `${resbody.message}`,
-                                    icon: "failure"
-                                });
-                            }
-                        }).catch((err) => {
-                            console.log(err)
-                            alert(err)
-                        })
-
-
-                    }
-                });
-
-            } catch (error) {
-                console.log(error)
-            }
-        }
-    </script>
+    <script src="/static/admin/addbrands.js"></script>
+    <script>let table = new DataTable('#brandTable');</script>
     <%- include('head/footer') %>

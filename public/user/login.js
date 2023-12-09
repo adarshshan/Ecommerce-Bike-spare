@@ -47,3 +47,18 @@ async function validateForm() {
     }
     return true;
 }
+
+async function forgotpassword() {
+    try {
+      const response = await fetch('/forgotPassword', { method: 'get' });
+      const resBody = await response.json()
+      if (resBody.success) {
+        if (localStorage.getItem('otpTimerRemaining')) localStorage.removeItem('otpTimerRemaining');
+        location.href = '/forgotPassword-page'
+      } else {
+        alert('Somthing went wrong');
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }

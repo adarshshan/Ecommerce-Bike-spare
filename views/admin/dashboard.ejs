@@ -87,7 +87,7 @@
                                 <div class="col-sm-12 col-xl-12">
                                     <div style="height: 700px;" class="bg-light rounded p-4">
                                         <div class="d-flex row">
-                                            <h6 class="mb-1">Sales Report</h6>
+                                            <h5 class="mb-1">Sales Report</h5>
                                             <div class="d-flex flex-row-reverse">
                                                 <p onclick="Graph('year')" class="me-3" id="year"
                                                     style="cursor: pointer;">Year</p>
@@ -107,12 +107,55 @@
                         </div>
                         <!-- Chart End -->
 
+                        <!-- Most purchased products -->
+
+                        <div class="container-fluid pt-4 px-4">
+                            <div class="bg-light rounded p-4">
+                                    <h5 class="mb-4">Most purchased products</h5>
+                                
+                                <div class="table-responsive" id="orderTable">
+                                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                                        <thead>
+                                            <tr class="text-dark">
+                                                <th class="text-center" scope="col">SL.No</th>
+                                                <th scope="col">Product</th>
+                                                <th class="text-center" scope="col">Price</th>
+                                                <th class="text-center" scope="col">Sold Count</th>
+                                                <th class="text-center" scope="col">total Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% topProducts.forEach((row,index)=> { %>
+                                                <tr>
+                                                    <td class="text-center">
+                                                        <%= index+1 %>
+                                                    </td>
+                                                    <td>
+                                                        <%= row.productName %>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <%= row.productPrice %>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <%= row.totalQuantity %>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <%= row.totalProductPrice %>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /Most purchased products -->
 
                         <!-- Recent Sales Start -->
                         <div class="container-fluid pt-4 px-4">
                             <div class="bg-light text-center rounded p-4">
                                 <div class="d-flex align-items-center justify-content-between mb-4">
-                                    <h6 class="mb-0">Recent Salse</h6>
+                                    <h5 class="mb-0">Recent Salse</h5>
                                     <!-- <a href="">Show All</a> -->
                                     <div class="d-flex">
                                         <i onclick="previousButton()" class="fa-solid fa-chevron-left me-2"></i>
@@ -172,7 +215,7 @@
                                 <div class="col-sm-12 col-md-6">
                                     <div class="h-100 bg-light rounded p-4" id="todoList">
                                         <div class="d-flex align-items-center justify-content-between mb-4">
-                                            <h6 class="mb-0">To Do List</h6>
+                                            <h5 class="mb-0">To Do List</h5>
                                         </div>
                                         <div class="d-flex mb-2">
                                             <input class="form-control bg-transparent" id="todoMsg" type="text"

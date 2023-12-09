@@ -163,17 +163,4 @@
 
     </div>
   </section>
-  <!-- <script>
-    async function addToCart(data) {
-            const productDetails = JSON.parse(data);
-            const response = await fetch(`/carts/add/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}`, { method: 'get' })
-            const resBody = await response.json()
-            if (resBody.success) {
-                localStorage.removeItem('CouponDetails')
-            } else {
-                alert(resBody.message)
-            }
-        }
-  </script> -->
-
   <%- include('head/footer') %>

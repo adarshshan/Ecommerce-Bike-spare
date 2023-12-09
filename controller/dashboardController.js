@@ -12,13 +12,12 @@ async function dashboardHome(req, res) {
         for (let i = 0; i < allOrders.length; i++) {
             totalSales += allOrders[i].totalAmount + allOrders[i].walletAmount
         }
-        const topProduct=await mostPurchasedProducts();
-        console.log(`Top products are ${topProduct}`);
-        console.log(topProduct)
+        const topProducts = await mostPurchasedProducts();
+        // console.log(topProducts)
         const timeWiseOrders = await helpers.timeWiseOrders()
 
         const newarr = helpers.newArray(timeWiseOrders);
-        console.log(newarr);
+        // console.log(newarr);
         // const year=helpers.getYearRatio(newarr);
         // const month=helpers.getMonthRatio(newarr);
         // const week=helpers.getWeekRatio(newarr);
@@ -29,7 +28,8 @@ async function dashboardHome(req, res) {
             todoMessage,
             totalSales,
             newarr,
-            graph: { day }
+            graph: { day },
+            topProducts
         });
     } catch (error) {
         console.log(error)
@@ -43,14 +43,17 @@ async function mostPurchasedProducts() {
             {
                 $group: {
                     _id: "$orders.products.product_id",
+                    totalQuantity: { $sum: "$orders.products.quantity" },
+                    totalProductPrice: { $sum: "$orders.products.productPrice" },
+                    productPrice: { $first: "$orders.products.productPrice" },
                     productName: { $first: "$orders.products.productName" },
-                    count: { $sum: 1 }
+                    productImage: { $first: "$orders.products.productImage" }
                 }
             },
-            { $sort: { count: -1 } },
-            { $limit: 10 }
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 5 }
         ])
-return product;
+        return product;
     } catch (error) {
         console.log(error)
     }
