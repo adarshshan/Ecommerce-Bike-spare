@@ -30,10 +30,12 @@ router.get('/address', userAuth, controller.addressBook)
 
 
 //-----forgot password------//
-router.get('/forgotPassword', controller.forgotPasswordPage)
+router.get('/forgotPassword', controller.forgotpageResponse)
+router.get('/forgotPassword-page', controller.forgotPasswordPage)
 router.get('/forgotPassword/:email', controller.forgotPasswordOtpSent)
 router.get('/verifyForgot', controller.forgotOtpPage)
 router.post('/verifyForgot', controller.verifyForgotPost)
+router.get('/newpassword-page',controller.newpasswordPage);
 router.get('/newpassword/:password/:cpassword', controller.newPasswordUpdate)
 
 //wishlist

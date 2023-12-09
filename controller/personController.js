@@ -319,6 +319,13 @@ async function addressBook(req, res) {
 }
 
 //////Forgot password//////
+function forgotpageResponse(req, res) {
+    try {
+        return res.json({ success: true, message: 'success part!' });
+    } catch (error) {
+        console.log(error)
+    }
+}
 function forgotPasswordPage(req, res) {
     try {
         res.render('user/forgotpage.ejs', { title: 'forgot Password' })
@@ -341,7 +348,7 @@ async function forgotPasswordOtpSent(req, res) {
                 email: userEmail
             }
             console.log(`your userId is ${userId}.`)
-            await sendOtpVerificationEmail(user, req, res).then((result) => {
+            await helpers.sendOtpVerificationEmail(user, req, res).then((result) => {
                 try {
                     console.log('otp has been sent to your Email')
                     return res.json({ success: true, message: 'Otp has been sent to your Email address.' })
@@ -372,52 +379,48 @@ async function forgotOtpPage(req, res) {
 
 async function verifyForgotPost(req, res) {
     try {
-        const newEmail = req.session.newEmail
         const { otp } = req.body
-        // const otp=req.params.otp
         let userId = req.session.uesrid
         console.log(`userId: ${userId} and otp: ${otp}`);
-        if (!userId || !otp) {
-            // return res.json({success:false,message:'Empty OTP details are not allowed.'})
-            return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: 'Empty OTP details are not allowed.', type: 'danger' })
-        } else {
-            const userOtpVerificationRecords = await userOtpVerification.find({ userId })
-            if (userOtpVerificationRecords.length <= 0) {
-                // return res.json({success:false,message:'Account records doesn`t exist or has been verified already. Please sign up or log in'})
-                return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: "Account records doesn't exist or has been verified already. Please sign up or log in", type: 'danger' })
-
-            } else {
-                const { expired_at } = userOtpVerificationRecords[0]
-                const hashedOtp = userOtpVerificationRecords[0].otp
-                if (expired_at < Date.now()) {
-                    await userOtpVerification.deleteMany({ userId })
-                    // return res.json({success:false,message:'Code has expired. please request again.'})
-                    return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: 'Code has expired. please request again.', type: 'danger' })
-                } else {
-                    const validOtp = await bcrypt.compare(otp, hashedOtp)
-
-                    if (!validOtp) {
-                        // return res.json({success:false,message:'Invalid code passed. check your Inbox.'})
-                        return res.render('user/otppage_forgot', { title: 'OTP Login page.', msg: 'Invalid code passed. check your Inbox.', type: 'danger' })
-                    } else {
-                        await userOtpVerification.deleteMany({ userId })
-                        notifier.notify({
-                            title: 'Notifications',
-                            message: 'Email Verified successfully ',
-                            icon: path.join(__dirname, 'public/assets/sparelogo.png'),
-                            sound: true,
-                            wait: true
-                        })
-                        // return res.json({success:true,message:'Email verified successfully.'})
-                        return res.render('user/newpassword.ejs', { title: 'newpassword' });
-                    }
-                }
-            }
+        const userOtpVerificationRecords = await userOtpVerification.find({ userId })
+        console.log(`The details are `);
+        console.log(userOtpVerificationRecords);
+        if (!userId || !otp) return res.json({ success: false, message: 'Empty OTP details are not allowed' });
+        if (userOtpVerificationRecords.length <= 0) return res.json({ success: false, message: 'Account records doesn`t exist or has been verified already. Please sign up or log in' });
+        const { expired_at } = userOtpVerificationRecords[0]
+        const hashedOtp = userOtpVerificationRecords[0].otp
+        if (expired_at < Date.now()) {
+            await userOtpVerification.deleteMany({ userId })
+            return res.json({ success: false, message: 'Code has expired. please request again.' })
         }
+        const validOtp = await bcrypt.compare(otp, hashedOtp)
+        console.log(`validate otp is ${validOtp}`);
+        if (!validOtp) return res.json({ success: false, message: 'Invalid code passed. check your Inbox.' });
+
+        await userOtpVerification.deleteMany({ userId })
+        notifier.notify({
+            title: 'Notifications',
+            message: 'Email Verified successfully ',
+            icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+            sound: true,
+            wait: true
+        })
+        return res.json({ success: true, message: 'Email verified successfully.' })
+
+
+
+
     } catch (error) {
         delete req.session.uesrid
-        // return res.render('user/otppage_1', { title: 'OTP Login page.', msg: 'Somthing went wrong. Try again.', type: 'danger' })
-        res.redirect('/error-page');
+        return res.json({ success: false, message: 'Error occured!' })
+    }
+}
+
+function newpasswordPage(req, res) {
+    try {
+        res.render('user/newpassword.ejs', { title: 'newpassword' });
+    } catch (error) {
+        console.log(error)
     }
 }
 
@@ -426,29 +429,21 @@ async function newPasswordUpdate(req, res) {
         const password = req.params.password
         const cpassword = req.params.cpassword
         console.log(`password :${password}  cpassword:${cpassword} and Email is ${req.session.forgetpasswordEmail}`)
-        if (password === cpassword) {
-            const hashedpassword = await bcrypt.hash(password, 10)
-            if (hashedpassword) {
-                const updated = await User.findOneAndUpdate({ email: req.session.forgetpasswordEmail }, { $set: { password: hashedpassword } })
-                if (updated) {
-                    console.log('password updated successfully')
-                    return res.json({ success: true, message: 'password updated successfully' })
-                } else {
-                    console.log('Somthing went wrong while updating the hashed password at newpassword/:pa.....');
-                    return res.json({ success: false, message: 'Somthing went wrong while updating the hashed password at newpassword/:pa.....' })
-                }
-            } else {
-                console.log('Somthing went wrong while hashing the password')
-                return res.json({ success: false, message: 'Somthing went wrong while hashing the password' })
-            }
+        if (password !== cpassword) return res.json({ success: false, message: 'passwords are not matching' });
+        const hashedpassword = await bcrypt.hash(password, 10)
+        if (!hashedpassword) return res.json({ success: false, message: 'Somthing went wrong while hashing the password' });
+        const updated = await User.findOneAndUpdate({ email: req.session.forgetpasswordEmail }, { $set: { password: hashedpassword } })
+        if (updated) {
+            console.log('password updated successfully')
+            return res.json({ success: true, message: 'password updated successfully' })
         } else {
-            console.log('passwords are not matching')
-            return res.json({ success: false, message: 'passwords are not matching' })
+            console.log('Somthing went wrong while updating the hashed password at newpassword/:pa.....');
+            return res.json({ success: false, message: 'Somthing went wrong while updating the hashed password at newpassword/:pa.....' })
         }
     } catch (error) {
         console.log(error)
-        // return res.json({ success: false, message: 'Unknown Error' })
-        res.redirect('/error-page');
+        return res.json({ success: false, message: 'Unknown Error' })
+        // res.redirect('/error-page');
     }
 }
 
@@ -476,7 +471,7 @@ async function addToWishlist(req, res) {
         // Check if the product already exists in the user's wishlist
         const user = await User.findOneAndUpdate(
             { _id: userId, 'wishlist.productId': { $ne: productId } },
-            { $push: { wishlist: {$each:[{ productId: productId }],$position:0} } },
+            { $push: { wishlist: { $each: [{ productId: productId }], $position: 0 } } },
             { new: true }
         );
 
@@ -535,7 +530,7 @@ async function walletHome(req, res) {
         console.log(`wallet is ${wallet}`)
         res.render('user/wallet.ejs', {
             title: 'wallet',
-            wallet: wallet[0]?wallet[0].wallet:[],
+            wallet: wallet[0] ? wallet[0].wallet : [],
             balance
         });
     } catch (error) {
@@ -698,7 +693,9 @@ module.exports = {
     veryfyPay,
     shareLink,
     ErrorPage,
-    walletHistoryPagination
+    walletHistoryPagination,
+    forgotpageResponse,
+    newpasswordPage
 }
 
 //Functionss//
@@ -749,63 +746,5 @@ async function IncreaseWalletBalance(userId, amount) {
     }
 }
 
-let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.AUTH_EMAIL,
-        pass: process.env.AUTH_PASS
-    }
-})
 
-const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
-    console.log('Entered into the function.')
-    try {
-        const otp = `${Math.floor(1000 + Math.random() * 9000)}`
 
-        //mail options
-        const mailOptions = {
-            from: process.env.AUTH_EMAIL,
-            to: email,
-            subject: 'Email verification',
-            html: `<p>Enter <b>${otp}</b> in the app to verify your email address.</p>
-            <p>This code will <b>Expires in one hour</b></p>`
-        }
-        //hash the otp
-        const saltrounds = 10
-        req.session.emailAddress = email
-        req.session.uesrid = _id
-        console.log(`your Email is ${req.session.emailAddress} and User id is ${req.session.uesrid}`)
-        const hashedOtp = await bcrypt.hash(otp, saltrounds);
-        const newOtpVerification = await new userOtpVerification({
-            userId: _id,
-            otp: hashedOtp,
-            created_at: Date.now(),
-            expired_at: Date.now() + 3600000,
-        })
-        //save otp record
-        await newOtpVerification.save()
-        await transporter.sendMail(mailOptions, (err, res) => {
-            if (err) {
-                console.log(err)
-                console.log('unknown error ')
-                return res.json({ success: false, message: 'Unknown Error.error' })
-            } else {
-                console.log('otp successfull')
-                notifier.notify({
-                    title: 'Notifications',
-                    message: 'OTP has send to your Email address. please check your Inbox. ',
-                    icon: path.join(__dirname, 'public/assets/sparelogo.png'),
-                    sound: true,
-                    wait: true
-                })
-            }
-        })
-
-    } catch (error) {
-        console.log(error)
-        console.log('Error is at Catch ')
-        // return res.json({ success: false, message: 'Unknown Error.' })
-        res.redirect('/error-page');
-
-    }
-}

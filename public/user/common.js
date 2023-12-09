@@ -47,7 +47,7 @@ async function addToWishlist(id) {
 async function getOtp() {
     try {
         const email = document.getElementById('email').value
-        const response = await fetch(`/forgotPassword/${email}`)
+        const response = await fetch(`/forgotPassword/${email}`,{method:'get'});
         const resBody = await response.json()
         if (resBody.success) {
             console.log(resBody.message)
@@ -78,8 +78,26 @@ function closePopup() {
 }
 
 async function newPass() {
-    const password = document.getElementById('password').value
-    const cpassword = document.getElementById('cpassword').value
+    const password = document.getElementById('password').value.trim()
+    const cpassword = document.getElementById('cpassword').value.trim()
+    document.getElementById('password-error').innerText='';document.getElementById('cpassword-error').innerText='';
+    if(!password || !cpassword){
+        if(!password) document.getElementById('password-error').innerText='* This Field is required!';
+        if(!cpassword) document.getElementById('cpassword-error').innerText='*This field is required!';
+        return;
+    }
+    if(password.length<8){
+        document.getElementById('password-error').innerText='*Password must not be less than 8 charactors!';
+        return;
+    }
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || ! /[!@#$%^&*]/.test(password)){
+        document.getElementById('password-error').innerText='password is weak. please make a strong password.';
+        return;
+    }
+    if(password !==cpassword){
+        document.getElementById('cpassword-error').innerText='Passwords are not matching!';
+        return;
+    }
     const response = await fetch(`/newpassword/${password}/${cpassword}`, { method: 'get' })
     const resBody = await response.json()
     if (resBody.success) {

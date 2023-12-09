@@ -1,5 +1,5 @@
 <%- include('head/header') %>
-        <!-- User sign up -->
+    <!-- User sign up -->
     <section style="background-color: #f7efef;">
         <div class="container">
             <div class="row">
@@ -8,44 +8,18 @@
                         <div class="card-body p-4 p-sm-5">
                             <h3 class="card-title"></h3>
                             <small><b>Enter your One Time password</b></small>
-                            <% if (refferalCode && refferalCode!==null && refferalCode.length!==0) { %>
-                                <form action="/users/verifyOtp/?refferalCode=<%= refferalCode %>" method="post">
-                                    <div class="form-floating mb-3 mt-5">
-                                        <input type="text" class="form-control" name="otp" placeholder="" id="number">
-                                        <label >Enter the OTP</label>
-                                    </div>
-                                    <br>
-                                    <% if (locals.msg) { %>
-                                        <div class="alert alert-dismissible fade show alert-<%= type %>" role="alert">
-                                            <button class="btn-close" type="button" data-bs-dismiss="alert"
-                                                aria-label="close"></button>
-                                            <strong>
-                                                <%= msg %>
-                                            </strong>
-                                        </div>
-                                        <% } %>
-                                            <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
-                                </form>
-                                <% }else{ %>
-                                    <form action="/users/verifyOtp" method="post">
-                                        <div class="form-floating mb-3 mt-5">
-                                            <input type="text" class="form-control" name="otp" placeholder="" id="number">
-                                            <label >Enter the OTP</label>
-                                        </div>
-                                        <br>
-                                        <% if (locals.msg) { %>
-                                            <div class="alert alert-dismissible fade show alert-<%= type %>" role="alert">
-                                                <button class="btn-close" type="button" data-bs-dismiss="alert"
-                                                    aria-label="close"></button>
-                                                <strong>
-                                                    <%= msg %>
-                                                </strong>
-                                            </div>
-                                            <% } %>
-                                                <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
-                                    </form>
-                                  <% } %>
-                            
+                            <form action="/users/verifyOtp" method="post" id="verifyOtpForm">
+                                <div class="form-floating mb-3 mt-5">
+                                    <input type="text" value="<%= refferalCode %>" id="refferalCode" class="d-none">
+                                    <label>Enter the OTP</label>
+                                </div>
+                                <input type="text" class="form-control" name="otp" placeholder="" id="otp">
+                                <span id="otp-error" class="text-danger"></span>
+                                <br>
+                                <div id="show-error"></div>
+                                <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
+                            </form>
+
                             <div id="countdown"></div>
                             <form id="resend-form" class="mt-3" action="/users/resendtpVerficationCode" method="post">
                                 <input class="btn btn-danger" type="submit" value="Resend OTP" id="reform" disabled>
@@ -58,5 +32,50 @@
     </section>
 
     <script src="/static/user/otpTimer.js"></script>
-
+    <script>
+        document.getElementById('verifyOtpForm').addEventListener('submit', async (e) => {
+            try {
+                e.preventDefault();
+                const otp = document.getElementById('otp').value
+                if (!otp) {
+                    document.getElementById('show-error').innerHTML = `
+                        <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                            <button class="btn-close" type="button" data-bs-dismiss="alert"
+                                aria-label="close"></button>
+                            <strong>Input Fields must be filled!</strong>
+                        </div>`
+                    return;
+                }
+                const formData = new FormData()
+                formData.append('otp', document.getElementById('otp').value);
+                formData.append('refferalCode', document.getElementById('refferalCode').value);
+                const response = await fetch(`/users/verifyOtp`, {
+                    method: 'post',
+                    body: formData
+                })
+                const resbody = await response.json()
+                if (resbody.success) {
+                    Swal.fire({
+                        position: "top-center",
+                        icon: "success",
+                        title: "Signup successfully completed. Please Login.",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    setTimeout(() => {
+                        location.href = '/users/login';
+                    }, 800);
+                } else {
+                    document.getElementById('show-error').innerHTML = `
+                        <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                            <button class="btn-close" type="button" data-bs-dismiss="alert"
+                                aria-label="close"></button>
+                            <strong>${resbody.message}</strong>
+                        </div>`
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        })
+    </script>
     <%- include('head/footer') %>

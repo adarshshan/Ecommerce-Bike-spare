@@ -196,8 +196,8 @@ async function userSignup(req, res) {
             if (refferalCode) {
                 console.log(`refferalCode is ${refferalCode}`)
                 return res.render('user/otppage', { title: 'OTP Login page.', msg: '', type: '', refferalCode: refferalCode })
-            }else{
-                return res.render('user/otppage', { title: 'OTP Login page.', msg: '', type: '',refferalCode: ''})
+            } else {
+                return res.render('user/otppage', { title: 'OTP Login page.', msg: '', type: '', refferalCode: '' })
             }
 
         }
@@ -232,63 +232,48 @@ async function validateEmail(req, res) {
 
 async function verifyOtp(req, res) {
     try {
-        let otp = req.body.otp
+        let { otp, refferalCode } = req.body
         let userId = req.session.uesrid
-        let refferalCode = req.query.refferalCode;
-        console.log(`userId: ${userId} and otp: ${otp}`);
-        if (!userId || !otp) {
-            return res.render('user/otppage', { title: 'OTP Login page.', msg: 'Empty OTP details are not allowed.', type: 'danger' })
-        } else {
-            const userOtpVerificationRecords = await userOtpVerification.find({ userId })
-            if (userOtpVerificationRecords.length <= 0) {
-                //no records found
-                return res.render('user/otppage', { title: 'OTP Login page.', msg: "Account records doesn't exist or has been verified already. Please sign up or log in", type: 'danger' })
+        console.log(`userId: ${userId} and otp: ${otp} and refferal code is ${refferalCode}`);
+        const userOtpVerificationRecords = await userOtpVerification.find({ userId })
+        const { expired_at } = userOtpVerificationRecords[0]
+        const hashedOtp = userOtpVerificationRecords[0].otp
 
-            } else {
-                //user otp record exists
-                const { expired_at } = userOtpVerificationRecords[0]
-                const hashedOtp = userOtpVerificationRecords[0].otp
-                if (expired_at < Date.now()) {
-                    //user otp record has expired 
-                    await userOtpVerification.deleteMany({ userId })
-                    return res.render('user/otppage', { title: 'OTP Login page.', msg: 'Code has expired. please request again.', type: 'danger' })
-                    // throw new Error('Code has expired. please request again.')
-                } else {
-                    const validOtp = await bcrypt.compare(otp, hashedOtp)
+        if (!userId || !otp) return res.json({ success: false, message: 'Empty OTP details are not allowed.' })
+        if (userOtpVerificationRecords.length <= 0) return res.json({ success: false, message: 'Account records doesn`t exist or has been verified already.' });//no records found
 
-                    if (!validOtp) {
-                        //supplied otp is wrong
-                        return res.render('user/otppage', { title: 'OTP Login page.', msg: 'Invalid code passed. check your Inbox.', type: 'danger' })
-                        // throw new Error('Invalid code passed. check your Inbox.')
-                    } else {
-                        //success
-                        await User.updateOne({ _id: userId }, { verified: true })
-                        await userOtpVerification.deleteMany({ userId })
-                        if (refferalCode) {
-                            const increased = await IncreaseWalletBalance(refferalCode);
-                            if (increased) {
-                                console.log('50rs added to refferer')
-                            } else {
-                                console.log('FAiled to add 50rs')
-                            }
-                        } else {
-                            console.log('There is no refferal code')
-                        }
-                        notifier.notify({
-                            title: 'Notifications',
-                            message: 'Email Verified successfully ',
-                            icon: path.join(__dirname, 'public/assets/sparelogo.png'),
-                            sound: true,
-                            wait: true
-                        })
-                        return res.redirect('/users/login')
-                    }
-                }
-            }
+        if (expired_at < Date.now()) {
+            //user otp record has expired 
+            await userOtpVerification.deleteMany({ userId })
+            return res.json({ success: false, message: 'Code has expired. please request again.' });
         }
+        const validOtp = await bcrypt.compare(otp, hashedOtp)
+        if (!validOtp) return res.json({ success: false, message: 'Invalid code passed. check your Inbox.' })//supplied otp is wrong
+        //success
+        await User.updateOne({ _id: userId }, { verified: true })
+        await userOtpVerification.deleteMany({ userId })
+        if (refferalCode) {
+            const increased = await IncreaseWalletBalance(refferalCode);
+            if (increased) {
+                console.log('50rs added to refferer')
+            } else {
+                console.log('FAiled to add 50rs')
+            }
+        } else {
+            console.log('There is no refferal code')
+        }
+        notifier.notify({
+            title: 'Notifications',
+            message: 'Email Verified successfully ',
+            icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+            sound: true,
+            wait: true
+        })
+        return res.json({ success: true, message: 'Email Verified successfully.' })
+
     } catch (error) {
         delete req.session.uesrid
-        return res.render('user/otppage', { title: 'OTP Login page.', msg: 'Somthing went wrong. Try again.', type: 'danger' })
+        console.log(error)
     }
 }
 
@@ -336,10 +321,7 @@ async function resendOtp(req, res) {
             await sendOtpVerificationEmail({ _id: userId, email }, req, res)
         }
     } catch (error) {
-        res.json({
-            status: 'FAILED',
-            message: 'resend Otp verification failed.'
-        })
+        res.json({ status: 'FAILED', message: 'resend Otp verification failed.' })
     }
 }
 
@@ -350,10 +332,10 @@ async function blockUser(req, res) {
         user.isDeleted = true;
         user.blocked_at = Date.now()
         user.save().then((rsult) => {
-            res.json({success:true,message:'User Blocked'})
+            res.json({ success: true, message: 'User Blocked' })
         }).catch((err) => {
             console.log(err)
-            res.json({success:false,message:'Failed to Block'})
+            res.json({ success: false, message: 'Failed to Block' })
         })
     } catch (error) {
         console.log('Error is at blockUser ' + error)
@@ -368,10 +350,10 @@ async function unBlockUser(req, res) {
         user.isDeleted = false;
         user.unBlocked_at = Date.now()
         user.save().then((result) => {
-            res.json({success:true,message:'User has been unblocked'})
+            res.json({ success: true, message: 'User has been unblocked' })
         }).catch((err) => {
             console.log(err)
-            res.json({success:false,message:'Failed to unblock user'})
+            res.json({ success: false, message: 'Failed to unblock user' })
         })
     } catch (error) {
         console.log('Error is at unBlockUser ' + error)

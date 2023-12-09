@@ -131,6 +131,7 @@ function validateForm() {
   var password = document.getElementById("password").value;
   var cpassword = document.getElementById("cpassword").value;
 
+  if (localStorage.getItem('otpTimerRemaining')) localStorage.removeItem('otpTimerRemaining');
   // Basic validation (you can add more specific checks)
   if (!name || !email || !phone || !password || !cpassword) {
     document.getElementById('submessage').innerHTML = `

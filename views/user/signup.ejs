@@ -93,67 +93,8 @@
                                 <span id="name-error"></span>
                               </div>
                             </div>
-  
-                            <div class="d-flex flex-row align-items-center mb-4">
-                              <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
-                              <div class="form-outline flex-fill mb-0">
-                                <input name="email" type="email" id="email" class="form-control"
-                                  placeholder="Your Email Address" onkeyup="validateEmail()" />
-                                <span id="email-error"></span>
-                              </div>
-                            </div>
-  
-                            <div class="d-flex flex-row align-items-center mb-4">
-                              <i class="fa-solid fa-mobile-retro fa-lg me-3 fa-fw"></i>
-                              <div class="form-outline flex-fill mb-0">
-                                <input name="phone" type="number" id="phone" class="form-control"
-                                  placeholder="Mobile Number" onkeyup="validatePhone()" />
-                                <span id="phone-error"></span>
-                              </div>
-                            </div>
-  
-                            <div class="d-flex flex-row align-items-center mb-4">
-                              <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
-                              <div class="form-outline flex-fill mb-0">
-                                <input name="password" type="password" id="password" class="form-control"
-                                  placeholder="Password" onkeyup="validatePassword()" />
-                                <span id="password-error"></span>
-                              </div>
-                            </div>
-  
-                            <div class="d-flex flex-row align-items-center mb-4">
-                              <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
-                              <div class="form-outline flex-fill mb-0">
-                                <input name="cpassword" type="password" id="cpassword" class="form-control"
-                                  placeholder="confirm Password" onkeyup="validateCpassword()" />
-                                <span id="cpassword-error"></span>
-                              </div>
-                            </div>
-                            <a href="/users/login">
-                              <div class="form-check d-flex justify-content-center mb-5 btn btn-primary">
-                                Already have an account ? Sign In
-                              </div>
-                            </a>
-  
-                            <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
-                              <input type="submit" value="Register" class="btn btn-primary p-2"
-                                onclick="return validateForm()">
-                            </div>
-  
-                          </form>
-                        <% }else{ %>
-                          <form class="mx-1 mx-md-4" action="/users" method="post">
 
                             <div class="d-flex flex-row align-items-center mb-4">
-                              <i class="fas fa-user fa-lg me-3 fa-fw"></i>
-                              <div class="form-outline flex-fill mb-0">
-                                <input name="name" type="text" id="name" class="form-control" placeholder="Your Name"
-                                  onkeyup="validateName()" />
-                                <span id="name-error"></span>
-                              </div>
-                            </div>
-  
-                            <div class="d-flex flex-row align-items-center mb-4">
                               <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
                               <div class="form-outline flex-fill mb-0">
                                 <input name="email" type="email" id="email" class="form-control"
@@ -161,7 +102,7 @@
                                 <span id="email-error"></span>
                               </div>
                             </div>
-  
+
                             <div class="d-flex flex-row align-items-center mb-4">
                               <i class="fa-solid fa-mobile-retro fa-lg me-3 fa-fw"></i>
                               <div class="form-outline flex-fill mb-0">
@@ -170,7 +111,7 @@
                                 <span id="phone-error"></span>
                               </div>
                             </div>
-  
+
                             <div class="d-flex flex-row align-items-center mb-4">
                               <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
                               <div class="form-outline flex-fill mb-0">
@@ -179,7 +120,7 @@
                                 <span id="password-error"></span>
                               </div>
                             </div>
-  
+
                             <div class="d-flex flex-row align-items-center mb-4">
                               <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
                               <div class="form-outline flex-fill mb-0">
@@ -193,15 +134,74 @@
                                 Already have an account ? Sign In
                               </div>
                             </a>
-  
+
                             <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
                               <input type="submit" value="Register" class="btn btn-primary p-2"
                                 onclick="return validateForm()">
                             </div>
-  
+
                           </form>
-                          <% } %>
-                        
+                          <% }else{ %>
+                            <form class="mx-1 mx-md-4" action="/users" method="post" >
+
+                              <div class="d-flex flex-row align-items-center mb-4">
+                                <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                                <div class="form-outline flex-fill mb-0">
+                                  <input name="name" type="text" id="name" class="form-control" placeholder="Your Name"
+                                    onkeyup="validateName()" />
+                                  <span id="name-error"></span>
+                                </div>
+                              </div>
+
+                              <div class="d-flex flex-row align-items-center mb-4">
+                                <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                <div class="form-outline flex-fill mb-0">
+                                  <input name="email" type="email" id="email" class="form-control"
+                                    placeholder="Your Email Address" onkeyup="validateEmail()" />
+                                  <span id="email-error"></span>
+                                </div>
+                              </div>
+
+                              <div class="d-flex flex-row align-items-center mb-4">
+                                <i class="fa-solid fa-mobile-retro fa-lg me-3 fa-fw"></i>
+                                <div class="form-outline flex-fill mb-0">
+                                  <input name="phone" type="number" id="phone" class="form-control"
+                                    placeholder="Mobile Number" onkeyup="validatePhone()" />
+                                  <span id="phone-error"></span>
+                                </div>
+                              </div>
+
+                              <div class="d-flex flex-row align-items-center mb-4">
+                                <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                                <div class="form-outline flex-fill mb-0">
+                                  <input name="password" type="password" id="password" class="form-control"
+                                    placeholder="Password" onkeyup="validatePassword()" />
+                                  <span id="password-error"></span>
+                                </div>
+                              </div>
+
+                              <div class="d-flex flex-row align-items-center mb-4">
+                                <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                                <div class="form-outline flex-fill mb-0">
+                                  <input name="cpassword" type="password" id="cpassword" class="form-control"
+                                    placeholder="confirm Password" onkeyup="validateCpassword()" />
+                                  <span id="cpassword-error"></span>
+                                </div>
+                              </div>
+                              <a href="/users/login">
+                                <div class="form-check d-flex justify-content-center mb-5 btn btn-primary">
+                                  Already have an account ? Sign In
+                                </div>
+                              </a>
+
+                              <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                                <input type="submit" value="Register" class="btn btn-primary p-2"
+                                  onclick="return validateForm()">
+                              </div>
+
+                            </form>
+                            <% } %>
+
 
                   </div>
                   <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">

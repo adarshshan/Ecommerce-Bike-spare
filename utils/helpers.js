@@ -3,7 +3,10 @@ const Order = require('../models/order')
 const User = require('../models/user')
 const nodemailer = require('nodemailer');
 const Razorpay = require('razorpay')
+const userOtpVerification=require('../models/userOtpVerification');
 var instance = new Razorpay({ key_id: 'rzp_test_kxpY9d3K4xgnJt', key_secret: 'NH5mIiVcgS7yf9zr0iwQisAQ' })
+const bcrypt = require('bcrypt')
+const notifier = require('node-notifier');
 
 async function removeCart(userId, req) {
     delete req.session.selectedAddress
@@ -350,6 +353,61 @@ async function walletTransactions(id) {
     }
 }
 
+const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
+    console.log('Entered into the function.')
+    try {
+        const otp = `${Math.floor(1000 + Math.random() * 9000)}`
+
+        //mail options
+        const mailOptions = {
+            from: process.env.AUTH_EMAIL,
+            to: email,
+            subject: 'Email verification',
+            html: `<p>Enter <b>${otp}</b> in the app to verify your email address.</p>
+            <p>This code will <b>Expires in one hour</b></p>`
+        }
+        //hash the otp
+        const saltrounds = 10
+        req.session.emailAddress = email
+        req.session.uesrid = _id
+        console.log(`your Email is ${req.session.emailAddress} and User id is ${req.session.uesrid}`)
+        const hashedOtp = await bcrypt.hash(otp, saltrounds);
+        await userOtpVerification.deleteMany({ userId: _id });
+        const newOtpVerification = await new userOtpVerification({
+            userId: _id,
+            otp: hashedOtp,
+            created_at: Date.now(),
+            expired_at: Date.now() + 3600000,
+        })
+        //save otp record
+        await newOtpVerification.save()
+        await transporter.sendMail(mailOptions, (err, res) => {
+            if (err) {
+                console.log(err)
+                console.log('unknown error ')
+                return res.json({ success: false, message: 'Unknown Error.error' })
+            } else {
+                console.log('otp successfull')
+                notifier.notify({
+                    title: 'Notifications',
+                    message: 'OTP has send to your Email address. please check your Inbox. ',
+                    icon: path.join(__dirname, 'public/assets/sparelogo.png'),
+                    sound: true,
+                    wait: true
+                })
+            }
+        })
+
+    } catch (error) {
+        console.log(error)
+        console.log('Error is at Catch ')
+        // return res.json({ success: false, message: 'Unknown Error.' })
+        res.redirect('/error-page');
+
+    }
+}
+
+
 
 module.exports = {
     removeCart,
@@ -364,6 +422,7 @@ module.exports = {
     addWalletAmount,
     sendUriToEmail,
     generateRazorpay,
-    walletTransactions
+    walletTransactions,
+    sendOtpVerificationEmail
 
 }

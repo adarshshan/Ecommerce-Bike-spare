@@ -8,55 +8,53 @@
                         <div class="card-body p-4 p-sm-5">
                             <h3 class="card-title"></h3>
                             <small><b>Enter your One Time password</b></small>
-                            <form action="/verifyForgot" method="post">
-                            <div class="form-floating mb-3 mt-5">
-                                <input type="text" class="form-control" name="otp" placeholder="" id="number">
-                                <label>Enter the OTP</label>
-                            </div>
-                            <br>
-                            <% if (locals.msg) { %>
-                                <div class="alert alert-dismissible fade show alert-<%= type %>" role="alert">
-                                    <button class="btn-close" type="button" data-bs-dismiss="alert"
-                                        aria-label="close"></button>
-                                    <strong>
-                                        <%= msg %>
-                                    </strong>
+                            <form action="/verifyForgot" method="post" id="verifyforgotForm">
+                                <div class="form-floating mb-3 mt-5">
+                                    <input type="text" class="form-control" name="otp" placeholder="" id="number">
+                                    <label>Enter the OTP</label>
                                 </div>
-                                <% } %>
-                                    <!-- <button class="btn btn-primary p-3 mt-3" onclick="verifyOtp()">Submit</button> -->
-                                    <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
-                                    </form>
-                                    <div id="countdown"></div>
-                                    <form id="resend-form" class="mt-3" action="/users/resendtpVerficationCode"
-                                        method="post">
-                                        <input class="btn btn-danger" type="submit" value="Resend OTP" id="reform"
-                                            disabled>
-                                    </form>
+                                <br>
+                                <div id="error-show"></div>
+                                <!-- <button class="btn btn-primary p-3 mt-3" onclick="verifyOtp()">Submit</button> -->
+                                <input type="submit" class="btn btn-primary p-3 mt-3" value="submit">
+                            </form>
+                            <div id="countdown"></div>
+                            <form id="resend-form" class="mt-3" action="/users/resendtpVerficationCode" method="post">
+                                <input class="btn btn-danger" type="submit" value="Resend OTP" id="reform" disabled>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/static/user/otpTimer.js"></script>
-    <!-- <script>
-        async function verifyOtp() {
-            const otp = document.getElementById('number').value;
-
-            const response = await fetch(`/verifyForgot/${otp}`, {
+    <script>
+        document.getElementById('verifyforgotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData()
+            formData.append('otp', document.getElementById('number').value);
+            const response = await fetch(`/verifyForgot`, {
                 method: 'post',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({otp:otp})
+                body: formData
             })
             const resBody = await response.json()
             if (resBody.success) {
-                alert(resBody.message)
-                // localStorage.removeItem('otpTimerRemaining');
-
+                if (localStorage.getItem('otpTimerRemaining')) localStorage.removeItem('otpTimerRemaining');
+                Swal.fire("Email verified successfully!", "success", "success");
+                setTimeout(() => {
+                    location.href='/newpassword-page'
+                }, 1000);
             } else {
-                alert(resBody.message)
+                document.getElementById('error-show').innerHTML = `
+                        <div class="alert alert-dismissible fade show alert-warning" role="alert">
+                            <button class="btn-close" type="button" data-bs-dismiss="alert"
+                                            aria-label="close"></button>
+                            <strong>${resBody.message}</strong>
+                        </div>`
             }
-        }
-    </script> -->
+        })
+    </script>
 
     <%- include('head/footer') %>
