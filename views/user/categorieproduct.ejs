@@ -1,166 +1,305 @@
 <%- include('head/header') %>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300&display=swap" rel="stylesheet">
-  <style>
-    .category a {
-            text-decoration: none;
-            color: black;
-        }
-
-        .category-item {
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            padding: 5px;
-            width: 24.5%;
-            text-align: center;
-            box-shadow: 0 0 10px rgb(73, 72, 72);
-            transition: all 0.3s ease-in-out;
-
-        }
-
-        .category-item:hover {
-            transform: translateY(5px);
-            box-shadow: 0 0 30px rgba(239, 5, 5, 0.2);
-        }
-
-        .category-item:hover .category-item a {
-            color: red;
-        }
-
-        @media (min-width:830px) {
-            .category {
-                position: sticky;
-                top: 0%;
-                z-index: 2;
-                background: rgb(222, 220, 220);
-                font-family: 'Oswald', sans-serif;
-                display: flex;
-                justify-content: space-between;
-                overflow-x: scroll;
-                overflow-y: visible;
-            }
-
-            .category-item {
-                font-size: 22px;
-                width: 350px;
-            }
-        }
-
-        @media (max-width:830px) {
-            .category {
-                position: sticky;
-                top: 0%;
-                z-index: 2;
-                background: rgb(222, 220, 220);
-                font-family: 'Oswald', sans-serif;
-                display: flex;
-                justify-content: space-between;
-                overflow-x: scroll;
-                overflow-y: visible;
-            }
-
-            .category-item {
-                font-size: 15px;
-                width: 350px;
-            }
-        }
-
-        @media (max-width:480px) {
-            .category {
-                position: sticky;
-                top: 0%;
-                z-index: 2;
-                background: rgb(222, 220, 220);
-                font-family: 'Oswald', sans-serif;
-                display: flex;
-                justify-content: space-between;
-                overflow-x: scroll;
-                overflow-y: visible;
-            }
-
-            .category-item {
-                font-size: 9px;
-                width: 350px;
-            }
-        }
-
-        .category::-webkit-scrollbar {
-            display: none;
-        }
-  </style>
-  <!-- categoryes -->
-  <div class="category">
-    <% if (categoryNames && categoryNames!==null) { %>
-      <% for( let i=0; i < categoryNames.length; i++ ) { %>
-          <a href="/view-categorie-products/<%= categoryNames[i] %>">
-            <div class="category-item ">
-            <%= categoryNames[i] %>
-          </div>
-          </a>
-        <% } %>
-          <% } %>
-  </div>
-  <!-- /categoryes -->
-
-  <section style="background-color: #f7efef;">
-    <div class="container">
-      <div class="row mt-4">
-        <h2 class="text-center"><%= categorie %></h2>
-      </div>
-      <div class="row mt-5 mx-auto">
-        <% filterResult.forEach((row,index)=> { %>
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3 shadow mb-4">
-            <a style="text-decoration: none; color: black;" href="/productDetails/<%= row._id %>">
-              <div class="card">
-                <img src="http://localhost:3000/<%= row.image[0] %>" class="card-img-top" alt="<%= row.image %>">
-                <div class="card-body">
-                  <h5 class="card-title">
-                    <%= row.name %>
-                  </h5>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <!------ Include the above in your HEAD tag ---------->
+  <link rel="stylesheet" href="/static/user/style.css">
+  <link rel="stylesheet" href="https://fontawesome.com/v4.7.0/assets/font-awesome/css/font-awesome.css">
 
 
-                  <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
-                    onclick="addToWishlist('<%= row._id %>'); return false;" id="heart<%= row._id %>"></i>
+  <div class="container-fluid" style="background-color: #f7efef;">
+    <div class="row">
+      <aside class="col-md-3 col-12 col-sm-12 col-lg-3">
 
-                  <% if (row.stock==0) { %>
-                    <p class="text-danger">out of stock</p>
-                    <% } %>
-                      <% if (row.discount!==0) { %>
-                        <small class="text-success">
-                          <%= row.discount+" %off" %>
-                        </small>
-                        <p class="card-text text-success"><del class="text-danger">
-                            <%= row.price %>
-                          </del> <i class="fa-solid fa-indian-rupee-sign text-dark"></i>
-                          <%= row.price-(row.price*row.discount/100) %>
+        <div class="card">
+          <article class="filter-group">
+            <header class="card-header">
+              <a href="#" data-toggle="collapse" data-target="#collapse_1" aria-expanded="true" class="">
+                <i class="icon-control fa fa-chevron-down"></i>
+                <h6 class="title">Product type</h6>
+              </a>
+            </header>
+            <div class="filter-content collapse show" id="collapse_1" style="">
+              <div class="card-body">
+                <form class="pb-3">
+                  <div class="input-group">
+                    <form action="/search-product" method="post">
+                      <input type="search" class="form-control" name="value" placeholder="Search">
+                      <div class="input-group-append">
+                        <button class="btn btn-light" type="submit"><i class="fa fa-search"></i></button>
+                      </div>
+                    </form>
+                  </div>
+                </form>
+                <article class="filter-group">
+                  <header class="card-header">
+                    <i class="icon-control fa fa-chevron-down"></i>
+                    <h6 class="title">Categories </h6>
+
+                  </header>
+                  <% if (categoryNames && categoryNames!==null) { %>
+                    <ul class="list-menu"></ul>
+                    <% for( let i=0; i < categoryNames.length; i++ ) { %>
+                      <li style="list-style: none; cursor: pointer;"><a
+                          onclick="categoryView('<%= categoryNames[i] %>')">
+                          <%= categoryNames[i] %>
+                        </a></li>
+                      <% } %>
+                        </ul>
+                        <% } %>
+                </article>
+
+
+
+              </div> <!-- card-body.// -->
+            </div>
+          </article> <!-- filter-group  .// -->
+          <article class="filter-group">
+            <header class="card-header">
+              <i class="icon-control fa fa-chevron-down"></i>
+              <h6 class="title">Brands </h6>
+            </header>
+            <div class="filter-content collapse show" id="collapse_2" style="">
+              <div class="card-body">
+                <% if (brands && brands!==null) { %>
+                  <% for( let i=0; i < brands.length; i++ ) { %>
+                    <label class="custom-control custom-checkbox">
+                      <input type="checkbox" checked="" name="brand" value="<%= brands[i]._id %>"
+                        class="custom-control-input">
+                      <div class="custom-control-label">
+                        <p>
+                          <%= brands[i].name %>
                         </p>
-                        <% }else{ %>
-                          <p class="card-text"><i class="fa-solid fa-indian-rupee-sign"></i>
-                            <%= row.price %>
-                          </p>
-                          <% } %>
+                      </div>
+                    </label>
+                    <% } %>
+                      <% } %>
+              </div> <!-- card-body.// -->
+            </div>
+          </article> <!-- filter-group .// -->
+          <article class="filter-group">
+            <header class="card-header">
+              <i class="icon-control fa fa-chevron-down"></i>
+              <h6 class="title">Price range </h6>
+            </header>
+            <div class="filter-content collapse show" id="collapse_3" style="">
+              <div class="card-body">
+                <div class="form-row">
+                  <div class="col-12 list-menu">
+                    <ul class="list-menu" style="cursor: pointer;">
+                      <li><a onclick="priceSort(0,500)">₹0.00 - ₹500 </a></li>
+                      <li><a onclick="priceSort(1000,5000)">₹1000 - ₹5000 </a></li>
+                      <li><a onclick="priceSort(5000,8000)">₹5000 - ₹8000 </a></li>
+                      <li><a onclick="priceSort(8000,12000)">₹8000 - ₹12,000 </a></li>
+                      <li><a onclick="priceSort(0,0)" class="text-primary">show all </a></li>
+                    </ul>
+                  </div>
+                  <div class="d-flex">
+                    <div class="form-group col-md-6">
+                      <label>Min</label>
+                      <input class="form-control" placeholder="₹0" id="min" type="number">
+                    </div>
+                    <div class="form-group text-right col-md-6">
+                      <label>Max</label>
+                      <input class="form-control" placeholder="₹1,0000" id="max" type="number">
+                    </div>
+                  </div>
+
+                </div> <!-- form-row.// -->
+                <button onclick="Filter()" class="btn btn-block btn-primary">Apply</button>
+              </div><!-- card-body.// -->
+            </div>
+          </article> <!-- filter-group .// -->
 
 
-                            <!-- <div class="d-flex mt-3">
-                              <% if (row.cart) { %>
-                                <a href="/carts" class="btn btn-warning py-3 fw-bold">Go
-                                  to carts</a>
-                                <% }else{ %>
-                                  <button class="btn btn-warning py-3 fw-bold"
-                                                                onclick="addToCart('<%= JSON.stringify({id:row._id,name:row.name,price:row.price,image:row.image[0],description:row.description}) %>'); return false;">Add
-                                                                to Cart</button>
-                                  <% } %>
-                                    <a href="#" class="btn btn-danger ms-3 py-3 fw-bold">Buy
-                                      Now</a>
-                            </div> -->
-                </div>
-              </div>
-            </a>
+        </div> <!-- card.// -->
+
+      </aside>
+      <main class="col-md-9 col-lg-9 col-12 col-sm-12">
+
+        <header class="border-bottom mb-4 pb-3">
+          <div class="form-inline">
+            <span class="mr-md-auto" id="count">
+              <%= filterResult?filterResult.length:'()' %> item found
+            </span>
+            <div class="btn-group">
+              <P id="categoryname" class="me-5 fw-bold mt-2"><%= categorie %></P>
+              <a href="#" class="btn btn-outline-secondary" data-toggle="tooltip" title=""
+                data-original-title="List view">
+                <i class="fa fa-bars"></i></a>
+              <a href="#" class="btn  btn-outline-secondary active" data-toggle="tooltip" title=""
+                data-original-title="Grid view">
+                <i class="fa fa-th"></i></a>
+            </div>
           </div>
-          <% }) %>
+        </header><!-- sect-heading -->
+        <div class="container">
+          <div class="row" id="filteredProducts">
+            <% filterResult.forEach((row,index)=> { %>
+              <div class="col-12 col-sm-6 col-md-4 col-lg-4 shadow mb-4">
+                <a style="text-decoration: none; color: black;" href="/productDetails/<%= row._id %>">
+                  <div class="card">
+                    <img src="http://localhost:3000/<%= row.image[0] %>" class="card-img-top" alt="<%= row.image %>">
+                    <div class="card-body">
+                      <h5 class="card-title">
+                        <%= row.name %>
+                      </h5>
 
 
-      </div>
+                      <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                        onclick="addToWishlist('<%= row._id %>'); return false;" id="heart<%= row._id %>"></i>
 
+                      <% if (row.stock==0) { %>
+                        <p class="text-danger">out of stock</p>
+                        <% } %>
+                          <% if (row.discount!==0) { %>
+                            <small class="text-success">
+                              <%= row.discount+" %off" %>
+                            </small>
+                            <p class="card-text text-success"><del class="text-danger">
+                                <%= row.price %>
+                              </del> <i class="fa-solid fa-indian-rupee-sign text-dark"></i>
+                              <%= row.price-(row.price*row.discount/100) %>
+                            </p>
+                            <% }else{ %>
+                              <p class="card-text"><i class="fa-solid fa-indian-rupee-sign"></i>
+                                <%= row.price %>
+                              </p>
+                              <% } %>
+                    </div>
+                  </div>
+                </a>
+              </div>
+
+              <% }) %>
+
+
+
+
+                <nav class="mt-4" aria-label="Page navigation sample">
+                  <ul class="pagination">
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                  </ul>
+                </nav>
+          </div>
+        </div>
+
+      </main>
     </div>
-  </section>
+  </div>
+  <script src="/static/user/common.js"></script>
+  <script>
+    function openTab(id){
+            window.open(`/productDetails/${id}`,"_blank")
+        }
+    function priceSort(start,end){
+      try {
+        document.getElementById('min').value=start;
+        document.getElementById('max').value=end;
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    async function Filter(){
+      try {
+        const min=document.getElementById('min').value;
+        const max=document.getElementById('max').value;
+        alert(min+'  '+max)
+        const selectedBrands = Array.from(document.querySelectorAll('input[name="brand"]:checked')).map(checkbox => checkbox.value);
+        console.log(selectedBrands)
+        const data=JSON.stringify({
+          min:min,
+          max:max,
+          brands:selectedBrands
+        })
+        const response=await fetch('/filter-products',{
+          method:'post',
+          headers: { 'Content-Type': 'application/json' },
+          body:data
+        })
+        const resbody=await response.json()
+        if(resbody.success){
+          let x = '';
+          for (let i = 0; i < resbody.filteredProducts.length; i++) {
+            x += `
+            <div class="col-12 col-sm-6 col-md-4 col-lg-4 shadow mb-4">
+              <a style="text-decoration: none; color: black;" onclick="openTab('${resbody.filteredProducts[i]._id}')">
+                <div class="card">
+                  <img src="http://localhost:3000/${resbody.filteredProducts[i].image[0]}" class="card-img-top" alt="">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      ${resbody.filteredProducts[i].name}
+                    </h5>
+                    <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                      onclick="addToWishlist('${resbody.filteredProducts[i]._id}'); return false;" id="heart${resbody.filteredProducts[i]._id}"></i>
+                    ${resbody.filteredProducts[i].stock == 0 ? '<p class="text-danger">out of stock</p>' : ''}
+                    ${resbody.filteredProducts[i].discount !== 0 ? `<small class="text-success">${resbody.filteredProducts[i].discount} %off </small>
+                          <p class="card-text text-success"><del class="text-danger">
+                              ${resbody.filteredProducts[i].price}
+                            </del> <i class="fa-solid fa-indian-rupee-sign text-dark"></i>
+                            ${resbody.filteredProducts[i].price - (resbody.filteredProducts[i].price * resbody.filteredProducts[i].discount / 100)}
+                          </p>`: `<p class="card-text"><i class="fa-solid fa-indian-rupee-sign"></i>${resbody.filteredProducts[i].price}</p>`}
+                        
+                  </div>
+                </div>
+              </a>
+            </div>`
+          }
+          document.getElementById('categoryname').innerText = resbody.category;
+          document.getElementById('count').innerText = `(${resbody.filteredProducts.length}) item found`
+          document.getElementById('filteredProducts').innerHTML = x;
+        }else{
+          alert(resbody.message)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    async function categoryView(name) {
+      try {
+        const response = await fetch(`/category-details/${name}`, { method: 'get' })
+        const resbody = await response.json()
+        if (resbody.success) {
+          let x = '';
+          for (let i = 0; i < resbody.filterResult.length; i++) {
+            x += `
+            <div class="col-12 col-sm-6 col-md-4 col-lg-4 shadow mb-4">
+              <a style="text-decoration: none; color: black;" href="/productDetails/${resbody.filterResult[i]._id}">
+                <div class="card">
+                  <img src="http://localhost:3000/${resbody.filterResult[i].image[0]}" class="card-img-top" alt="">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      ${resbody.filterResult[i].name}
+                    </h5>
+                    <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                      onclick="addToWishlist('${resbody.filterResult[i]._id}'); return false;" id="heart${resbody.filterResult[i]._id}"></i>
+                    ${resbody.filterResult[i].stock == 0 ? '<p class="text-danger">out of stock</p>' : ''}
+                    ${resbody.filterResult[i].discount !== 0 ? `<small class="text-success">${resbody.filterResult[i].discount} %off </small>
+                          <p class="card-text text-success"><del class="text-danger">
+                              ${resbody.filterResult[i].price}
+                            </del> <i class="fa-solid fa-indian-rupee-sign text-dark"></i>
+                            ${resbody.filterResult[i].price - (resbody.filterResult[i].price * resbody.filterResult[i].discount / 100)}
+                          </p>`: `<p class="card-text"><i class="fa-solid fa-indian-rupee-sign"></i>${resbody.filterResult[i].price}</p>`}
+                        
+                  </div>
+                </div>
+              </a>
+            </div>`
+          }
+          document.getElementById('categoryname').innerText = resbody.categoryName;
+          document.getElementById('count').innerText = `(${resbody.filterResult.length}) item found`
+          document.getElementById('filteredProducts').innerHTML = x;
+        } else {
+          alert('Somthing went wrong')
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  </script>
   <%- include('head/footer') %>

@@ -1,5 +1,6 @@
 const Cart = require('../models/cart');
 const Order = require('../models/order')
+const Product=require('../models/product');
 const User = require('../models/user')
 const nodemailer = require('nodemailer');
 const Razorpay = require('razorpay')
@@ -406,7 +407,21 @@ const sendOtpVerificationEmail = async ({ _id, email }, req, res) => {
 
     }
 }
+async function categoryName() {
+    try {
+        let productList = await Product.find({ isDeleted: false }).sort({ crated_at: -1 }).populate("categorieId", { _id: 0, name: 1 })
 
+        // console.log(productList)
+        let categoryNames = [...new Set(
+            productList
+                .filter(product => product.categorieId && product.categorieId.name) // Filter out null or undefined categorieId
+                .map(product => product.categorieId.name)
+        )];
+        return categoryNames;
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 
 module.exports = {
@@ -423,6 +438,7 @@ module.exports = {
     sendUriToEmail,
     generateRazorpay,
     walletTransactions,
-    sendOtpVerificationEmail
+    sendOtpVerificationEmail,
+    categoryName
 
 }

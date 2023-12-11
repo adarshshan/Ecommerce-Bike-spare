@@ -81,30 +81,34 @@
                                         <div class="col-sm-6 mb-3 col-12">
                                             <p class="mb-0">Name</p>
                                             <div class="form-outline">
-                                                <input type="text" id="name" placeholder="Type here"
+                                                <input type="text" id="name" onkeyup="validateName()" placeholder="Type here"
                                                     class="form-control p-3" />
+                                                    <span id="name-error" class="text-danger"></span>
                                             </div>
                                         </div>
                                         <div class="col-sm-6 col-12 mb-3">
                                             <p class="mb-0">Mobile</p>
                                             <div class="form-outline">
-                                                <input type="text" id="phone" placeholder="Mobile"
+                                                <input type="text" id="phone" onkeyup="validatePhone()" placeholder="Mobile"
                                                     class="form-control p-3" />
+                                                    <span id="phone-error" class="text-danger"></span>
                                             </div>
                                         </div>
                                         <div class="col-sm-12  col-12 mb-3">
                                             <p class="mb-0">Address</p>
                                             <div class="form-outline">
-                                                <textarea name="address" id="address" cols="100" rows="3"
+                                                <textarea name="address" id="address" onkeyup="validateAddress()" cols="100" rows="3"
                                                     placeholder="type here..."></textarea>
+                                                    <span id="address-error" class="text-danger"></span>
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6 col-12 mb-3">
                                             <p class="mb-0">Pin code</p>
                                             <div class="form-outline">
-                                                <input type="number" id="pin" placeholder="Type here"
+                                                <input type="number" id="pin" onkeyup="validatePin()" placeholder="Type here"
                                                     class="form-control p-3" />
+                                                    <span id="pin-error" class="text-danger"></span>
                                             </div>
                                         </div>
 
@@ -127,18 +131,21 @@
                                                 <option value="Palakkad">Palakkad</option>
                                                 <option value="Palakkad">Palakkad</option>
                                             </select>
+                                            <span id="district-error" class="text-danger"></span>
                                         </div>
                                         <div class="col-sm-6 col-12 mb-3">
                                             <p class="mb-0">Landmark</p>
                                             <div class="form-outline">
-                                                <input type="text" id="Landmark" class="form-control p-3" />
+                                                <input type="text" id="Landmark" onkeyup="validateLandmark()" class="form-control p-3" />
+                                                <span id="landmark-error" class="text-danger"></span>
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6 col-12 mb-3">
                                             <p class="mb-0">Alternative mobile number</p>
                                             <div class="form-outline">
-                                                <input type="number" id="alternumber" class="form-control p-3" />
+                                                <input type="number" id="alternumber" onkeyup="validateAlternumber()" class="form-control p-3" />
+                                                <span id="alternumber-error" class="text-danger"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -196,8 +203,8 @@
             </div>
         </div>
     </section>
-    
-    <script src="/static/user/address.js"></script>
     <script src="/static/user/validateAddressform.js"></script>
+    <script src="/static/user/address.js"></script>
+   
 
     <%- include('head/footer') %>

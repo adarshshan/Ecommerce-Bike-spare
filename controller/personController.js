@@ -94,9 +94,10 @@ async function userDetailHome(req, res) {
 async function categoryFilter(req, res) {
     try {
         const categorie = req.params.categoryname;
-        var categoryNames = await categoryName();
+        req.session.categoryName=categorie;
+        var categoryNames = await helpers.categoryName();
+        console.log(categoryNames)
         const products = await Products.find({ isDeleted: false }).populate('categorieId', { _id: 0, name: 1 })
-        console.log(`products is ${products[2].categorieId.name}`);
         let filterResult = [];
         console.log('the length is ', products.length)
         for (let i = 0; i < products.length; i++) {
@@ -104,9 +105,17 @@ async function categoryFilter(req, res) {
                 filterResult.push(products[i]);
             }
         }
+        const brands=await Brand.find({isDeleted:false});
+        console.log(brands)
         console.log('result is herre boss')
         console.log(filterResult);
-        res.render('user/categorieproduct.ejs', { title: 'view-categoryProducts.', filterResult, categoryNames, categorie })
+        res.render('user/categorieproduct.ejs', {
+            title: 'view-categoryProducts.',
+            filterResult,
+            categoryNames,
+            categorie,
+            brands
+        })
     } catch (error) {
         console.log(error)
         res.redirect('/error-page');
@@ -700,21 +709,7 @@ module.exports = {
 
 //Functionss//
 
-async function categoryName() {
-    try {
-        let productList = await Products.find({ isDeleted: false }).sort({ crated_at: -1 }).populate("categorieId", { _id: 0, name: 1 })
 
-        // console.log(productList)
-        let categoryNames = [...new Set(
-            productList
-                .filter(product => product.categorieId && product.categorieId.name) // Filter out null or undefined categorieId
-                .map(product => product.categorieId.name)
-        )];
-        return categoryNames;
-    } catch (error) {
-        console.log(error)
-    }
-}
 
 async function IncreaseWalletBalance(userId, amount) {
     try {
