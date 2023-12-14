@@ -1,3 +1,7 @@
+let rupee = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+})
 function increaseProductQuantity(productId, productPrice, actualPrice) {
     console.log(`Total price in is ${productPrice}`)
     fetch(`/carts/increaseCount/${productId}`, {
@@ -26,19 +30,19 @@ function increaseProductQuantity(productId, productPrice, actualPrice) {
                 }
                 const totalPriceElement = document.getElementById(`totalproductPrice${productId}`);
                 if (totalPriceElement) {
-                    totalPriceElement.innerHTML = total;
+                    totalPriceElement.innerHTML = rupee.format(total.toFixed(2));
                 }
                 const totalDiscountElement = document.getElementById('discountamount')
                 if (totalDiscountElement) {
-                    totalDiscountElement.innerHTML = totalDiscount;
+                    totalDiscountElement.innerHTML = rupee.format(totalDiscount.toFixed(2));
                 }
                 const ActualPriceElement = document.getElementById(`tprice${productId}`)
                 if (ActualPriceElement) {
-                    ActualPriceElement.innerHTML = actualamount;
+                    ActualPriceElement.innerHTML = rupee.format(actualamount.toFixed(2));
                 }
                 const totalAmountElement = document.getElementById('totalAmount')
                 if (totalAmountElement) {
-                    totalAmountElement.innerHTML = totalAmount
+                    totalAmountElement.innerHTML = rupee.format(totalAmount.toFixed(2))
                 }
                 const totalProductsElement = document.getElementById('totalProducts')
                 if (totalProductsElement) {
@@ -46,13 +50,13 @@ function increaseProductQuantity(productId, productPrice, actualPrice) {
                 }
                 const taem = document.getElementById('actualamount')
                 if (taem) {
-                    taem.innerHTML = totalAmount
+                    taem.innerHTML = rupee.format(totalAmount.toFixed(2))
                 }
             } else {
                 Swal.fire({
                     title: "Sorry!",
                     text: data.message
-                  });
+                });
                 console.log(data.message)
             }
         })
@@ -90,19 +94,19 @@ function decreaseProductQuantity(productId, productPrice, actualPrice) {
                 }
                 const ActualPriceElement = document.getElementById(`tprice${productId}`)
                 if (ActualPriceElement) {
-                    ActualPriceElement.innerHTML = actualamount;
+                    ActualPriceElement.innerHTML = rupee.format(actualamount.toFixed(2));
                 }
                 const totalDiscountElement = document.getElementById('discountamount')
                 if (totalDiscountElement) {
-                    totalDiscountElement.innerHTML = totalDiscount;
+                    totalDiscountElement.innerHTML = rupee.format(totalDiscount.toFixed(2));
                 }
                 const totalPriceElement = document.getElementById(`totalproductPrice${productId}`);
                 if (totalPriceElement) {
-                    totalPriceElement.innerHTML = total;
+                    totalPriceElement.innerHTML = rupee.format(total.toFixed(2));
                 }
                 const totalAmountElement = document.getElementById('totalAmount')
                 if (totalAmountElement) {
-                    totalAmountElement.innerHTML = totalAmount
+                    totalAmountElement.innerHTML = rupee.format(totalAmount.toFixed(2))
                 }
                 const totalProductsElement = document.getElementById('totalProducts')
                 if (totalProductsElement) {
@@ -110,7 +114,7 @@ function decreaseProductQuantity(productId, productPrice, actualPrice) {
                 }
                 const taem = document.getElementById('actualamount')
                 if (taem) {
-                    taem.innerHTML = totalAmount
+                    taem.innerHTML = rupee.format(totalAmount.toFixed(2))
                 }
             } else {
                 console.log(data.message)

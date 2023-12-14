@@ -77,7 +77,7 @@ async function orderPost(req, res) {
                     var couponPercent = 0
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
-                        totalAmount = coupon.total
+                        totalAmount = parseInt(coupon.total)
                         discount = coupon.discount
                         couponCode = coupon.code
                         couponPercent = coupon.couponPercent
@@ -140,6 +140,7 @@ async function orderPost(req, res) {
                             await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });//Stock Deduction
                             if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
                             delete req.session.discount;//To delete the coupon discount details.
+                            localStorage.removeItem('product');
                             return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
                         } else {
                             if (totalAmount === 0 && value === 'online payment + wallet') {
@@ -150,6 +151,7 @@ async function orderPost(req, res) {
                                 await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });//Stock Deduction
                                 if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
                                 delete req.session.discount;//To delete the coupon discount details.
+                                localStorage.removeItem('product');
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
                             if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
@@ -158,6 +160,7 @@ async function orderPost(req, res) {
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
                                 if (couponCode) User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true }).then(() => console.log(''));//add used coupon in user collection.
                                 delete req.session.discount;//To delete the coupon discount details.
+                                localStorage.removeItem('product');
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
                             }).catch((err) => {
                                 console.log(`error is ${err}`);
@@ -181,7 +184,7 @@ async function orderPost(req, res) {
                     var { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: userId })
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
-                        totalAmount = coupon.total
+                        totalAmount = parseInt(coupon.total)
                         discount = coupon.discount
                         couponCode = coupon.code
                         couponPercent = coupon.couponPercent
@@ -324,7 +327,7 @@ async function orderPost(req, res) {
                     var couponPercent = 0
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
-                        totalAmount = coupon.total
+                        totalAmount = parseInt(coupon.total);
                         discount = coupon.discount
                         couponCode = coupon.code
                         couponPercent = coupon.couponPercent
@@ -380,6 +383,7 @@ async function orderPost(req, res) {
                             await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });//Stock Deduction
                             delete req.session.discount;//To delete the coupon discount details.
                             if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
+                            localStorage.removeItem('product');
                             return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
                         } else {
                             if (totalAmount === 0 && value === 'online payment + wallet') {
@@ -390,6 +394,7 @@ async function orderPost(req, res) {
                                 await Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } });//Stock Deduction
                                 delete req.session.discount;//To delete the coupon discount details.
                                 if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
+                                localStorage.removeItem('product');
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
                             if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
@@ -399,6 +404,7 @@ async function orderPost(req, res) {
                                 Product.findByIdAndUpdate(product.id, { $inc: { stock: -1 } }).then(() => { console.log('') })//Stock Deduction
                                 delete req.session.discount;//To delete the coupon discount details.
                                 if (couponCode) User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true }).then(() => console.log(''));//add used coupon in user collection.
+                                localStorage.removeItem('product');
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
                             }).catch((err) => {
                                 console.log(`error is ${err}`);
@@ -421,7 +427,7 @@ async function orderPost(req, res) {
                     var { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: userId })
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
-                        totalAmount = coupon.total
+                        totalAmount = parseInt(coupon.total);
                         discount = coupon.discount
                         couponCode = coupon.code
                         couponPercent = coupon.couponPercent
@@ -533,7 +539,8 @@ async function orderHomePage(req, res) {
             const start = (page - 1) * productsPerPage;
             const end = start + productsPerPage;
             const paginatedProducts = data.orders.slice(start, end)
-
+console.log('the orders are below.....................................................')
+console.log(paginatedProducts);
             return res.render('user/orderlist.ejs', {
                 title: 'orderList',
                 data: paginatedProducts,

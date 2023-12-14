@@ -7,7 +7,10 @@ async function dashboardHome(req, res) {
     try {
         const allOrders = await helpers.getAllOrders();
         const todoMessage = await helpers.getTodoList();
-
+        console.log('all orders is .......................................');
+        console.log(allOrders);
+        
+        console.log(allOrders.length);
         var totalSales = 0;
         for (let i = 0; i < allOrders.length; i++) {
             totalSales += allOrders[i].totalAmount + allOrders[i].walletAmount
@@ -17,10 +20,6 @@ async function dashboardHome(req, res) {
         const timeWiseOrders = await helpers.timeWiseOrders()
 
         const newarr = helpers.newArray(timeWiseOrders);
-        // console.log(newarr);
-        // const year=helpers.getYearRatio(newarr);
-        // const month=helpers.getMonthRatio(newarr);
-        // const week=helpers.getWeekRatio(newarr);
         const day = helpers.getDayRatio(newarr);
         res.render('admin/dashboard.ejs', {
             title: 'Dashboard',

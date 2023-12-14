@@ -64,15 +64,30 @@
                 </div>
                 <div class="col-md-6">
                     <% let rupee=new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , }); %>
-                    <div class="d-flex justify-content-between">
-                        <h1>
-                            <%= products.name %>
-                        </h1>
-                        <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                        <div class="d-flex justify-content-between">
+                            <h1>
+                                <%= products.name %>
+                            </h1>
+                            <% if (userId && userId!==null && userId!==undefined) { %>
+                                <% let existInWishlist=products.likes.some((item)=>item.userId===userId) %>
+                                    <% if (existInWishlist) { %>
+                                        <i style="color: #e50404;" class="fas fa-heart float-end fs-1 pb-5"
                                             onclick="addToWishlist('<%= products._id %>'); return false;"
                                             id="heart<%= products._id %>"></i>
-                    </div>
-                        
+                                        <% }else{ %>
+                                            <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                                                onclick="addToWishlist('<%= products._id %>'); return false;"
+                                                id="heart<%= products._id %>"></i>
+                                            <% } %>
+                                                <% }else{ %>
+                                                    <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                                                        onclick="addToWishlist('<%= products._id %>'); return false;"
+                                                        id="heart<%= products._id %>"></i>
+                                                    <% } %>
+
+
+                        </div>
+
                         <p>
                             <%= products.description %>
                         </p>
@@ -93,33 +108,33 @@
                                 <% } %>
                                     <% if (products.stock==0) { %>
                                         <p><strong>Availability: </strong><b class="text-danger">Out of Stock!</b></p>
-                                    <% }else{ %>
-                                        <p><strong>Availability: In Stock </strong>
-                                            <%= products.stock %><b> Nos</b>
-                                        </p>
-                                        <% } %>
-                                    
-                                    <p><strong>Brand:<%= brandName %></strong></p>
-                                    <p><strong>Category: <%= categoryName %> </strong></p>
+                                        <% }else{ %>
+                                            <p><strong>Availability: In Stock </strong>
+                                                <%= products.stock %><b> Nos</b>
+                                            </p>
+                                            <% } %>
 
-                                    <div class="d-flex mt-5 mb-4 ms-3">
-                                        <% if (products.stock==0) { %>
-                                            <button disabled class="btn btn-secondary p-3 fw-bold"
-                                                    onclick="addToCart('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description}) %>'); return false;">Add
-                                                    to Cart</button>
-                                                    <button disabled class="btn btn-secondary p-3 fw-bold ms-3"
-                                                        onclick="buyNow('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description,discount:products.discount}) %>'); return false;">Buy
-                                                        Now</button>
-                                            <% }else{ %>
-                                                <button class="btn btn-warning p-3 fw-bold"
-                                                    onclick="addToCart('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description}) %>'); return false;">Add
-                                                    to Cart</button>
-                                                    <button class="btn btn-success p-3 fw-bold ms-3"
-                                                        onclick="buyNow('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description,discount:products.discount}) %>'); return false;">Buy
-                                                        Now</button>
-                                                <% } %>
-                                                    
-                                    </div>
+                                                <p><strong>Brand:<%= brandName %></strong></p>
+                                                <p><strong>Category: <%= categoryName %> </strong></p>
+
+                                                <div class="d-flex mt-5 mb-4 ms-3">
+                                                    <% if (products.stock==0) { %>
+                                                        <button disabled class="btn btn-secondary p-3 fw-bold"
+                                                            onclick="addToCart('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description}) %>'); return false;">Add
+                                                            to Cart</button>
+                                                        <button disabled class="btn btn-secondary p-3 fw-bold ms-3"
+                                                            onclick="buyNow('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description,discount:products.discount}) %>'); return false;">Buy
+                                                            Now</button>
+                                                        <% }else{ %>
+                                                            <button class="btn btn-warning p-3 fw-bold"
+                                                                onclick="addToCart('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description}) %>'); return false;">Add
+                                                                to Cart</button>
+                                                            <button class="btn btn-success p-3 fw-bold ms-3"
+                                                                onclick="buyNow('<%= JSON.stringify({id:products._id,name:products.name,price:products.price,image:products.image[0],description:products.description,discount:products.discount}) %>'); return false;">Buy
+                                                                Now</button>
+                                                            <% } %>
+
+                                                </div>
                 </div>
             </div>
             <% if (products.reviews.length) { %>
@@ -131,9 +146,15 @@
                             let avg=score/products.reviews.length %>
                             <div class="d-flex border">
                                 <div class="p-4">
-                                    <h1><%= avg.toFixed(1) %><i class="fa-regular fa-star ms-1 text-danger"></i></h1>
+                                    <h1>
+                                        <%= avg.toFixed(1) %><i class="fa-regular fa-star ms-1 text-danger"></i>
+                                    </h1>
                                 </div>
-                                <div class="p-4 m-3"><h6><%= products.reviews.length %> Ratings & Reviews</h6></div>
+                                <div class="p-4 m-3">
+                                    <h6>
+                                        <%= products.reviews.length %> Ratings & Reviews
+                                    </h6>
+                                </div>
                             </div>
                             <% for( let i=0; i < products.reviews.length; i++ ) { %>
                                 <div class="col-12 border p-2">

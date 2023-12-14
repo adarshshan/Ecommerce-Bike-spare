@@ -72,17 +72,24 @@ document.getElementById('bannerForm').addEventListener('submit', async (e) => {
             });
     }, 'image/jpeg');
 });
-function validateBanner() {
+async function validateBanner() {
     try {
         const title = document.getElementById('title').value.split(' ').join('')
         const product = document.getElementById('product').value
         const sdate = document.getElementById('startDate').value
         const edate = document.getElementById('endDate').value
+        const inputImage=document.getElementById('inputImage')
         const description = document.getElementById('description').value.split(' ').join('')
         const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
         document.getElementById('title-error').innerText = ''; document.getElementById('product-error').innerText = '';
         document.getElementById('sdate-error').innerText = ''; document.getElementById('edate-error').innerText = '';
         document.getElementById('description-error').innerText = '';
+        const validate=await validateImageFile(inputImage.files[0]);
+        if(!validate) return Swal.fire({
+            title: "",
+            text: "Invalid Image Detected!.\n Choose the valid Images",
+            icon: "error"
+          });;
         let flag = 0;
         if (specialChars.test(title)) {
             document.getElementById('title-error').innerText = 'Special characters are not accepted!'
@@ -102,3 +109,21 @@ function validateBanner() {
         console.log(error)
     }
 }
+function validateImageFile(file) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = function () {
+        // Image is valid if it loads properly
+        resolve(true);
+      };
+      img.onerror = function () {
+        // Image failed to load, hence invalid
+        resolve(false);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+flatpickr("#startDate,#endDate", {
+    dateFormat: "Y-m-d", // Customize the date format as needed
+  });

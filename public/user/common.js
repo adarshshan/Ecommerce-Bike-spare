@@ -184,7 +184,7 @@ $(document).ready(function () {
 });
 
 //Remove wishlist
-async function removeWishlist(id) {
+async function removeWishlist(id,productId) {
     Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -195,7 +195,7 @@ async function removeWishlist(id) {
         confirmButtonText: "Yes, delete it!"
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/remove-wishlist/${id}`, { method: 'delete' }).then((response) => {
+            fetch(`/remove-wishlist/${id}/${productId}`, { method: 'delete' }).then((response) => {
                 if (!response.ok) {
                     console.log('there is an error...')
                     throw new Error('Network response was not ok');

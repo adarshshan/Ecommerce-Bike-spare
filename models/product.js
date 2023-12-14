@@ -42,7 +42,11 @@ const prouctSchema = new mongoose.Schema({
     discount:{
         type:Number,
         default:0
-    },reviews:[
+    },
+    likes:[{
+        userId:{type:String}
+    }],
+    reviews:[
         {
             title:{
                 type:String,

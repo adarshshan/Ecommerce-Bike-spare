@@ -1,6 +1,7 @@
 <%- include('head/header') %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <div id="page-content-wrapper">
         <div class="container" style="margin-left: 248px;">
             <div class="row mt-5">
@@ -56,13 +57,13 @@
                             </div>
                             <div>
                                 <label for="">Start Date</label>
-                                <input type="date" name="startDate" value="<%= data.startDate %>" id="startDate"
+                                <input type="text" name="startDate" value="<%= data.startDate %>" id="startDate"
                                     class="form-control">
                                 <span id="sdate-error" class="text-danger"></span>
                             </div>
                             <div>
                                 <label for="">End Date</label>
-                                <input type="date" name="endDate" value="<%= data.endDate %>" id="endDate"
+                                <input type="text" name="endDate" value="<%= data.endDate %>" id="endDate"
                                     class="form-control">
                                 <span id="edate-error" class="text-danger"></span>
                             </div>
@@ -75,9 +76,12 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.js"
         integrity="sha512-Zt7blzhYHCLHjU0c+e4ldn5kGAbwLKTSOTERgqSNyTB50wWSI21z0q6bn/dEIuqf6HiFzKJ6cfj2osRhklb4Og=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/static/admin/editBanner.js"></script>
+    
     <%- include('head/footer') %>

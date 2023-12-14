@@ -121,8 +121,6 @@ function renderInvoice(invoiceData) {
                 </div>
             </div>
         </div>`;
-
-
     document.getElementById('invoice-container').style.border = '2px solid black'
     document.getElementById('invoice-container').innerHTML = invoiceHtml;
 }
@@ -244,6 +242,9 @@ async function downloadInvoice() {
         a.click();
         document.body.removeChild(a);
     });
+    setTimeout(() => {
+        document.getElementById('invoice-container').style.display = 'none';
+    }, 2000);
 }
 
 function htmlToBlob(html, callback) {
@@ -251,7 +252,7 @@ function htmlToBlob(html, callback) {
         margin: 10,
         filename: 'invoice.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 3 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     }).then(function (pdf) {
         callback(pdf.output('blob'));
@@ -275,3 +276,151 @@ document.getElementById("myForm").addEventListener("submit", function (event) {
         alert("Please select an option.");
     }
 })
+///order List
+
+async function showInvoice(id) {
+    try {
+        const response = await fetch(`/carts/invoice/${id}`, { method: 'get' })
+        const resbody = await response.json()
+        if (resbody.success) {
+            renderorderInvoice(resbody.selectedOrder);
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+function renderorderInvoice(order) {
+    try {
+        document.getElementById('invoice-container').style.display = 'block';
+        let products = ''
+        let subtotal = 0;
+        for (let i = 0; i < order.products.length; i++) {
+            products += `
+                        <tr>
+                            <td>${order.products[i].productName}</td>
+                            <td class="text-center">${order.products[i].productPrice}</td>
+                            <td class="text-center">${order.products[i].quantity}</td>
+                            <td class="text-right">${order.products[i].quantity * order.products[i].productPrice}</td>
+                         </tr>`
+            subtotal += order.products[i].quantity * order.products[i].productPrice;
+        }
+        // Use invoiceData to dynamically generate the invoice HTML
+        const invoiceHtml = `
+        <div class="row" id="header-invoice">
+            <div class="col-12" style="cursor: pointer;">
+                <i onclick="downloadInvoice()" class="fa-solid fa-download float-end fs-4"></i>
+                <i onclick="closeInvoice()" class="fa-solid fa-xmark float-end me-3 fs-4"></i>
+                </div>
+            </div>
+<div class="row">
+<div class="col-xs-12">
+<div class="invoice-title">
+    <h3 class="pull-right">Invoice ${order.invoice}</h3>
+</div>
+<hr>
+<div class="row">
+    <div class="col-md-6 col-lg-6 col-12">
+        <address>
+            <strong>Billed To:</strong><br>
+            ${order.address.addressName}<br>
+            ${order.address.addressPhone}<br>
+        </address>
+    </div>
+    <div class="col-md-6 col-lg-6 col-12 text-right">
+        <address>
+            <strong>Shipped To:</strong><br>
+            ${order.address.addressName}<br>
+            Mobile: ${order.address.addressPhone}<br>
+        </address>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <address>
+            <strong>Payment Method:</strong><br>
+            ${order.paymentMethod}<br>
+        </address>
+    </div>
+    <div class="col-md-6 text-right">
+        <address>
+            <strong>Order Date:</strong><br>
+            ${order.date}<br><br>
+        </address>
+    </div>
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-md-12">
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><strong>Order summary</strong></h3>
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <td><strong>Item</strong></td>
+                        <td class="text-center"><strong>Price</strong></td>
+                        <td class="text-center"><strong>Quantity</strong></td>
+                        <td class="text-right"><strong>Totals</strong></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- foreach ($order->lineItems as $line) or some such thing here -->
+                    
+                    ${products}
+
+                    <tr>
+                        <td class="thick-line"><strong>Subtotal</strong></td>
+                        <td class="thick-line"></td>
+                        <td class="thick-line text-center"></td>
+                        <td class="thick-line text-right">Rs.${subtotal}</td>
+                    </tr>
+                    <tr>
+                        <td class="no-line"><strong>Paid from wallet balance </strong></td>
+                        <td class="no-line"></td>
+                        <td class="no-line text-center"></td>
+                        <td class="no-line text-right">Rs.${order.walletAmount}</td>
+                    </tr>
+                    <tr>
+                        <td class="no-line"><strong>Discount on products</strong></td>
+                        <td class="no-line"></td>
+                        <td class="no-line text-center"></td>
+                        <td class="no-line text-right text-success">-Rs.${order.ProductDiscount}</td>
+                    </tr>
+                    <tr>
+                        <td class="no-line"><strong>Coupon Discount</strong></td>
+                        <td class="no-line"></td>
+                        <td class="no-line text-center"></td>
+                        <td class="no-line text-right text-success">-Rs.${order.couponDiscount}</td>
+                    </tr>
+                    <tr>
+                        <td class="no-line"><strong>Shipping</strong></td>
+                        <td class="no-line"></td>
+                        <td class="no-line text-center"></td>
+                        <td class="no-line text-right">Rs.00</td>
+                    </tr>
+                    <tr>
+                        <td class="no-line"><strong>Total</strong></td>
+                        <td class="no-line"></td>
+                        <td class="no-line text-center"></td>
+                        <td class="no-line text-right">Rs.${order.totalAmount + order.walletAmount}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+</div>`;
+        document.getElementById('invoice-container').innerHTML = invoiceHtml;
+    } catch (error) {
+        console.log(error)
+    }
+}
+function closeInvoice() {
+    document.getElementById('invoice-container').style.display = 'none';
+}

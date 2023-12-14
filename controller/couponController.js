@@ -1,5 +1,5 @@
 const Coupon = require('../models/coupon')
-const User=require('../models/user')
+const User = require('../models/user')
 
 async function couponHome(req, res) {
     try {
@@ -28,12 +28,14 @@ async function couponHome(req, res) {
 
 function addCoupon(req, res) {
     try {
-        const minDiscount = req.body.minDiscount
-        const maxDiscount = req.body.maxDiscount
+        const minDiscount =req.body.minDiscount
+        const maxDiscount =req.body.maxDiscount
         const expireDate = req.body.expireDate
         const maxusage = req.body.maxusage;
-        const minPurchase = req.body.minPurchase;
-        const maxPurchase = req.body.maxPurchase
+        const minPurchase =req.body.minPurchase
+        const maxPurchase =req.body.maxPurchase
+        console.log(minDiscount + ' and ' + maxDiscount);
+        console.log(`min Purchase is ${minPurchase} and max purchase is ${maxPurchase}`)
         let isExistDiscount = false
         do {
             let myDiscountCode = coupongenerator()
@@ -136,8 +138,8 @@ async function verifyCoupon(req, res) {
         const coupon = await Coupon.findOne({ code: couponCode })
         const userId = req.session.currentUserId
         const currentDate = new Date().toISOString().split('T')[0];
-        const inUse=await User.findOne({_id:userId,usedCoupons:{$elemMatch:{couponCode:couponCode}}})
-        if(inUse) return res.json({success:false,message:'The coupon has already been redeemed.'});
+        const inUse = await User.findOne({ _id: userId, usedCoupons: { $elemMatch: { couponCode: couponCode } } })
+        if (inUse) return res.json({ success: false, message: 'The coupon has already been redeemed.' });
         if (!coupon || coupon === null) return res.json({ success: false, message: 'Entered Coupon Code is Wrong' });
         if (coupon.minPurchase > totalAmount) return res.json({ success: false, message: `Purchase must not be less than ${coupon.minPurchase}rs for eligible for this coupon.` })
         if (coupon.isDeleted) return res.json({ success: false, message: 'Coupon is No longer Available' })
@@ -174,14 +176,14 @@ async function verifyCoupon(req, res) {
         console.log(error)
     }
 }
-function cancelCoupon(req,res){
+function cancelCoupon(req, res) {
     try {
         delete req.session.discount;
         console.log('coupon cancelled.')
-        res.json({success:true,message:'coupon cancelled'})
+        res.json({ success: true, message: 'coupon cancelled' })
     } catch (error) {
         console.log(error)
-        res.json({success:false,message:'Trouble while cancelling the coupon.'})
+        res.json({ success: false, message: 'Trouble while cancelling the coupon.' })
     }
 }
 

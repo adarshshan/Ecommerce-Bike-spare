@@ -92,6 +92,7 @@ function validateCoupon() {
         minDiscountError.innerText = ''; maxPurchaseError.innerText = ''; maxDiscountError.innerText = '';
         minPurchaseError.innerText = ''; maxusageError.innerText = ''; expireDateError.innerText = '';
         let flag = 0;
+        
         if (!maxDiscount || !minDiscount || !maxPurchase || !minPurchase || !maxusage || !expireDate) {
             flag = 1;
             if (!minDiscount) minDiscountError.innerText = '*This field is requried!';
@@ -108,15 +109,6 @@ function validateCoupon() {
         }
         if (minPurchase < 0) {
             minPurchaseError.innerText = 'Cannot be less than zero';
-            flag = 1;
-        }
-        if (minDiscount > maxDiscount) {
-            maxDiscountError.innerText = 'Maximum Discount must be greater than minimum discount';
-            flag = 1;
-        }
-        if (minPurchase > maxPurchase) {
-            alert('alert')
-            maxPurchaseError.innerText = 'Maximum Purchase must be greater than minimum purchase.';
             flag = 1;
         }
         if (minDiscount < 0) {
@@ -139,6 +131,14 @@ function validateCoupon() {
             maxusageError.innerText = 'value must not be less than zero.';
             flag = 1;
         }
+        if(parseInt(minDiscount)>parseInt(maxDiscount)){
+            maxDiscountError.innerText='Maximum Discount must not be less than minimum discount!'
+            flag=1;
+        }
+        if(parseInt(minPurchase)>parseInt(maxPurchase)){
+            maxPurchaseError.innerText='Maximum purchase must not be less than minimum purchase!'
+            flag=1;
+        }
         if (flag === 0) {
             return true;
         }
@@ -149,9 +149,8 @@ function validateCoupon() {
 }
 async function addCoupon() {
     try {
-        let validate = false;
-        validate = validateCoupon();
-        if (!validate) return 0;
+        let validate = validateCoupon();
+        if (!validate) return;
         const minDiscount = document.getElementById('minDiscount').value
         const minPurchase = document.getElementById('minPurchase').value
         const maxDiscount = document.getElementById('maxDiscount').value
@@ -175,11 +174,12 @@ async function addCoupon() {
             document.getElementById('message-alert').innerText = resbody.message
             openPopup();
         } else {
-            alert('failed to add coupon...');
-            alert(resbody.message)
+            Swal.fire({text:resbody.message,icon:'warning',timer: 10000});
+            // alert(resbody.message)
         }
     } catch (error) {
         console.log(error)
+        alert(error)
     }
 }
 function openPopup() {

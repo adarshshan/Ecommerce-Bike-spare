@@ -34,40 +34,51 @@
         </nav>
         <div id="wrapper" class="mt-5 pt-3">
             <div id="sidebar-wrapper" class="">
-                <ul class="sidebar-nav nav-pills nav-stacked pt-3" id="menu">
+                <ul class="sidebar-nav nav-pills nav-stacked pt-3" id="menu" data-tag="channelList">
 
-                    <li class="active pt-2">
+                    <li onclick="switchChannel(1)" class="active pt-2 selected" id="item-1">
                         <a href="/dashboard"><span class="fa-stack fa-lg pull-left"><i
-                            class="fa fa-server fa-stack-1x "></i></span> DASHBOARD</a>
+                                    class="fa fa-server fa-stack-1x "></i></span> DASHBOARD</a>
                     </li>
-                    <li class="pt-2">
+                    <li onclick="switchChannel(2)" class="pt-2" id="item-2">
                         <a href="/products"><span class="fa-stack fa-lg pull-left"><i
-                            class="fa fa-server fa-stack-1x "></i></span>PRODUCT</a>
+                                    class="fa fa-server fa-stack-1x "></i></span>PRODUCT</a>
                     </li>
-                    <li class="pt-2">
+                    <li onclick="switchChannel(3)" class="pt-2" id="item-3">
                         <a href="/brands"> <span class="fa-stack fa-lg pull-left"><i
-                            class="fa fa-server fa-stack-1x "></i></span>BRAND</a>
+                                    class="fa fa-server fa-stack-1x "></i></span>BRAND</a>
                     </li>
-                    <li class="pt-2">
+                    <li onclick="switchChannel(4)" class="pt-2" id="item-4">
                         <a href="/categories"><span class="fa-stack fa-lg pull-left"><i
-                            class="fa fa-server fa-stack-1x "></i></span>CATEGORIES</a>
+                                    class="fa fa-server fa-stack-1x "></i></span>CATEGORIES</a>
                     </li>
-                    <li class="pt-2">
+                    <li onclick="switchChannel(5)" class="pt-2" id="item-5">
                         <a href="/users"><span class="fa-stack fa-lg pull-left"><i
-                            class="fa fa-server fa-stack-1x "></i></span>USERS</a>
+                                    class="fa fa-server fa-stack-1x "></i></span>USERS</a>
                     </li>
-                    <li class="pt-2">
+                    <li onclick="switchChannel(6)" class="pt-2" id="item-6">
                         <a href="/orders"><span class="fa-stack fa-lg pull-left"><i
                                     class="fa fa-server fa-stack-1x "></i></span>ORDERS</a>
                     </li>
-                    <li class="pt-2">
+                    <li onclick="switchChannel(7)" class="pt-2" id="item-7">
                         <a href="/coupons"><span class="fa-stack fa-lg pull-left"><i
                                     class="fa fa-server fa-stack-1x "></i></span>COUPON</a>
                     </li>
-                    <li class="pt-2">
+                    <li onclick="switchChannel(8)" class="pt-2" id="item-8">
                         <a href="/banners"><span class="fa-stack fa-lg pull-right"><i
                                     class="fa fa-server fa-stack-1x "></i></span>BANNERS</a>
                     </li>
                 </ul>
             </div>
         </div>
+        <script>
+            function switchChannel(el) {
+                localStorage.setItem('highlight',el);
+            }
+            window.onload=()=>{
+                if(localStorage.getItem('highlight')){
+                    const value=localStorage.getItem('highlight');
+                    document.getElementById(`item-${value}`).style.background='#999999';
+                }
+            }
+        </script>

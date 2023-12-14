@@ -5,7 +5,13 @@
   <!------ Include the above in your HEAD tag ---------->
   <link rel="stylesheet" href="/static/user/style.css">
   <link rel="stylesheet" href="https://fontawesome.com/v4.7.0/assets/font-awesome/css/font-awesome.css">
-
+  <style>
+    .cards:hover {
+      transform: scale(1.08);
+      transition: all 0.5s ease-in-out;
+      cursor: pointer;
+    }
+  </style>
 
   <div class="container-fluid" style="background-color: #f7efef;">
     <div class="row">
@@ -21,16 +27,6 @@
             </header>
             <div class="filter-content collapse show" id="collapse_1" style="">
               <div class="card-body">
-                <form class="pb-3">
-                  <div class="input-group">
-                    <form action="/search-product" method="post">
-                      <input type="search" class="form-control" name="value" placeholder="Search">
-                      <div class="input-group-append">
-                        <button class="btn btn-light" type="submit"><i class="fa fa-search"></i></button>
-                      </div>
-                    </form>
-                  </div>
-                </form>
                 <article class="filter-group">
                   <header class="card-header">
                     <i class="icon-control fa fa-chevron-down"></i>
@@ -123,7 +119,9 @@
               <%= filterResult?filterResult.length:'()' %> item found
             </span>
             <div class="btn-group">
-              <P id="categoryname" class="me-5 fw-bold mt-2"><%= categorie %></P>
+              <P id="categoryname" class="me-5 fw-bold mt-2">
+                <%= categorie %>
+              </P>
               <a href="#" class="btn btn-outline-secondary" data-toggle="tooltip" title=""
                 data-original-title="List view">
                 <i class="fa fa-bars"></i></a>
@@ -138,34 +136,48 @@
             <% filterResult.forEach((row,index)=> { %>
               <div class="col-12 col-sm-6 col-md-4 col-lg-4 shadow mb-4">
                 <a style="text-decoration: none; color: black;" href="/productDetails/<%= row._id %>">
-                  <div class="card">
+                  <div class="cards">
                     <img src="http://localhost:3000/<%= row.image[0] %>" class="card-img-top" alt="<%= row.image %>">
                     <div class="card-body">
-                      <h5 class="card-title">
+                      <h4 class="card-title">
                         <%= row.name %>
-                      </h5>
-
-
-                      <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
-                        onclick="addToWishlist('<%= row._id %>'); return false;" id="heart<%= row._id %>"></i>
-
-                      <% if (row.stock==0) { %>
-                        <p class="text-danger">out of stock</p>
-                        <% } %>
-                          <% if (row.discount!==0) { %>
-                            <small class="text-success">
-                              <%= row.discount+" %off" %>
-                            </small>
-                            <p class="card-text text-success"><del class="text-danger">
-                                <%= row.price %>
-                              </del> <i class="fa-solid fa-indian-rupee-sign text-dark"></i>
-                              <%= row.price-(row.price*row.discount/100) %>
-                            </p>
+                      </h4>
+                      <% if (userId && userId!==null &&userId!==undefined) { %>
+                        <% let existInWishlist=row.likes.some((item)=>item.userId===userId); %>
+                          <% if (existInWishlist) { %>
+                            <i style="color: #ef0000;" class="fas fa-heart float-end fs-1 pb-5"></i>
                             <% }else{ %>
-                              <p class="card-text"><i class="fa-solid fa-indian-rupee-sign"></i>
-                                <%= row.price %>
-                              </p>
-                              <% } %>
+                              <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                                onclick="addToWishlist('<%= row._id %>'); return false; return false;"
+                                id="heart<%= row._id %>"></i>
+                              <% } %>  
+                                <% }else{ %>
+                                  <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                                    onclick="addToWishlist('<%= row._id %>'); return false; return false;"
+                                    id="heart<%= row._id %>"></i>
+                                  <% } %>
+
+
+                                    <% if (row.stock==0) { %>
+                                      <p class="text-danger">out of stock</p>
+                                      <% } %>
+                                        <% if (row.discount!==0) { %>
+                                          <p class="text-success fs-5">
+                                            <span class="badge bg-success">
+                                              <%= row.discount+" %off" %>
+                                            </span>
+
+                                          </p>
+                                          <p class="card-text text-success"><del class="text-danger">
+                                              <%= row.price %>
+                                            </del> <i class="fa-solid fa-indian-rupee-sign text-dark"></i>
+                                            <%= row.price-(row.price*row.discount/100) %>
+                                          </p>
+                                          <% }else{ %>
+                                            <p class="card-text"><i class="fa-solid fa-indian-rupee-sign"></i>
+                                              <%= row.price %>
+                                            </p>
+                                            <% } %>
                     </div>
                   </div>
                 </a>
@@ -193,51 +205,48 @@
   </div>
   <script src="/static/user/common.js"></script>
   <script>
-    function openTab(id){
-            window.open(`/productDetails/${id}`,"_blank")
-        }
-    function priceSort(start,end){
+    function openTab(id) {
+      window.open(`/productDetails/${id}`, "_blank")
+    }
+    function priceSort(start, end) {
       try {
-        document.getElementById('min').value=start;
-        document.getElementById('max').value=end;
+        document.getElementById('min').value = start;
+        document.getElementById('max').value = end;
       } catch (error) {
         console.log(error)
       }
     }
-    async function Filter(){
+    async function Filter() {
       try {
-        const min=document.getElementById('min').value;
-        const max=document.getElementById('max').value;
-        alert(min+'  '+max)
+        const min = document.getElementById('min').value;
+        const max = document.getElementById('max').value;
         const selectedBrands = Array.from(document.querySelectorAll('input[name="brand"]:checked')).map(checkbox => checkbox.value);
         console.log(selectedBrands)
-        const data=JSON.stringify({
-          min:min,
-          max:max,
-          brands:selectedBrands
+        const data = JSON.stringify({
+          min: min,
+          max: max,
+          brands: selectedBrands
         })
-        const response=await fetch('/filter-products',{
-          method:'post',
+        const response = await fetch('/filter-products', {
+          method: 'post',
           headers: { 'Content-Type': 'application/json' },
-          body:data
+          body: data
         })
-        const resbody=await response.json()
-        if(resbody.success){
+        const resbody = await response.json()
+        if (resbody.success) {
           let x = '';
           for (let i = 0; i < resbody.filteredProducts.length; i++) {
             x += `
             <div class="col-12 col-sm-6 col-md-4 col-lg-4 shadow mb-4">
               <a style="text-decoration: none; color: black;" onclick="openTab('${resbody.filteredProducts[i]._id}')">
-                <div class="card">
+                <div class="cards">
                   <img src="http://localhost:3000/${resbody.filteredProducts[i].image[0]}" class="card-img-top" alt="">
                   <div class="card-body">
                     <h5 class="card-title">
                       ${resbody.filteredProducts[i].name}
                     </h5>
-                    <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
-                      onclick="addToWishlist('${resbody.filteredProducts[i]._id}'); return false;" id="heart${resbody.filteredProducts[i]._id}"></i>
                     ${resbody.filteredProducts[i].stock == 0 ? '<p class="text-danger">out of stock</p>' : ''}
-                    ${resbody.filteredProducts[i].discount !== 0 ? `<small class="text-success">${resbody.filteredProducts[i].discount} %off </small>
+                    ${resbody.filteredProducts[i].discount !== 0 ? `<h5 class="text-success"><span class="badge bg-success">${resbody.filteredProducts[i].discount} %off </span></h5>
                           <p class="card-text text-success"><del class="text-danger">
                               ${resbody.filteredProducts[i].price}
                             </del> <i class="fa-solid fa-indian-rupee-sign text-dark"></i>
@@ -252,8 +261,10 @@
           document.getElementById('categoryname').innerText = resbody.category;
           document.getElementById('count').innerText = `(${resbody.filteredProducts.length}) item found`
           document.getElementById('filteredProducts').innerHTML = x;
-        }else{
-          alert(resbody.message)
+        } else {
+          document.getElementById('categoryname').innerText = resbody.category;
+          document.getElementById('count').innerText = `(0) item found`
+          document.getElementById('filteredProducts').innerHTML = `<h3 class="mt-4 ms-3 fs-2 fw-bold"> No search results found! </h3>`
         }
       } catch (error) {
         console.log(error)
@@ -270,7 +281,7 @@
             x += `
             <div class="col-12 col-sm-6 col-md-4 col-lg-4 shadow mb-4">
               <a style="text-decoration: none; color: black;" href="/productDetails/${resbody.filterResult[i]._id}">
-                <div class="card">
+                <div class="cards">
                   <img src="http://localhost:3000/${resbody.filterResult[i].image[0]}" class="card-img-top" alt="">
                   <div class="card-body">
                     <h5 class="card-title">
@@ -279,7 +290,7 @@
                     <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
                       onclick="addToWishlist('${resbody.filterResult[i]._id}'); return false;" id="heart${resbody.filterResult[i]._id}"></i>
                     ${resbody.filterResult[i].stock == 0 ? '<p class="text-danger">out of stock</p>' : ''}
-                    ${resbody.filterResult[i].discount !== 0 ? `<small class="text-success">${resbody.filterResult[i].discount} %off </small>
+                    ${resbody.filterResult[i].discount !== 0 ? `<h5 class="text-success"><span class="badge bg-success">${resbody.filterResult[i].discount} %off </span></h5>
                           <p class="card-text text-success"><del class="text-danger">
                               ${resbody.filterResult[i].price}
                             </del> <i class="fa-solid fa-indian-rupee-sign text-dark"></i>

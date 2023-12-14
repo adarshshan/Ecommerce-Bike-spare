@@ -43,18 +43,14 @@ async function personHome(req, res) {
         if (!productList) {
             res.status(500).json({ success: false })
         } else {
-            if (userId && userId !== null && userId !== undefined) {
-                const user = await User.findById(userId)
-                if (user) var wishlist = user.wishlist
-            }
             res.render('user/home_page', {
                 title: 'home_page',
                 products: paginatedProducts,
                 currenPage: page,
                 totaPages: Math.ceil(productList.length / productsPerPage),
-                wishlist,
                 categoryNames,
-                banners
+                banners,
+                userId:userId
             })
         }
     } catch (error) {
@@ -68,6 +64,7 @@ async function personHome(req, res) {
 async function userDetailHome(req, res) {
     try {
         let id = req.params.id;
+        const userId=req.session.currentUserId;
         imgUri = process.env.IMG_URI
         const bid = await Products.findById({ _id: id }, { _id: 0, brandId: 1 })
         const cid = await Products.findById({ _id: id }, { _id: 0, categorieId: 1 })
@@ -78,7 +75,7 @@ async function userDetailHome(req, res) {
         const brandName = bname[0].name
         const categoryName = cname[0].name
         Products.findById({ _id: id }).then((products) => {
-            res.render('user/product_details', { title: 'Details', products, imgUri, brandName, categoryName })
+            res.render('user/product_details', { title: 'Details', products, imgUri, brandName, categoryName,userId })
         }).catch((err) => {
             res.redirect('/persons')
             console.log(err)
@@ -94,9 +91,9 @@ async function userDetailHome(req, res) {
 async function categoryFilter(req, res) {
     try {
         const categorie = req.params.categoryname;
-        req.session.categoryName=categorie;
+        req.session.categoryName = categorie;
         var categoryNames = await helpers.categoryName();
-        console.log(categoryNames)
+        const userId=req.session.currentUserId;
         const products = await Products.find({ isDeleted: false }).populate('categorieId', { _id: 0, name: 1 })
         let filterResult = [];
         console.log('the length is ', products.length)
@@ -105,7 +102,7 @@ async function categoryFilter(req, res) {
                 filterResult.push(products[i]);
             }
         }
-        const brands=await Brand.find({isDeleted:false});
+        const brands = await Brand.find({ isDeleted: false });
         console.log(brands)
         console.log('result is herre boss')
         console.log(filterResult);
@@ -114,7 +111,8 @@ async function categoryFilter(req, res) {
             filterResult,
             categoryNames,
             categorie,
-            brands
+            brands,
+            userId
         })
     } catch (error) {
         console.log(error)
@@ -483,11 +481,13 @@ async function addToWishlist(req, res) {
             { $push: { wishlist: { $each: [{ productId: productId }], $position: 0 } } },
             { new: true }
         );
-
-        if (!user) {
-            return res.json({ success: false, message: 'The product is already in the wishlist.' });
-        }
-
+        if (!user) return res.json({ success: false, message: 'The product is already in the wishlist.' });
+        const prodcutupdate = await Products.findOneAndUpdate(
+            { _id: productId, 'likes.userId': { $ne: userId } },
+            { $push: { likes: { $each: [{ userId: userId }], $position: 0 } } },
+            { $upsert: true }, { new: true });
+        if (prodcutupdate) console.log('product updated....................................');
+        console.log(prodcutupdate.likes);
         console.log('Product added to wishlist');
         return res.json({ success: true, message: 'Product added to wishlist.' });
     } catch (error) {
@@ -500,9 +500,12 @@ async function addToWishlist(req, res) {
 async function removeWishlist(req, res) {
     try {
         const Id = req.params.id
+        const productId = req.params.productId;
         const userId = req.session.currentUserId;
         const removed = await User.findByIdAndUpdate(userId, { $pull: { wishlist: { _id: Id } } })
         if (removed && removed !== null && removed !== undefined) {
+            const clearProductdetails = await Products.findByIdAndUpdate(productId, { $pull: { likes: { userId: userId } } })
+            if (clearProductdetails) console.log('Userid removed from the produt array.');
             console.log('product removed from the wishlist.')
             return res.json({ success: true, message: 'product removed from the wishlist.' });
         } else {

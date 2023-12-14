@@ -15,7 +15,11 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
       if (imageInput.files.length > 0) {
         for (let i = 0; i < imageInput.files.length; i++) {
           const validImage = await validateImageFile(imageInput.files[i]);
-          if (!validImage) return;
+          if (!validImage) return Swal.fire({
+            title: "",
+            text: "Invalid Image Detected!.\n Choose the valid Images",
+            icon: "error"
+          });
           formData.append('image', imageInput.files[i]);
         }
       }

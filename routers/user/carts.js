@@ -34,6 +34,17 @@ router.get('/return-product/:id', userAuth, orderController.returnProduct);
 router.get('/buy-now/:id/:name/:price/:image/:disc/:discount', orderController.buyNow)
 router.get('/review-page/:productid/:name', orderController.reviewPage)
 router.post('/review', orderController.postReview)
+router.get('/invoice/:id', async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const orderElem = await Order.findOne({ orders: { $elemMatch: { _id: orderId } } },{_id:0,'orders.$':1})
+        const selectedOrder=orderElem.orders[0];
+        console.log(selectedOrder)
+        return res.json({success:true,selectedOrder});
+    } catch (error) {
+        console.log(error)
+    }
+})
 
 
 

@@ -56,7 +56,7 @@
                                             alt="Image will load..." style="width: 100%;"></div>
                                     <div class="col-12 col-md-9">
                                         <i class="fa-solid fa-trash float-end mt-5 me-5 fs-4 text-danger"
-                                            onclick="removeWishlist('<%= row._id %>'); return false;"></i>
+                                            onclick="removeWishlist('<%= row._id %>','<%= row.productId._id %>'); return false;"></i>
                                         <h3 class="mt-5">
                                             <%= row.productId.name %>
                                         </h3>

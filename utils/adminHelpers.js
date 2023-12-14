@@ -13,9 +13,10 @@ async function getTodoList() {
 async function getAllOrders() {
     try {
         const orderList = await Order.find()
-        const allOrders = orderList.reduce((accumulator, currentOrder) => {
+        const orders = orderList.reduce((accumulator, currentOrder) => {
             return accumulator.concat(currentOrder.orders);
         }, []);
+        const allOrders = orders.filter(item => item.products[0].status === 'DELIVERED');
         allOrders.sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
@@ -91,7 +92,7 @@ async function timeWiseOrders() {
 function getYearRatio(newarr) {
     try {
         let year = [];
-        let totalSale=0;
+        let totalSale = 0;
         for (let i = 0; i < newarr.length; i++) {
             totalSale += newarr[i].totalSale;
             year.push({ x: newarr[i].time.year, value: totalSale })
@@ -104,7 +105,7 @@ function getYearRatio(newarr) {
 function getMonthRatio(newarr) {
     try {
         let month = [];
-        let totalSale=0;
+        let totalSale = 0;
         for (let i = 0; i < newarr.length; i++) {
             totalSale += newarr[i].totalSale;
             month.push({ x: newarr[i].time.month, value: totalSale })
@@ -117,7 +118,7 @@ function getMonthRatio(newarr) {
 function getWeekRatio(newarr) {
     try {
         let week = [];
-        let totalSale=0;
+        let totalSale = 0;
         for (let i = 0; i < newarr.length; i++) {
             totalSale += newarr[i].totalSale;
             week.push({ x: newarr[i].time.week, value: totalSale })
@@ -130,7 +131,7 @@ function getWeekRatio(newarr) {
 function getDayRatio(newarr) {
     try {
         let day = [];
-        let totalSale=0;
+        let totalSale = 0;
         for (let i = 0; i < newarr.length; i++) {
             totalSale += newarr[i].totalSale;
             let startDate = new Date('2023-01-01'); // Set the starting date

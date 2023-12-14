@@ -66,10 +66,13 @@ router.post('/filter-products', async (req, res) => {
         const categoryId = await Category.findOne({ $and: [{ isDeleted: false }, { name: category }] })
         if (min == 0 && max == 0 || !min && !max) {
             const filteredProducts = await Products.find({ $and: [{ isDeleted: false }, { categorieId: categoryId._id }, { brandId: { $in: brands } }] });
+            if (!filteredProducts.length) return res.json({ success: false, category })
             return res.json({ success: true, filteredProducts, category })
         }
         const filteredProducts = await Products.find({ $and: [{ price: { $gt: min } }, { price: { $lt: max } }, { isDeleted: false }, { categorieId: categoryId._id }, { brandId: { $in: brands } }] });
+        if (!filteredProducts.length) return res.json({ success: false, category })
         return res.json({ success: true, filteredProducts, category })
+        
     } catch (error) {
         console.log(error)
     }
@@ -99,7 +102,7 @@ router.get('/newpassword/:password/:cpassword', controller.newPasswordUpdate)
 //wishlist
 router.get('/wishlist', userAuth, controller.wishlistHome)
 router.get('/add-wishlist/:id', userAuth, controller.addToWishlist);
-router.delete('/remove-wishlist/:id', userAuth, controller.removeWishlist)
+router.delete('/remove-wishlist/:id/:productId', userAuth, controller.removeWishlist)
 
 
 //wallet

@@ -173,32 +173,43 @@
                                 <div class="card">
                                     <img src="<%= row.image[0] %>" class="card-img-top" alt="<%= row.image %>">
                                     <div class="card-body">
-                                        <h5 class="card-title">
+                                        <h4 class="card-title">
                                             <%= row.name %>
-                                        </h5>
+                                        </h4>
+                                        <% let existInWishlist = row.likes.some(like => like.userId === userId); %>
+                                            <% if (existInWishlist) { %>
+                                                <i style="color: #e90505;" class="fas fa-heart float-end fs-1 pb-5"
+                                                    onclick="addToWishlist('<%= row._id %>'); return false;"
+                                                    id="heart<%= row._id %>"></i>
+                                                <% }else{ %>
+                                                    <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
+                                                        onclick="addToWishlist('<%= row._id %>'); return false;"
+                                                        id="heart<%= row._id %>"></i>
+                                                    <% } %>
 
 
-                                        <i style="color: #f6dcdc;" class="fas fa-heart float-end fs-1 pb-5"
-                                            onclick="addToWishlist('<%= row._id %>'); return false;"
-                                            id="heart<%= row._id %>"></i>
+                                                        <% if (row.stock==0) { %>
+                                                            <p class="text-danger">out of stock</p>
+                                                            <% } %>
+                                                                <% if (row.discount!==0) { %>
+                                                                    <h5 class="text-success">
+                                                                        <span class="badge bg-success">
+                                                                            <%= row.discount+" %off" %>
+                                                                        </span>
 
-                                        <% if (row.stock==0) { %>
-                                            <p class="text-danger">out of stock</p>
-                                            <% } %>
-                                                <% if (row.discount!==0) { %>
-                                                    <small class="text-success">
-                                                        <%= row.discount+" %off" %>
-                                                    </small>
-                                                    <p class="card-text text-success"><del class="text-danger">
-                                                            <%= rupee.format(row.price) %>
-                                                        </del>
-                                                        <%= rupee.format(row.price-(row.price*row.discount/100)) %>
-                                                    </p>
-                                                    <% }else{ %>
-                                                        <p class="card-text">
-                                                            <%= rupee.format(row.price) %>
-                                                        </p>
-                                                        <% } %>
+                                                                    </h5>
+                                                                    <p class="card-text text-success"><del
+                                                                            class="text-danger me-2">
+                                                                            <%= rupee.format(row.price) %>
+                                                                        </del>
+                                                                        <%= rupee.format(row.price-(row.price*row.discount/100))
+                                                                            %>
+                                                                    </p>
+                                                                    <% }else{ %>
+                                                                        <p class="card-text">
+                                                                            <%= rupee.format(row.price) %>
+                                                                        </p>
+                                                                        <% } %>
                                     </div>
                                 </div>
                             </a>
