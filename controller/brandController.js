@@ -55,7 +55,7 @@ async function deleteBrand(req, res) {
             return res.json({success:true,message:'deleted'})
         }).catch((err) => {
             console.log(err)
-            return res.json({success:false,message:'Failed to add new brand!'})
+            return res.json({success:false,message:'Failed to add new brand!'}) 
         })
     } catch (error) {
         console.log('Error is at deleteBrand ' + error)

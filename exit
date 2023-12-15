@@ -1,0 +1,497 @@
+[33mcommit 0cfc2213754604342d4004e9460c88be3b632763[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Thu Dec 14 12:17:38 2023 +0530
+
+    mongodb atlas to mongodb atlas
+
+[33mcommit 8eb13bdeb5d7b2700866705f173a6ec7a74ec11a[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Mon Dec 11 12:39:29 2023 +0530
+
+    filter almost completed
+
+[33mcommit 5846f30a2042b2396c85a3c8b3137dda41c11e39[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Dec 9 20:05:20 2023 +0530
+
+    arranged code
+
+[33mcommit 49dc83d0d5747f63b1fec00d191e5d819bec129b[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Dec 9 17:04:36 2023 +0530
+
+    otp timer problem solved
+
+[33mcommit 2db2ec32882a702bcf63a31c48950701fc0c9e34[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Dec 9 01:00:01 2023 +0530
+
+    8/12/2023
+
+[33mcommit 0fa2e1ffa4441e3c6e8eca310b287c4261986194[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Dec 8 17:18:26 2023 +0530
+
+    stock management completed
+
+[33mcommit 88df4b591c1f569e17a6eb7bc78ac8349696f8de[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Dec 6 14:38:08 2023 +0530
+
+    coupon and banner validation completed
+
+[33mcommit 746d5317151485e641e6ccfbc7a5114af9683d45[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sun Dec 3 18:16:24 2023 +0530
+
+    review completed
+
+[33mcommit f1ec7c2050918173990f27f4deb6d8210216dc72[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sun Dec 3 15:44:41 2023 +0530
+
+    review added
+
+[33mcommit 5a68081b61fa73c0f756863643f3b06ec9dcc756[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Dec 2 19:33:02 2023 +0530
+
+    arranged js files
+
+[33mcommit 168d342a6f93b93ef5990052f04524b95aa33b75[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Dec 2 17:07:19 2023 +0530
+
+    admin dashboard completed
+
+[33mcommit 767dfcec9ef06e5a906ad844c6ebe380b101fb8e[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Thu Nov 30 01:11:40 2023 +0530
+
+    Admin dashboard frondend completed
+
+[33mcommit 60f4cbddf54d4886cbc3e58af9fa875b961d28fe[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Nov 29 15:52:38 2023 +0530
+
+    wallet recharge using razorpay completed
+
+[33mcommit ce0e029acbf9a508b746130f20983d5e44df0965[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Tue Nov 28 09:08:38 2023 +0530
+
+    Crop Image completed
+
+[33mcommit b21ac0cda14ce47e1797e73b000e120822bddc97[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Mon Nov 27 12:04:31 2023 +0530
+
+    banner completed
+
+[33mcommit de213778eeddb6fc7ba7bfa4b6421c83df51572a[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Nov 25 17:45:31 2023 +0530
+
+    buy now completed
+
+[33mcommit 6afa96e8db0428612ee4dd8a1fdc11eb4e24cc2f[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 24 13:38:44 2023 +0530
+
+    refferal offer completed
+
+[33mcommit ff4fa94e882a7b38b3447a1d82e8ac847902e5a2[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sun Nov 19 20:41:36 2023 +0530
+
+    product filtered by the categories
+
+[33mcommit 256965273f5f0142d4df4557c594af8874b7d32a[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sun Nov 19 08:14:45 2023 +0530
+
+    product discount completed
+
+[33mcommit 4ffafb58790d5fc728ebc0d42a47f3df7d5646f0[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Nov 18 23:32:44 2023 +0530
+
+    product discounding almost completed
+
+[33mcommit 5661bcac60ef87a70eb8140134a1086de30d0f25[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 17 23:27:05 2023 +0530
+
+    wallet refund completed
+
+[33mcommit 861004677f5faa9ebf7ba5d7fdd717cd38edc6b0[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 17 09:31:50 2023 +0530
+
+    wallet purchase completed
+
+[33mcommit 9c98202238b08af1f4a46ff124135bab198d04c6[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Thu Nov 16 20:43:36 2023 +0530
+
+    wallet ejs completed
+
+[33mcommit 38041533972d39bdf8e52304850a470f1f2460da[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Thu Nov 16 15:37:01 2023 +0530
+
+    wishlist almost completed
+
+[33mcommit 5e02bbbbae28f47a7c11861cc1ff12093a96fadc[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Nov 15 23:26:39 2023 +0530
+
+    wishList started
+
+[33mcommit 3fe345f128a7dd2a4f6d8702f98b28513d70c57d[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Nov 15 18:48:32 2023 +0530
+
+    code arranged
+
+[33mcommit fdc24584e516da294708e1253d8b5d85ebb690a2[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Nov 15 18:32:01 2023 +0530
+
+    coupon almost completed
+
+[33mcommit 2d06b476e8430283de29cc71e3f4b5a62dc159c4[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Tue Nov 14 22:07:23 2023 +0530
+
+    coupons
+
+[33mcommit 3ff6da2a8843187848c22929f6aad4391b45ee9f[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Tue Nov 14 16:21:27 2023 +0530
+
+    payment completed
+
+[33mcommit d1d66f2daaccb5d257c204807f8e5eb4eb6abfa1[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Mon Nov 13 20:51:41 2023 +0530
+
+    payment gateway integrated
+
+[33mcommit 226c887bc1d74cd0898e144574b26984d47035f1[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sun Nov 12 10:09:59 2023 +0530
+
+    script files arranged
+
+[33mcommit 9d28bd97dc3dc94b4e4f92e305b1e2367bb0bcbb[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Nov 11 19:12:32 2023 +0530
+
+    add alert message
+
+[33mcommit d7d86db7a237ccbc52c87b3485f01d3edaf22e1d[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 10 23:47:51 2023 +0530
+
+    day end
+
+[33mcommit 1daaaa4c953c06d92dacc19c8903d0becd161f26[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 10 18:19:36 2023 +0530
+
+    invoice edited
+
+[33mcommit 9aa4d89f4ff14cc9860616bcec4e849fabfe5351[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 10 14:49:07 2023 +0530
+
+    invoice download
+
+[33mcommit 2b966371f3d654eadf19989dde31262d2c940ca9[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 10 10:20:55 2023 +0530
+
+    view orders modified
+
+[33mcommit 37ec977eb15724608a0535c10ffad39a78575346[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 10 08:34:12 2023 +0530
+
+    adminside order listed
+
+[33mcommit baac26e0f9a3e9288184660321977f4f3d5f2996[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Thu Nov 9 22:38:26 2023 +0530
+
+    address list completed
+
+[33mcommit fbbe0096b6e91bfa392c7cce58212ad348ecd7ed[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Thu Nov 9 19:57:50 2023 +0530
+
+    order listing completed
+
+[33mcommit bd04c031be66432c2c9299c2f8dcff92deffa754[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Nov 8 12:28:51 2023 +0530
+
+    address validation completed
+
+[33mcommit a5f54aafde4c33b010c90e088263bd9b86e2bff9[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Nov 8 07:56:00 2023 +0530
+
+    some files arranged
+
+[33mcommit f2840ffdcb5367b85bd4f2776f06e3cdbcd7f79a[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Tue Nov 7 21:29:32 2023 +0530
+
+    Authentication Users
+
+[33mcommit 5935de6c51047229672e9b20f7b77729fd6d79d4[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Tue Nov 7 19:17:13 2023 +0530
+
+    timer for forgot password,edit email and signup completed
+
+[33mcommit 1bbe8bc19d99912715e71f4864f5c7e3b33f7a63[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Tue Nov 7 01:17:09 2023 +0530
+
+    Timer for otp
+
+[33mcommit 151d6175958b6732da35bb6055200f80ae709193[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Mon Nov 6 12:40:47 2023 +0530
+
+    Modified the ejs files
+
+[33mcommit f06cbc4b44200a36170e392f04ff5a470ff74f0f[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Nov 4 11:32:48 2023 +0530
+
+    orderlist admin side
+
+[33mcommit 158e65f56ab134d5b0e8cd6e79d875d1cd03d4a0[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 3 22:39:34 2023 +0530
+
+    code cleaned
+
+[33mcommit b125ddb386cfb3caaf70812ee1d8a9f943cec9f6[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 3 21:03:01 2023 +0530
+
+    Forgot password completed
+
+[33mcommit 928434e7ebee05f75678cd17a838ed6d80e589ab[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Nov 3 11:40:08 2023 +0530
+
+    Edit profile is completed
+
+[33mcommit daef1dec69ea3c43947f0497be257190d0888897[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Thu Nov 2 20:56:31 2023 +0530
+
+    Order Listing completed
+
+[33mcommit 75c0f906343ab89ece164b19f50f454e4b57b44b[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Thu Nov 2 09:31:04 2023 +0530
+
+    st
+
+[33mcommit b49eb3d641f1120383f0e3968b1da7bba1b74bac[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Nov 1 23:17:03 2023 +0530
+
+    population trouble
+
+[33mcommit 02acf770ea22faf9e7bcf96da64a10d0c24bc702[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Nov 1 00:18:37 2023 +0530
+
+    Cash on delivery payment
+
+[33mcommit c7856d5113d2b47d665426a6e361856812d6238d[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Mon Oct 30 19:55:39 2023 +0530
+
+    address updation Ok
+
+[33mcommit 09f4f3fe1c8fdc8fc5a135ac11053ed27cf43dbf[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sun Oct 29 20:14:42 2023 +0530
+
+    checkout almost completed
+
+[33mcommit 8c5aa74c79016bc84a4a25014c8097e681b5d51a[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Oct 28 15:44:01 2023 +0530
+
+    aggregation and ajax
+
+[33mcommit 30d045c8c99eeac07a4568a5a7009412f6fb0fb6[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Oct 27 21:54:56 2023 +0530
+
+    ajax added
+
+[33mcommit 45536afd6824bbb4818caeaac68ddf6e8d9f7136[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Oct 25 13:03:52 2023 +0530
+
+    cart completed
+
+[33mcommit df12cd285022b2b74e090d3b6db5aef87c5098f1[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Tue Oct 24 17:53:44 2023 +0530
+
+    cart almost completed
+
+[33mcommit 50cbdb7b092f1270104b2fae637b6eca37516f2a[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Mon Oct 23 18:50:14 2023 +0530
+
+    cart listing and add to cart is finished
+
+[33mcommit a0cae7020c38a2c2243c6dbb701db4009c016e37[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sun Oct 22 19:08:45 2023 +0530
+
+    pagination implemented
+
+[33mcommit 12d1fa09cab580516cc0b58accbb45a67bedd664[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Oct 20 22:56:18 2023 +0530
+
+    trycatch
+
+[33mcommit ddaa5c48ce33203a1353c1d7af02989a3cd14afd[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Oct 20 17:25:45 2023 +0530
+
+    add resend otp option
+
+[33mcommit 7f7f2054018d29e1953184f43f8449224823caa7[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Oct 20 14:13:17 2023 +0530
+
+    add alert messages
+
+[33mcommit cd291cd7ae936e8f474d5f8e66c8aa7814aebab0[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Oct 20 02:31:57 2023 +0530
+
+    Form validation and product update is completed
+
+[33mcommit 0aa1d611ad66ca0474a32bc0969ebb264762722f[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Thu Oct 19 14:07:00 2023 +0530
+
+    add some more alert messages while entering the forms
+
+[33mcommit cd77b801397c1630af8234c23b035d8cb5526712[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Oct 18 23:48:25 2023 +0530
+
+    add the messages
+
+[33mcommit 0c6b540ff0943b8604c214800778d39e3f12c790[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Tue Oct 17 21:40:46 2023 +0530
+
+    multiple image added using multer
+
+[33mcommit 2e69b85f3af57e705952251842ff5eec54248a24[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Tue Oct 17 09:49:11 2023 +0530
+
+    tuesday
+
+[33mcommit 9e9c5a21c29ca91da23e71b57a4fe7359ea833d2[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Mon Oct 16 17:35:20 2023 +0530
+
+    Controllers File addedd
+
+[33mcommit 0c4b7f4aeaeb150bb3a6e67060f8be9c06973ce1[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Mon Oct 16 03:04:18 2023 +0530
+
+    Sent Email completed
+
+[33mcommit c72e3d7bfbd0336ba21555a455bf8c6c366fc6c1[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sun Oct 15 07:40:55 2023 +0530
+
+    session and bcrypt are addedd
+
+[33mcommit 7f835b1ad90841268b02c3f2566d1dece034ca40[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Oct 14 19:17:38 2023 +0530
+
+    login completed
+
+[33mcommit 5a72d3b9b687bb125b0b6f0c459e2b858508aa53[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Oct 13 18:04:56 2023 +0530
+
+    Friday
+
+[33mcommit eb096e582de96ec042fb702c7e94ac4f37327cb0[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Oct 13 00:41:58 2023 +0530
+
+    lastday
+
+[33mcommit efa6b3ed0f53d6716b94ddfa9b27250756755996[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Wed Oct 11 19:56:42 2023 +0530
+
+    Day-4
+
+[33mcommit ce0cb0fc643625e21ad3bf8e75519ceac23e30f8[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Mon Oct 9 22:17:06 2023 +0530
+
+    Brand and categorie Completed
+
+[33mcommit d855bcface19a0f5e4f0ce8d8f33974e5b221bdb[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sun Oct 8 20:40:27 2023 +0530
+
+    routers and collections successfully done
+
+[33mcommit 5fbc08d06b5843d900fe20f22622155fcd80fe0a[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sun Oct 8 17:34:22 2023 +0530
+
+    created some ejs folders
+
+[33mcommit 503cc07118046a44a37b619ac5c9762fbc86cd91[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Sat Oct 7 07:48:06 2023 +0530
+
+    just write mongodb
+
+[33mcommit cc06cc27e8ad004d97d5a821ea56f8db739c2930[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Oct 6 23:49:12 2023 +0530
+
+    Day-one
+
+[33mcommit 8cd99641d8f2c098b6641d52674d8aea46588ab9[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Oct 6 23:07:39 2023 +0530
+
+    deleted some unwanted file
+
+[33mcommit 0cd8e1183951fc0c37cba14cdcd9d79de18e2089[m
+Author: Adarsh <adarshshanu3@gmail.com>
+Date:   Fri Oct 6 23:05:17 2023 +0530
+
+    first commit just for testing
