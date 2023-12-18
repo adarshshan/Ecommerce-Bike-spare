@@ -61,6 +61,7 @@ document.getElementById('bannerForm').addEventListener('submit', async (e) => {
                         location.href = '/banners'
                     }, 1000);
                 } else {
+                    if (data.err) return location.href = '/err-internal';
                     alert(data.message)
                     location.href = '/banners'
                 }

@@ -9,6 +9,7 @@ async function brandHome(req, res) {
         })
     } catch (error) {
         console.log('Error is at brandHome' + error)
+        return res.redirect('/err-internal')
     }
 
 }
@@ -33,6 +34,7 @@ async function addBrand(req, res) {
             })
     } catch (error) {
         console.log('Error is at addBrand' + error)
+        return res.json({ success: false, err: true });
     }
 
 }
@@ -42,6 +44,7 @@ function addBrandPage(req, res) {
         res.render('admin/add_brands', { title: 'add-brand', msg: '' })
     } catch (error) {
         console.log(error)
+        return res.redirect('/err-internal')
     }
 }
 
@@ -59,7 +62,7 @@ async function deleteBrand(req, res) {
         })
     } catch (error) {
         console.log('Error is at deleteBrand ' + error)
-        return res.json({success:'Somthing went wrong.'})
+        return res.json({ success: false, err: true });
     }
 
 }

@@ -10,6 +10,7 @@ function adminLoginPage(req, res) {
         }
     } catch (error) {
         console.log('Error is at adminLoginPage ' + error)
+        return res.redirect('/err-internal');
     }
 
 }

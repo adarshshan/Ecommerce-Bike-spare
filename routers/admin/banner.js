@@ -5,7 +5,7 @@ const Product = require('../../models/product')
 const controller=require('../../controller/bannerController')
 const adminAuth=require('../../middlware/adminAuth')
 
-// router.use(adminAuth) 
+router.use(adminAuth) 
 
 router.get('/',controller.bannerHome );
 router.get('/add-banner',controller.addBannerPage);

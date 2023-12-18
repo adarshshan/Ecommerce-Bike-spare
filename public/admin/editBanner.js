@@ -62,6 +62,7 @@ document.getElementById('bannerForm').addEventListener('submit', async (e) => {
                     console.log('Banner added successfully:', data);
                     location.href = '/banners'
                 } else {
+                    if (data.err) return location.href = '/err-internal';
                     alert(data.message)
                     location.href = '/banners'
                 }

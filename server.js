@@ -90,8 +90,28 @@ app.use('/',personsRouter)
 app.use('/carts', cartsRouter)
 
 
-
-
 dbconnect()
+
+// Wildcard Route Handler 
+app.use((req, res, next) => {
+    const err = new Error(`Cannot Find ${req.originalUrl} on server`);
+    err.status = 'Fail';
+    err.statusCode = 404; 
+    next(err);
+  });
+  
+  // Error Handling Middleware 
+  app.use((err, req, res, next) => {
+    if (err.statusCode === 404) {
+      err.statusCode = err.statusCode || 500;
+      err.status = err.status || 'Error';
+      // Log specific error details instead of the entire object
+      console.error(`Error 404: ${err.message}`);
+      return res.render('user/404.ejs');
+    } 
+    // Handle other types of errors or redirect to a general error page
+    console.error(`Internal Server Error: ${err.message}`);
+    return res.redirect('/err-internal');
+  });
 
 app.listen(port, () => console.log('server is running on port 3000'));

@@ -25,6 +25,7 @@ async function deleteBanner(id) {
                             location.reload()
                         }, 500);
                     } else {
+                        if (resbody.err) return location.href = '/err-internal';
                         Swal.fire({
                             title: "oops!",
                             text: resbody.message
@@ -45,6 +46,7 @@ async function deactivateBanner(id) {
         if (resbody.success) {
             location.reload()
         } else {
+            if (resbody.err) return location.href = '/err-internal';
             alert(resbody.message)
         }
     } catch (error) {
@@ -58,6 +60,7 @@ async function ActivateBanner(id) {
         if (resbody.success) {
             location.reload()
         } else {
+            if (resbody.err) return location.href = '/err-internal';
             alert(resbody.message)
         }
     } catch (error) {

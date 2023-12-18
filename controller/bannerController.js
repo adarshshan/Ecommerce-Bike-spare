@@ -1,13 +1,13 @@
-const Banner=require('../models/banner');
-const Product=require('../models/product');
+const Banner = require('../models/banner');
+const Product = require('../models/product');
 
-async function bannerHome (req, res) {
+async function bannerHome(req, res) {
     try {
         const bannerList = await Banner.find({ isDeleted: false }).populate('product')
-
         res.render('admin/banner.ejs', { title: 'banner Management', bannerList });
     } catch (error) {
         console.log(error)
+        return res.redirect('/err-internal');
     }
 }
 
@@ -17,22 +17,22 @@ async function addBannerPage(req, res) {
         return res.render('admin/addBanner.ejs', { title: 'add-banner', products });
     } catch (error) {
         console.log(error)
+        return res.redirect('/err-internal');
     }
 }
 
 async function addBannerPost(req, res) {
     try {
         const title = req.body.title;
-        const startDate = req.body.startDate;
+        const startDate = req.body.startDate; dfsdfsadfsdf
         const endDate = req.body.endDate;
         const description = req.body.description;
         const product = req.body.product;
-
         const uploadedImage = req.files[0].filename;
         console.log(title, startDate, endDate, description, product)
         console.log(uploadedImage)
         if (!uploadedImage) {
-            return res.json({success:false,message:'Please upload an image'})
+            return res.json({ success: false, message: 'Please upload an image' })
         }
         const newbanner = new Banner({
             title: title,
@@ -45,13 +45,14 @@ async function addBannerPost(req, res) {
         const saved = await newbanner.save()
         if (saved) {
             console.log(`Banner add successfully`)
-            return res.json({ success:true,message: 'Banner added successfully' });
+            return res.json({ success: true, message: 'Banner added successfully' });
         } else {
             console.log('Failed to add the banner...');
-            return res.json({success:false,message:'Failed to add the banner...'})
+            return res.json({ success: false, message: 'Failed to add the banner...' })
         }
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true })
     }
 }
 
@@ -69,6 +70,7 @@ async function deleteBanner(req, res) {
         }
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true })
     }
 }
 
@@ -85,6 +87,7 @@ async function deactivateBanner(req, res) {
         }
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true })
     }
 }
 
@@ -101,45 +104,47 @@ async function activateBanner(req, res) {
         }
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true })
     }
 }
 
-async function editBannerPage (req, res) {
+async function editBannerPage(req, res) {
     try {
         const bannerId = req.params.id
-        const banner=await Banner.findById(bannerId).populate('product')
+        const banner = await Banner.findById(bannerId).populate('product')
         const products = await Product.find({ isDeleted: false })
-        return res.render('admin/editBanner.ejs', { title: 'edit-banner', data:banner, products })
+        return res.render('admin/editBanner.ejs', { title: 'edit-banner', data: banner, products })
     } catch (error) {
         console.log(error)
+        return res.redirect('/err-internal');
     }
 }
 
-async function editBannerPost (req,res) {
+async function editBannerPost(req, res) {
     try {
-        console.log('reached here')
-        const bannerId=req.body.id;
+        const bannerId = req.body.id;
         const title = req.body.title;
         const startDate = req.body.startDate;
         const endDate = req.body.endDate;
         const description = req.body.description;
         const product = req.body.product;
-        const sameimage=req.body.sameimage;
+        const sameimage = req.body.sameimage;
         const uploadedImage = req.files[0].filename;
-        const updated=await Banner.findByIdAndUpdate(bannerId,{$set:{image_url:uploadedImage,title:title,startDate:startDate,endDate:endDate,description:description,product:product}});
-        if(updated){
+        const updated = await Banner.findByIdAndUpdate(bannerId, { $set: { image_url: uploadedImage, title: title, startDate: startDate, endDate: endDate, description: description, product: product } });
+        if (updated) {
             console.log('updation success..,.')
-            return res.json({success:true,message:'updation success'})
-        }else{
+            return res.json({ success: true, message: 'updation success' })
+        } else {
             console.log('updation failed.')
-            return res.json({success:false,message:'updation Failed.'})
+            return res.json({ success: false, message: 'updation Failed.' })
         }
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true });
     }
 }
 
-module.exports={
+module.exports = {
     bannerHome,
     addBannerPage,
     addBannerPost,

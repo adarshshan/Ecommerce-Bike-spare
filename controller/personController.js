@@ -50,21 +50,21 @@ async function personHome(req, res) {
                 totaPages: Math.ceil(productList.length / productsPerPage),
                 categoryNames,
                 banners,
-                userId:userId
+                userId: userId
             })
         }
     } catch (error) {
         console.log("An Error occured at rendering the user home page..." + error)
-        res.redirect('/error-page');
+        // res.redirect('/error-page');
     }
 
 
 }
 
-async function userDetailHome(req, res) {
+async function productDetailHome(req, res) {
     try {
         let id = req.params.id;
-        const userId=req.session.currentUserId;
+        const userId = req.session.currentUserId;
         imgUri = process.env.IMG_URI
         const bid = await Products.findById({ _id: id }, { _id: 0, brandId: 1 })
         const cid = await Products.findById({ _id: id }, { _id: 0, categorieId: 1 })
@@ -75,16 +75,16 @@ async function userDetailHome(req, res) {
         const brandName = bname[0].name
         const categoryName = cname[0].name
         Products.findById({ _id: id }).then((products) => {
-            res.render('user/product_details', { title: 'Details', products, imgUri, brandName, categoryName,userId })
+            res.render('user/product_details', { title: 'Details', products, imgUri, brandName, categoryName, userId })
         }).catch((err) => {
             res.redirect('/persons')
             console.log(err)
             console.log('Error is at get productDetails')
         })
-    } catch (error) {
-        console.log(error)
+    } catch (err) {
+        // console.log(error)
         console.log('An Error occured when Rendering the product Details...')
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -93,7 +93,7 @@ async function categoryFilter(req, res) {
         const categorie = req.params.categoryname;
         req.session.categoryName = categorie;
         var categoryNames = await helpers.categoryName();
-        const userId=req.session.currentUserId;
+        const userId = req.session.currentUserId;
         const products = await Products.find({ isDeleted: false }).populate('categorieId', { _id: 0, name: 1 })
         let filterResult = [];
         console.log('the length is ', products.length)
@@ -116,7 +116,7 @@ async function categoryFilter(req, res) {
         })
     } catch (error) {
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -131,7 +131,7 @@ async function profilePage(req, res) {
         }
     } catch (error) {
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -157,8 +157,7 @@ async function changeName(req, res) {
         }
     } catch (error) {
         console.log(error)
-        res.redirect('/error-page');
-        // return res.json({ success: false, message: 'name updation failed false' })
+        return res.redirect('/err-internal');
     }
 }
 
@@ -178,8 +177,7 @@ async function changePhone(req, res) {
         }
     } catch (error) {
         console.log(error)
-        // return res.json({ success: false, message: 'Phone number updation Failed..(false)' })
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -210,13 +208,16 @@ async function changeEmail(req, res) {
         })
     } catch (error) {
         console.log(error)
-        // return res.json({ success: false, message: 'Unknown Error' })
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
 function otpPage(req, res) {
-    res.render('user/otppage_1', { title: 'OTP Change password.', msg: '', type: '' })
+    try {
+        res.render('user/otppage_1', { title: 'OTP Change password.', msg: '', type: '' })
+    } catch (error) {
+        return res.redirect('/err-internal');
+    }
 }
 
 async function verifyOtpPost(req, res) {
@@ -268,8 +269,7 @@ async function verifyOtpPost(req, res) {
         }
     } catch (error) {
         delete req.session.uesrid
-        // return res.render('user/otppage_1', { title: 'OTP Login page.', msg: 'Somthing went wrong. Try again.', type: 'danger' })
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -303,8 +303,7 @@ async function changePassword(req, res) {
         }
     } catch (error) {
         console.log(error)
-        // return res.json({ success: false, message: 'Unknown Error' })
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -321,7 +320,7 @@ async function addressBook(req, res) {
     } catch (error) {
         console.log('Error occured at catch block...')
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -331,6 +330,7 @@ function forgotpageResponse(req, res) {
         return res.json({ success: true, message: 'success part!' });
     } catch (error) {
         console.log(error)
+        return res.redirect('/err-internal');
     }
 }
 function forgotPasswordPage(req, res) {
@@ -338,7 +338,7 @@ function forgotPasswordPage(req, res) {
         res.render('user/forgotpage.ejs', { title: 'forgot Password' })
     } catch (error) {
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -371,7 +371,7 @@ async function forgotPasswordOtpSent(req, res) {
         }
     } catch (error) {
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -380,7 +380,7 @@ async function forgotOtpPage(req, res) {
         res.render('user/otppage_forgot.ejs', { title: 'forgot' })
     } catch (error) {
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -419,7 +419,7 @@ async function verifyForgotPost(req, res) {
 
     } catch (error) {
         delete req.session.uesrid
-        return res.json({ success: false, message: 'Error occured!' })
+        return res.redirect('/err-internal');
     }
 }
 
@@ -428,6 +428,7 @@ function newpasswordPage(req, res) {
         res.render('user/newpassword.ejs', { title: 'newpassword' });
     } catch (error) {
         console.log(error)
+        return res.redirect('/err-internal');
     }
 }
 
@@ -449,8 +450,7 @@ async function newPasswordUpdate(req, res) {
         }
     } catch (error) {
         console.log(error)
-        return res.json({ success: false, message: 'Unknown Error' })
-        // res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -466,7 +466,7 @@ async function wishlistHome(req, res) {
         return res.render('user/wishlist.ejs', { title: 'wishlist', wishlist })
     } catch (error) {
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -492,8 +492,7 @@ async function addToWishlist(req, res) {
         return res.json({ success: true, message: 'Product added to wishlist.' });
     } catch (error) {
         console.log(error);
-        // return res.status(500).json({ success: false, message: 'An error occurred while adding the product to wishlist.' });
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -514,8 +513,7 @@ async function removeWishlist(req, res) {
         }
     } catch (error) {
         console.log(error)
-        // return res.json({ success: false, message: 'Unknown Error' });
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -547,7 +545,7 @@ async function walletHome(req, res) {
         });
     } catch (error) {
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -568,7 +566,7 @@ async function addWalletFund(req, res) {
 
     } catch (error) {
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 function generateRazorpay(total, uniqueId, res) {
@@ -608,8 +606,7 @@ async function refundWallet(req, res) {
         return res.json({ success: true, message: 'Cancellation amount added to the wallet' })
     } catch (error) {
         console.log(error)
-        // return res.json({ success: false, message: 'Unknown Error occured.!' })
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -632,7 +629,7 @@ async function veryfyPay(req, res) {
     } catch (error) {
         console.log('Error occured at veryfyPay')
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -650,7 +647,7 @@ async function shareLink(req, res) {
 
     } catch (error) {
         console.log(error)
-        res.redirect('/error-page');
+        return res.redirect('/err-internal');
     }
 }
 
@@ -676,12 +673,13 @@ async function walletHistoryPagination(req, res) {
         return res.json({ success: true, message: 'Transactions found', transactions, page })
     } catch (error) {
         console.log(error)
+        return res.redirect('/err-internal');
     }
 }
 
 module.exports = {
     personHome,
-    userDetailHome,
+    productDetailHome,
     profilePage,
     changeName,
     changePhone,

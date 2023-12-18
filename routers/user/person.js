@@ -15,10 +15,13 @@ const localStorage = require('localStorage')
 
 
 router.get('/', controller.personHome)
-router.get('/productDetails/:id', controller.userDetailHome)
+router.get('/productDetails/:id', controller.productDetailHome)
 router.get('/view-categorie-products/:categoryname', controller.categoryFilter)
 router.get('/share-link/:email', controller.shareLink)
 router.get('/error-page', controller.ErrorPage)
+router.get('/err-internal',(req,res)=>{
+    res.render('errorpage/500');
+})
 router.post('/search-product', async (req, res) => {
     try {
         const value = req.body.value;
