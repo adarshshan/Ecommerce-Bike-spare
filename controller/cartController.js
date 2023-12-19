@@ -5,6 +5,7 @@ const localStorage = require("localStorage")
 const path = require('path')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
+const helpers=require('../utils/helpers')
 
 async function cartHome(req, res) {
     try {
@@ -17,7 +18,7 @@ async function cartHome(req, res) {
                 select: 'name price image discount description stock quantity'
             })
         if (cartList && cartList.length > 0 && cartList !== undefined) {
-            let { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: use })
+            let { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: use })
             return res.render('user/cart.ejs', { title: 'shopping_Cart', cartList, totalAmount, totalProducts, totalDiscount })
 
         } else {
@@ -26,7 +27,7 @@ async function cartHome(req, res) {
 
     } catch (error) {
         console.log(`An Error occured at ...${error}`)
-        // res.redirect('/error-page');
+        return res.redirect('/err-internal')
     }
 
 }
@@ -57,7 +58,7 @@ async function addCart(req, res) {
                 // return res.redirect('/carts')
                 return res.json({ success: true, message: 'Product successfully added to cart List' })
             } else {
-                return res.send('Product is not going to the cart list')
+                return res.json({success:false,message:'Somthing trouble occuring while product add to cart.!'});
             }
         } else {
             const resu = await Cart.insertMany({
@@ -67,17 +68,15 @@ async function addCart(req, res) {
             if (resu) {
                 await product.findByIdAndUpdate(id, { $set: { cart: true } })
                 console.log('New cart created with userId ..')
-                // res.redirect('/carts')
                 return res.json({ success: true, message: 'New cart created with userId' })
             } else {
-                res.send('Somthing  trouble in inserting data')
+                return res.json({success:false,message:'Somthing trouble occuring while product add to cart.!'});
             }
         }
 
     } catch (error) {
         console.log(`Error is at adding to cart ${error}`)
-        // return res.json({ success: false, message: 'Error is at adding to cart' })
-        // res.redirect('/error-page');
+        return res.json({success:false,err:true});
     }
 
 
@@ -87,7 +86,6 @@ async function removeCart(req, res) {
     try {
         const id = req.params.id
         const userId = req.session.currentUserId;
-
         const cartdelete = await Cart.findOneAndUpdate({ userId: userId }, { $pull: { products: { productId: id } } })
         if (cartdelete && cartdelete !== null) {
             await product.findByIdAndUpdate(id, { $set: { cart: false } })
@@ -106,7 +104,7 @@ async function removeCart(req, res) {
         }
     } catch (error) {
         console.log('The Error is at Remove from cart.' + error)
-        // res.redirect('/error-page');
+        return res.json({success:false,err:true});
     }
 }
 
@@ -125,7 +123,7 @@ async function increaseCount(req, res) {
             if (currentQuantity === productdetails.stock || currentQuantity > productdetails.stock) return res.json({ success: false, message: 'Out of stock' });
         }
         await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': 1 } })
-        let { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: use })
+        let { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: use })
         const q = await Cart.aggregate([
             {
                 $match: {
@@ -155,8 +153,7 @@ async function increaseCount(req, res) {
 
     } catch (error) {
         console.log(`An error occured while increasing the Quantity...${error}`)
-        // res.redirect('/error-page');
-        return res.json({ success: false, message: 'failed to add Quantity.' })
+        return res.json({ success: false, err:true })
     }
 }
 
@@ -173,7 +170,7 @@ async function decreaseCount(req, res) {
             if (currentQuantity === 1) return res.json({ success: false, message: 'Quantity must be more than 1.' });
         }
         await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
-        let { totalAmount, totalProducts, totalDiscount } = await calculateTotalAmount({ userId: use })
+        let { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: use })
         // console.log(`totalAmount ${totalAmount} totalProducts ${totalProducts} totalDiscount ${totalDiscount}`);
         const q = await Cart.aggregate([
             {
@@ -191,108 +188,20 @@ async function decreaseCount(req, res) {
             },
             {
                 $project: {
-                    _id: 0, // Exclude the _id field from the result
+                    _id: 0, 
                     quantity: "$products.quantity"
                 }
             }
         ])
-        // console.log('quantity details is')
-        // console.log(q)
         let productQuantity = q[0].quantity
-        // console.log(`Quantity: ${productQuantity}`);
         if (req.session.discount) delete req.session.discount;
         return res.json({ success: true, productQuantity, totalAmount, totalProducts, totalDiscount })
 
     } catch (error) {
         console.log('An error occured while decreasing the quantity...' + error)
-        return res.json({ success: false, message: 'failed to decrement quantity' })
+        return res.json({ success: false, err:true })
     }
 }
-
-
-const calculateTotalAmount = async (matchCriteria) => {
-    console.log('Matching criteria:', matchCriteria);
-
-    const result = await Cart.aggregate([
-        {
-            $match: matchCriteria
-        },
-        {
-            $unwind: "$products"
-        },
-        {
-            $lookup: {
-                from: "products",
-                localField: "products.productId",
-                foreignField: "_id",
-                as: "product"
-            }
-        },
-        {
-            $unwind: "$product"
-        },
-        {
-            $group: {
-                _id: null,
-                totalAmount: {
-                    $sum: {
-                        $cond: {
-                            if: { $ne: ["$product.discount", 0] },
-                            then: {
-                                $multiply: [
-                                    {
-                                        $subtract: [
-                                            "$product.price",
-                                            { $multiply: ["$product.price", { $divide: ["$product.discount", 100] }] }
-                                        ]
-                                    },
-                                    "$products.quantity"
-                                ]
-                            },
-                            else: { $multiply: ["$product.price", "$products.quantity"] }
-                        }
-                    }
-                },
-                totalDiscount: {
-                    $sum: {
-                        $cond: {
-                            if: { $ne: ["$product.discount", 0] },
-                            then: {
-                                $multiply: [
-                                    "$product.price",
-                                    { $divide: ["$product.discount", 100] },
-                                    "$products.quantity"
-                                ]
-                            },
-                            else: 0
-                        }
-                    }
-                },
-                totalProducts: { $sum: 1 }
-            }
-        }
-    ]);
-
-
-    console.log('Aggregation result:', result);
-
-
-
-
-    if (result.length > 0) {
-        console.log('Total Amount:', result[0].totalAmount);
-        console.log(`totalProducts ${result[0].totalProducts}`)
-        console.log(`totalDiscount ${result[0].totalDiscount}`)
-        let totalAmount = result[0].totalAmount
-        let totalProducts = result[0].totalProducts
-        let totalDiscount = result[0].totalDiscount
-        return { totalAmount, totalProducts, totalDiscount };
-    } else {
-        console.log('No results found.');
-        return 0; // Return 0 if no results
-    }
-};
-
 
 
 

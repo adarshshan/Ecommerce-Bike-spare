@@ -40,132 +40,152 @@
             </div>
         </nav>
     </header>
-    <% let rupee = new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-    }); %>
-    <div class="container">
-        <!-- popup  -->
-        <div class="popup shadow" id="popup">
-            <img src="https://cdn.pixabay.com/photo/2014/04/02/11/01/tick-305245_640.png" alt="">
-            <h2>Thank you</h2>
-            <p id="message-alert">Your Order has placed. Thanks!</p>
-            <button class="bttn" type="button" onclick="closePopup()">Ok</button>
-        </div>
-
-        <div class="row pt-3">
-            <div class=" col-sm-12 col-md-12 col-lg-8 col-12">
-                <div class=" p-3">
-                    <div class="form-group col-md-12 p-3 bg-light text-dark">
-                        <h2 class="section-title position-relative ms-4 text-uppercase mb-3" id="pay"><span
-                                class="pr-3">Payment</span></h2>
-                    </div>
-
-                    <div class="bg-light p-30 shadow mb-4">
-                        <form action="" id="myForm" class=" pb-4">
-                            <div class="form-group col-md-12 p-3">
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" value="COD" class="custom-control-input" name="payment" id="cod"
-                                        required>
-                                    <label class="custom-control-label" for="cod">Cash on delivery</label>
-                                </div>
-                            </div>
-                            <div class="form-group col-md-12 p-3">
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" value="online payment" class="custom-control-input"
-                                        name="payment" id="onlinepayment" required>
-                                    <label class="custom-control-label" for="onlinepayment">Online Payment</label>
-                                </div>
-                            </div>
-                            <div class="form-group col-md-12 p-3">
-                                <div class="custom-control custom-radio">
-                                    <input type="radio" value="online payment + wallet" class="custom-control-input"
-                                        name="payment" id="onlineAndwallet" required>
-                                    <label class="custom-control-label" for="onlinepayment+wallet">Wallet + Online
-                                        Payment</label>
-                                </div>
-                            </div>
-                            <hr class="my-4" />
-                            <span id="Errormsg" class="text-danger ms-4"></span>
-                            <input type="submit" class="btn btn-outline-warning py-2 col-10 ms-5 mb-4"
-                                value="Place Order">
-                                
-                        </form>
-                        
-
-                        <!-- <button type="submit" class="btn btn-block btn-primary font-weight-bold py-3">Place Order</button> -->
-                        <!-- <button onclick="placeOrder()" id="pay-button" class="btn btn-block btn-primary font-weight-bold py-3">Place Order</button> -->
-                    </div>
-                </div>
+    <% let rupee=new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , }); %>
+        <div class="container">
+            <!-- popup  -->
+            <div class="popup shadow" id="popup">
+                <img src="https://cdn.pixabay.com/photo/2014/04/02/11/01/tick-305245_640.png" alt="">
+                <h2>Thank you</h2>
+                <p id="message-alert">Your Order has placed. Thanks!</p>
+                <button class="bttn" type="button" onclick="closePopup()">Ok</button>
             </div>
-            <div class="col-sm-12 col-md-12 col-lg-4 col-12">
-                <div class="card mb-4 shadow">
-                    <div class="card-header py-3">
-                        <h5 class="mb-0">Summary</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush">
-                            <li
-                                class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
-                                Price(<%= totalProducts %> items)
-                                    <span id="actualamount">
-                                        <%= rupee.format(totalAmount+totalDiscount) %>
-                                    </span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                Discount on products
-                                <span id="discount-product">
-                                    <%= rupee.format(totalDiscount) %>
-                                </span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <span id="percentCoupon">Discount on Coupons</span>
-                                <span id="discount">00</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                Shipping
-                                <span>Free</span>
-                            </li>
-                            <li
-                                class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
-                                <div>
-                                    <strong>Total amount</strong>
-                                    <strong>
-                                        <p class="mb-0">(including VAT)</p>
-                                    </strong>
-                                </div>
-                                <span><strong id="totalAmount">Rs.<%= rupee.format(totalAmount)%></strong></span>
-                            </li>
-                        </ul>
-                        <!-- coupon -->
-                        <div id="couponbox">
-                            <div class="card-body d-flex border-top">
-                                <div class="form-group">
-                                    <input type="text" class="form-control py-3 px-2" id="couponCode"
-                                        placeholder="Enter coupon code">
-                                </div>
-                                <button id="applybtn" class="btn btn-outline-primary ms-3 px-4"
-                                    onclick="verifyCoupon('<%= totalAmount %>')">Apply</button>
-                                <button id="cancelbtn" style="display: none;" class="btn btn-outline-danger ms-3 px-4"
-                                    onclick="cancelCoupon('<%= totalAmount %>')">Cancel</button>
-                            </div>
-                            <span class="text-danger" id="coupon-error"></span>
+
+            <div class="row pt-3">
+                <div class=" col-sm-12 col-md-12 col-lg-8 col-12">
+                    <div class=" p-3">
+                        <div class="form-group col-md-12 p-3 bg-light text-dark">
+                            <h2 class="section-title position-relative ms-4 text-uppercase mb-3" id="pay"><span
+                                    class="pr-3">Payment</span></h2>
                         </div>
-                        <!-- /coupon -->
 
+                        <div class="bg-light p-30 shadow mb-4">
+                            <form action="" id="myForm" class=" pb-4">
+                                <div class="form-group col-md-12 p-3">
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" value="COD" class="custom-control-input" name="payment"
+                                            id="cod" required>
+                                        <label class="custom-control-label" for="cod">Cash on delivery</label>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 p-3">
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" value="online payment" class="custom-control-input"
+                                            name="payment" id="onlinepayment" required>
+                                        <label class="custom-control-label" for="onlinepayment">Online Payment</label>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-12 p-3">
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" value="online payment + wallet" class="custom-control-input"
+                                            name="payment" id="onlineAndwallet" required>
+                                        <label class="custom-control-label" for="onlinepayment+wallet">Wallet + Online
+                                            Payment</label>
+                                    </div>
+                                </div>
+                                <hr class="my-4" />
+                                <span id="Errormsg" class="text-danger ms-4"></span>
+                                <input type="submit" class="btn btn-outline-warning py-2 col-10 ms-5 mb-4"
+                                    value="Place Order">
+
+                            </form>
+
+
+                            <!-- <button type="submit" class="btn btn-block btn-primary font-weight-bold py-3">Place Order</button> -->
+                            <!-- <button onclick="placeOrder()" id="pay-button" class="btn btn-block btn-primary font-weight-bold py-3">Place Order</button> -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-12 col-lg-4 col-12">
+                    <div class="card mb-4 shadow">
+                        <div class="card-header py-3">
+                            <h5 class="mb-0">Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li
+                                    class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+                                    Price(<%= totalProducts %> items)
+                                        <span id="actualamount">
+                                            <%= rupee.format(totalAmount+totalDiscount) %>
+                                        </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    Discount on products
+                                    <span id="discount-product">
+                                        <%= rupee.format(totalDiscount) %>
+                                    </span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <span id="percentCoupon">Discount on Coupons</span>
+                                    <span id="discount">00</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    Shipping
+                                    <span>Free</span>
+                                </li>
+                                <li
+                                    class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">
+                                    <div>
+                                        <strong>Total amount</strong>
+                                        <strong>
+                                            <p class="mb-0">(including VAT)</p>
+                                        </strong>
+                                    </div>
+                                    <span><strong id="totalAmount">Rs.<%= rupee.format(totalAmount)%></strong></span>
+                                </li>
+                            </ul>
+                            <!-- coupon -->
+                            <div id="couponbox">
+                                <div class="card-body d-flex border-top">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control py-3 px-2" id="couponCode"
+                                            placeholder="Enter coupon code">
+                                    </div>
+                                    <button id="applybtn" class="btn btn-outline-primary ms-3 px-4"
+                                        onclick="verifyCoupon('<%= totalAmount %>')">Apply</button>
+                                    <button id="cancelbtn" style="display: none;"
+                                        class="btn btn-outline-danger ms-3 px-4"
+                                        onclick="cancelCoupon('<%= totalAmount %>')">Cancel</button>
+                                </div>
+                                <span class="text-danger" id="coupon-error"></span>
+                            </div>
+                            <!-- <% if (coupon && coupon.length && coupon!==undefined) { %>
+                                <div class="">
+                                    <ul>
+                                        <% for( let i = 0; i < coupon.length; i++ ) { %>
+                                            <li><%= coupon[i] %></li> 
+                                        <% } %>
+                                        
+                                    </ul>
+                                </div>
+                            <% } %> -->
+                            <!-- /coupon -->
+
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="row text-center mt-3">
+                <% if (coupon && coupon!==undefined && coupon.length) { %>
+                    <h4>Available Coupons</h4>
+                 <% for( let i = 0; i < coupon.length; i++ ) { %>
+                    <div class="card col-6 col-md-2 text-center p-2 bg-light m-2 shadow">
+                        <h5><%= coupon[i].title %></h5>
+                        <input class="text-center p-2 m-3" type="text" id="code<%= coupon[i].code %>" value="<%= coupon[i].code %>" disabled>
+                        <button onclick="copyCode('<%= coupon[i].code %>')" class=" btn-dark"><i class="fa-solid fa-copy"></i></button>
+                        </div>
+                 <% } %>
+                <% } %>
+            </div>
         </div>
-    </div>
 
-    <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="/static/user/invoice.js"></script>
-    <script src="/static/user/couponcontrol.js"></script>
-
+        <script src="https://rawgit.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="/static/user/invoice.js"></script>
+        <script src="/static/user/couponcontrol.js"></script>
 
 
-    <%- include('head/footer') %>
+
+        <%- include('head/footer') %>

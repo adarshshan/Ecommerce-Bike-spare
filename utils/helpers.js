@@ -1,10 +1,10 @@
 const Cart = require('../models/cart');
 const Order = require('../models/order')
-const Product=require('../models/product');
+const Product = require('../models/product');
 const User = require('../models/user')
 const nodemailer = require('nodemailer');
 const Razorpay = require('razorpay')
-const userOtpVerification=require('../models/userOtpVerification');
+const userOtpVerification = require('../models/userOtpVerification');
 var instance = new Razorpay({ key_id: 'rzp_test_kxpY9d3K4xgnJt', key_secret: 'NH5mIiVcgS7yf9zr0iwQisAQ' })
 const bcrypt = require('bcrypt')
 const notifier = require('node-notifier');
@@ -171,98 +171,15 @@ function getSampleData(invoiceNumber, items, name, phone, userName, userPhone, u
 }
 
 
-async function calculateTotalAmount(matchCriteria) {
-    console.log('Matching criteria:', matchCriteria);
-
-    const result = await Cart.aggregate([
-        {
-            $match: matchCriteria
-        },
-        {
-            $unwind: "$products"
-        },
-        {
-            $lookup: {
-                from: "products",
-                localField: "products.productId",
-                foreignField: "_id",
-                as: "product"
-            }
-        },
-        {
-            $unwind: "$product"
-        },
-        {
-            $group: {
-                _id: null,
-                totalAmount: {
-                    $sum: {
-                        $cond: {
-                            if: { $ne: ["$product.discount", 0] },
-                            then: {
-                                $multiply: [
-                                    {
-                                        $subtract: [
-                                            "$product.price",
-                                            { $multiply: ["$product.price", { $divide: ["$product.discount", 100] }] }
-                                        ]
-                                    },
-                                    "$products.quantity"
-                                ]
-                            },
-                            else: { $multiply: ["$product.price", "$products.quantity"] }
-                        }
-                    }
-                },
-                totalDiscount: {
-                    $sum: {
-                        $cond: {
-                            if: { $ne: ["$product.discount", 0] },
-                            then: {
-                                $multiply: [
-                                    "$product.price",
-                                    { $divide: ["$product.discount", 100] },
-                                    "$products.quantity"
-                                ]
-                            },
-                            else: 0
-                        }
-                    }
-                },
-                totalProducts: { $sum: 1 }
-            }
-        }
-    ]);
-
-
-    console.log('Aggregation result:', result);
-
-
-
-
-    if (result.length > 0) {
-        console.log('Total Amount:', result[0].totalAmount);
-        console.log(`totalProducts ${result[0].totalProducts}`)
-        console.log(`totalDiscount ${result[0].totalDiscount}`)
-        let totalAmount = result[0].totalAmount
-        let totalProducts = result[0].totalProducts
-        let totalDiscount = result[0].totalDiscount
-        return { totalAmount, totalProducts, totalDiscount };
-    } else {
-        console.log('No results found.');
-        return 0; // Return 0 if no results
-    }
-};
-
 
 
 function addWalletAmount(userId, wallet) {
-    let amount=wallet.amount/100;
+    let amount = wallet.amount / 100;
     return new Promise((resolve, reject) => {
         User.findByIdAndUpdate(
             userId,
             {
-                $inc: { 'wallet.balance': amount},
+                $inc: { 'wallet.balance': amount },
                 $push: {
                     'wallet.transactions': {
                         type: 'debited',
@@ -315,7 +232,7 @@ async function sendUriToEmail(email, req) {
     })
 }
 
-function generateRazorpay(total, orderId,res) {
+function generateRazorpay(total, orderId, res) {
     return new Promise((resolve, reject) => {
         var options = {
             amount: total * 100,
@@ -326,7 +243,7 @@ function generateRazorpay(total, orderId,res) {
             if (err) {
                 console.log('error is here.')
                 console.log(err)
-                if(err.error) return res.json({online:false,message:err.error.description});
+                if (err.error) return res.json({ online: false, message: err.error.description });
                 return res.json({ online: false, message: 'Make sure your Network is connected.!' });
             } else {
                 resolve(order);
@@ -423,6 +340,105 @@ async function categoryName() {
     }
 }
 
+async function calculateTotalAmount(matchCriteria) {
+    console.log('Matching criteria:', matchCriteria);
+
+    const result = await Cart.aggregate([
+        {
+            $match: matchCriteria
+        },
+        {
+            $unwind: "$products"
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "products.productId",
+                foreignField: "_id",
+                as: "product"
+            }
+        },
+        {
+            $unwind: "$product"
+        },
+        {
+            $group: {
+                _id: null,
+                totalAmount: {
+                    $sum: {
+                        $cond: {
+                            if: { $ne: ["$product.discount", 0] },
+                            then: {
+                                $multiply: [
+                                    {
+                                        $subtract: [
+                                            "$product.price",
+                                            { $multiply: ["$product.price", { $divide: ["$product.discount", 100] }] }
+                                        ]
+                                    },
+                                    "$products.quantity"
+                                ]
+                            },
+                            else: { $multiply: ["$product.price", "$products.quantity"] }
+                        }
+                    }
+                },
+                totalDiscount: {
+                    $sum: {
+                        $cond: {
+                            if: { $ne: ["$product.discount", 0] },
+                            then: {
+                                $multiply: [
+                                    "$product.price",
+                                    { $divide: ["$product.discount", 100] },
+                                    "$products.quantity"
+                                ]
+                            },
+                            else: 0
+                        }
+                    }
+                },
+                totalProducts: { $sum: 1 }
+            }
+        }
+    ]);
+
+
+    console.log('Aggregation result:', result);
+
+
+
+
+    if (result.length > 0) {
+        console.log('Total Amount:', result[0].totalAmount);
+        console.log(`totalProducts ${result[0].totalProducts}`)
+        console.log(`totalDiscount ${result[0].totalDiscount}`)
+        let totalAmount = result[0].totalAmount
+        let totalProducts = result[0].totalProducts
+        let totalDiscount = result[0].totalDiscount
+        return { totalAmount, totalProducts, totalDiscount };
+    } else {
+        console.log('No results found.');
+        return 0; // Return 0 if no results
+    }
+};
+function suitableCoupon(available, usedcoupons) {
+    let SuitableCoupon = []
+    for (let i = 0; i < available.length; i++) {
+        var flag = 0;
+        for (let j = 0; j < usedcoupons.usedCoupons.length; j++) {
+            if (available[i].code === usedcoupons.usedCoupons[j].couponCode) {
+                flag = 1;
+                break;
+            }
+        }
+        if (flag == 0) {
+            SuitableCoupon.push(available[i]);
+        }
+
+    }
+    return SuitableCoupon;
+}
 
 module.exports = {
     removeCart,
@@ -439,6 +455,7 @@ module.exports = {
     generateRazorpay,
     walletTransactions,
     sendOtpVerificationEmail,
-    categoryName
+    categoryName,
+    suitableCoupon
 
 }

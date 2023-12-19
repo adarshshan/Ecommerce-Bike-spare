@@ -22,17 +22,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-async function addToCart(data) {
-    const productDetails = JSON.parse(data);
-    const response = await fetch(`/carts/add/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}`, { method: 'get' })
-    const resBody = await response.json()
-    if (resBody.success) {
-        localStorage.removeItem('CouponDetails')
-    } else {
-        // alert(resBody.message)
-        location.href = '/carts'
-    }
-}
+// async function addToCart(data) {
+//     const productDetails = JSON.parse(data);
+//     const response = await fetch(`/carts/add/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}`, { method: 'get' })
+//     const resBody = await response.json()
+//     if (resBody.success) {
+//         localStorage.removeItem('CouponDetails')
+//     } else {
+//         // alert(resBody.message)
+//         location.href = '/carts'
+//     }
+// }
 
 async function addToWishlist(id) {
     const response = await fetch(`/add-wishlist/${id}`, { method: 'get' })
@@ -140,8 +140,8 @@ async function addToCart(data) {
         localStorage.removeItem('CouponDetails')
         location.href = '/carts';
     } else {
-        // alert(resBody.message)
-        location.href = '/carts'
+        if(resBody.err) return location.href='/err-internal'
+        alert(resBody.message);
     }
 }
 
@@ -212,6 +212,7 @@ async function removeWishlist(id,productId) {
                         location.reload()
                     }, 1000);
                 } else {
+                    if(resBody.err) return location.href='/err-internal';
                     alert(resBody.message)
                 }
             })

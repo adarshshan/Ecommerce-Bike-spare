@@ -13,6 +13,7 @@ async function Activate(id) {
         document.getElementById('message-alert').innerText = resbody.message
         openPopup()
     } else {
+        if (resbody.err) return location.href = '/err-internal';
         alert(resbody.message)
     }
 }
@@ -25,6 +26,7 @@ async function deactivate(id) {
             document.getElementById('message-alert').innerText = resbody.message
             openPopup()
         } else {
+            if (resbody.err) return location.href = '/err-internal';
             alert(resbody.message);
         }
     } catch (error) {
@@ -58,6 +60,7 @@ async function deleteCoupon(id) {
                             location.reload()
                         }, 500);
                     } else {
+                        if (resbody.err) return location.href = '/err-internal';
                         Swal.fire({
                             title: "Oops!",
                             text: resbody.message
@@ -76,6 +79,7 @@ async function deleteCoupon(id) {
 }
 function validateCoupon() {
     try {
+        const title = document.getElementById('title').value.trim();
         const minDiscount = document.getElementById('minDiscount').value
         const minPurchase = document.getElementById('minPurchase').value
         const maxDiscount = document.getElementById('maxDiscount').value
@@ -83,6 +87,7 @@ function validateCoupon() {
         const maxusage = document.getElementById('maxusage').value
         const expireDate = document.getElementById('expireDate').value
 
+        const titleError = document.getElementById('title-error')
         const minDiscountError = document.getElementById('minDiscount-error')
         const minPurchaseError = document.getElementById('minPurchase-error')
         const maxDiscountError = document.getElementById('maxDiscount-error')
@@ -91,10 +96,12 @@ function validateCoupon() {
         const expireDateError = document.getElementById('expireDate-error')
         minDiscountError.innerText = ''; maxPurchaseError.innerText = ''; maxDiscountError.innerText = '';
         minPurchaseError.innerText = ''; maxusageError.innerText = ''; expireDateError.innerText = '';
+        titleError.innerText = '';
         let flag = 0;
-        
-        if (!maxDiscount || !minDiscount || !maxPurchase || !minPurchase || !maxusage || !expireDate) {
+
+        if (!maxDiscount || !minDiscount || !maxPurchase || !minPurchase || !maxusage || !expireDate || !title) {
             flag = 1;
+            if (!title) titleError.innerText = '* This Field is required!';
             if (!minDiscount) minDiscountError.innerText = '*This field is requried!';
             if (!maxPurchase) maxPurchaseError.innerText = '*This Field is required!';
             if (!maxDiscount) maxDiscountError.innerText = '*This Field is required!';
@@ -131,13 +138,13 @@ function validateCoupon() {
             maxusageError.innerText = 'value must not be less than zero.';
             flag = 1;
         }
-        if(parseInt(minDiscount)>parseInt(maxDiscount)){
-            maxDiscountError.innerText='Maximum Discount must not be less than minimum discount!'
-            flag=1;
+        if (parseInt(minDiscount) > parseInt(maxDiscount)) {
+            maxDiscountError.innerText = 'Maximum Discount must not be less than minimum discount!'
+            flag = 1;
         }
-        if(parseInt(minPurchase)>parseInt(maxPurchase)){
-            maxPurchaseError.innerText='Maximum purchase must not be less than minimum purchase!'
-            flag=1;
+        if (parseInt(minPurchase) > parseInt(maxPurchase)) {
+            maxPurchaseError.innerText = 'Maximum purchase must not be less than minimum purchase!'
+            flag = 1;
         }
         if (flag === 0) {
             return true;
@@ -151,6 +158,7 @@ async function addCoupon() {
     try {
         let validate = validateCoupon();
         if (!validate) return;
+        const title=document.getElementById('title').value.trim();
         const minDiscount = document.getElementById('minDiscount').value
         const minPurchase = document.getElementById('minPurchase').value
         const maxDiscount = document.getElementById('maxDiscount').value
@@ -161,6 +169,7 @@ async function addCoupon() {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                title:title,
                 minDiscount: minDiscount,
                 minPurchase: minPurchase,
                 maxDiscount: maxDiscount,
@@ -174,7 +183,8 @@ async function addCoupon() {
             document.getElementById('message-alert').innerText = resbody.message
             openPopup();
         } else {
-            Swal.fire({text:resbody.message,icon:'warning',timer: 10000});
+            if (resbody.err) return location.href = '/err-internal';
+            Swal.fire({ text: resbody.message, icon: 'warning', timer: 10000 });
             // alert(resbody.message)
         }
     } catch (error) {
@@ -200,6 +210,12 @@ function couponEditForm(data) {
         editform.innerHTML = `
                     <div class="card-body">
                         <h2>Edit Coupon</h2>
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" class="form-control" id="title" value="${couponData.title}" name="title" placeholder=""
+                                required>
+                                <span id="title-error" class="text-danger"></span>
+                        </div>
                         <div class="form-group">
                             <label for="minDiscount">Discount in percentage</label>
                             <input type="number" class="form-control" id="minDiscount" value="${couponData.minDiscount}" name="minDiscount" placeholder=""
@@ -249,18 +265,20 @@ async function couponEdit(couponId) {
     try {
         const validate = validateCoupon();
         if (!validate) return 0;
+        const title = document.getElementById('title').value.trim();
         const minDiscount = document.getElementById('minDiscount').value
         const minPurchase = document.getElementById('minPurchase').value
         const maxDiscount = document.getElementById('maxDiscount').value
         const maxPurchase = document.getElementById('maxPurchase').value
         const maxusage = document.getElementById('maxusage').value
         const expireDate = document.getElementById('expireDate').value
-        const response = await fetch(`/coupons/edit-coupon/${couponId}/${minDiscount}/${minPurchase}/${maxDiscount}/${maxPurchase}/${expireDate}/${maxusage}`, { method: 'get' })
+        const response = await fetch(`/coupons/edit-coupon/${couponId}/${minDiscount}/${minPurchase}/${maxDiscount}/${maxPurchase}/${expireDate}/${maxusage}/${title}`, { method: 'get' })
         const resbody = await response.json();
         if (resbody.success) {
             document.getElementById('message-alert').innerText = resbody.message
             openPopup();
         } else {
+            if (resbody.err) return location.href = '/err-internal';
             alert(resbody.message)
             errorMsg.innerHTML = `
         <div class="alert alert-dismissible fade show alert-danger" role="alert">

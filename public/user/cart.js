@@ -53,6 +53,7 @@ function increaseProductQuantity(productId, productPrice, actualPrice) {
                     taem.innerHTML = rupee.format(totalAmount.toFixed(2))
                 }
             } else {
+                if (data.err) return location.href = '/err-internal';
                 Swal.fire({
                     title: "Sorry!",
                     text: data.message
@@ -117,6 +118,8 @@ function decreaseProductQuantity(productId, productPrice, actualPrice) {
                     taem.innerHTML = rupee.format(totalAmount.toFixed(2))
                 }
             } else {
+                if (data.err) return location.href = '/err-internal';
+                alert(data.message);
                 console.log(data.message)
             }
         })
@@ -154,6 +157,7 @@ function removeItem(productId) {
                         location.reload()
                     }, 500);
                 } else {
+                    if (data.err) return location.href = '/err-internal';
                     alert(data.message)
                 }
             }).catch((err) => {

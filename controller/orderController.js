@@ -7,7 +7,6 @@ const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
 
 const Promise = require('promise')
-const Swal = require('sweetalert2')
 const helpers = require('../utils/helpers')
 const localStorage = require("localStorage")
 
@@ -21,11 +20,14 @@ async function paymentOptionPage(req, res) {
         const phone = req.params.phone
         const userId = req.session.currentUserId
         const user = new ObjectId(userId)
+        const usedcoupons = await User.findOne({ _id: userId }, { _id: 0, usedCoupons: 1 });
+        console.log(`used coupons are....................${usedcoupons}`);
         req.session.selectedAddress = {
             id: id,
             name: name,
             phone: phone
         }
+
         if (localStorage.getItem("product")) {
             console.log('Buy Now')
             let product = JSON.parse(localStorage.getItem("product"));
@@ -33,7 +35,14 @@ async function paymentOptionPage(req, res) {
             const totalDiscount = product.price * product.discount / 100;
             const totalAmount = product.price - totalDiscount;
             const totalProducts = 1;
-            return res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts, totalDiscount })
+            //awailable coupons
+            const currentDate = new Date().toISOString().split('T')[0];
+            const couponlist = await Coupon.find({ isActive: true, isDeleted: false, minPurchase: { $lt: totalAmount }, expireDate: { $gt: currentDate } })
+            console.log('result is .............................................')
+            console.log(couponlist.length)
+            const available = couponlist.filter(item => item.maxusage > item.used_count);
+            const SuitableCoupon=helpers.suitableCoupon(available,usedcoupons);
+            return res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts, totalDiscount, coupon: SuitableCoupon })
         }
         if (req.session.selectedAddress) {
             const { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: user })
@@ -41,8 +50,11 @@ async function paymentOptionPage(req, res) {
         }
     } catch (error) {
         console.log('Error is at /payment_option/:id ' + error)
+        console.log(error)
+        return res.redirect('/err-internal');
     }
 }
+
 
 async function orderPost(req, res) {
     try {
@@ -539,8 +551,8 @@ async function orderHomePage(req, res) {
             const start = (page - 1) * productsPerPage;
             const end = start + productsPerPage;
             const paginatedProducts = data.orders.slice(start, end)
-console.log('the orders are below.....................................................')
-console.log(paginatedProducts);
+            console.log('the orders are below.....................................................')
+            console.log(paginatedProducts);
             return res.render('user/orderlist.ejs', {
                 title: 'orderList',
                 data: paginatedProducts,
@@ -602,7 +614,7 @@ async function viewOrder(req, res) {
             const end = start + productsPerPage;
             const paginatedProducts = products.slice(start, end)
             return res.render('user/viewOrderedProducts.ejs', {
-                title:'View-ordered-products',
+                title: 'View-ordered-products',
                 products: paginatedProducts,
                 currenPage: page,
                 id: orderId,

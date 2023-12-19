@@ -23,23 +23,26 @@ async function couponHome(req, res) {
         })
     } catch (error) {
         console.log(error)
+        return res.redirect('/err-internal');
     }
 }
 
 function addCoupon(req, res) {
     try {
-        const minDiscount =req.body.minDiscount
-        const maxDiscount =req.body.maxDiscount
+        const title = req.body.title;
+        const minDiscount = req.body.minDiscount
+        const maxDiscount = req.body.maxDiscount
         const expireDate = req.body.expireDate
         const maxusage = req.body.maxusage;
-        const minPurchase =req.body.minPurchase
-        const maxPurchase =req.body.maxPurchase
+        const minPurchase = req.body.minPurchase
+        const maxPurchase = req.body.maxPurchase
         console.log(minDiscount + ' and ' + maxDiscount);
         console.log(`min Purchase is ${minPurchase} and max purchase is ${maxPurchase}`)
         let isExistDiscount = false
         do {
             let myDiscountCode = coupongenerator()
             let newDiscountCode = new Coupon({
+                title: title,
                 code: myDiscountCode,
                 minPurchase: minPurchase,
                 maxPurchase: maxPurchase,
@@ -63,6 +66,7 @@ function addCoupon(req, res) {
         while (isExistDiscount);
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true });
     }
 }
 
@@ -75,7 +79,8 @@ async function editCoupon(req, res) {
         const maxDiscount = req.params.maxDiscount
         const maxusage = req.params.maxusage
         const expireDate = req.params.date
-        const updated = await Coupon.findByIdAndUpdate(couponId, { $set: { minDiscount: minDiscount, minPurchase: minPurchase, maxDiscount: maxDiscount, maxPurchase: maxPurchase, expireDate: expireDate, maxusage: maxusage } });
+        const title = req.params.title;
+        const updated = await Coupon.findByIdAndUpdate(couponId, { $set: { title: title, minDiscount: minDiscount, minPurchase: minPurchase, maxDiscount: maxDiscount, maxPurchase: maxPurchase, expireDate: expireDate, maxusage: maxusage } });
         if (updated && updated !== undefined) {
             return res.json({ success: true, message: 'Coupon updated successfully.' })
         } else {
@@ -83,6 +88,7 @@ async function editCoupon(req, res) {
         }
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true });
     }
 }
 
@@ -97,6 +103,7 @@ async function deleteCoupon(req, res) {
         }
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true })
     }
 }
 
@@ -111,6 +118,7 @@ async function deactivateCoupon(req, res) {
         }
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true })
     }
 }
 
@@ -125,6 +133,7 @@ async function activateCoupon(req, res) {
         }
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true })
     }
 }
 
@@ -174,6 +183,7 @@ async function verifyCoupon(req, res) {
         return res.json({ success: true, message: 'Coupon approved...', discountAmount, actualAmount, percentCoupon })
     } catch (error) {
         console.log(error)
+        return res.json({ success: false, err: true });
     }
 }
 function cancelCoupon(req, res) {

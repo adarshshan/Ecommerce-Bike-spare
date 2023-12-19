@@ -148,6 +148,30 @@ function getDayRatio(newarr) {
     }
 }
 
+async function mostPurchasedProducts() {
+    try {
+        const product = await Order.aggregate([
+            { $unwind: "$orders" },
+            { $unwind: "$orders.products" },
+            {
+                $group: {
+                    _id: "$orders.products.product_id",
+                    totalQuantity: { $sum: "$orders.products.quantity" },
+                    totalProductPrice: { $sum: "$orders.products.productPrice" },
+                    productPrice: { $first: "$orders.products.productPrice" },
+                    productName: { $first: "$orders.products.productName" },
+                    productImage: { $first: "$orders.products.productImage" }
+                }
+            },
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 5 }
+        ])
+        return product;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     getTodoList,
     getAllOrders,
@@ -156,5 +180,6 @@ module.exports = {
     getYearRatio,
     getMonthRatio,
     getWeekRatio,
-    getDayRatio
+    getDayRatio,
+    mostPurchasedProducts
 }

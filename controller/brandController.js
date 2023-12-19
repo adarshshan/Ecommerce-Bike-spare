@@ -81,6 +81,7 @@ function editBrand(req, res) {
             })
     } catch (error) {
         console.log('Error is at editBrand ' + error)
+        return res.redirect('/err-internal');
     }
 
 }
@@ -111,6 +112,7 @@ function updateBrand(req, res) {
 
     } catch (error) {
         console.log('Error is at updateBrand ' + error)
+        return res.redirect('/err-internal')
     }
 
 }

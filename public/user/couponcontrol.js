@@ -2,8 +2,16 @@ let rupee = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
 });
+function copyCode(code) {
+    var copyText = document.getElementById(`code${code}`);
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+
+    navigator.clipboard.writeText(copyText.value);
+}
+
 async function cancelCoupon(totalAmount) {
-    const response = await fetch('/coupons/cancelCoupon', { method: 'get' })
+    const response = await fetch('/coupons/cancelCoupon', { method: 'get' }) 
     const resbody = await response.json()
     if (resbody.success) {
         alert(resbody.message)
@@ -40,6 +48,7 @@ async function verifyCoupon(total) {
         document.getElementById('applybtn').style.display = 'none'
         openPopup()
     } else {
+        if (resbody.err) return location.href = '/err-internal';
         document.getElementById('coupon-error').innerText = resbody.message
     }
 }

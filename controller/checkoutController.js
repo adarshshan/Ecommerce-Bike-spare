@@ -8,42 +8,46 @@ const localStorage = require("localStorage")
 
 
 async function checkoutPage(req, res) {
-    const userId = req.session.currentUserId
-    const user = new ObjectId(userId)
-    if (userId) {
-        const address = await addressModel.findOne({ userId: userId })
-        const cart = await Cart.findOne({ userId: userId })
-        var addressDetails
-        if (address && address !== null) {
-            addressDetails = address.address;
+    try {
+        const userId = req.session.currentUserId
+        const user = new ObjectId(userId)
+        if (userId) {
+            const address = await addressModel.findOne({ userId: userId })
+            const cart = await Cart.findOne({ userId: userId })
+            var addressDetails
+            if (address && address !== null) {
+                addressDetails = address.address;
+            } else {
+                console.log('data not found')
+            }
+            if (localStorage.getItem("product")) {
+                console.log('Buy Now')
+                let product = JSON.parse(localStorage.getItem("product"));
+                console.log(product)
+                const totalDiscount = product.price * product.discount / 100;
+                const totalAmount = product.price - totalDiscount;
+                const totalProducts = 1;
+                return res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts, totalDiscount })
+            }
+            if (cart && cart !== null && cart !== undefined && cart.products.length !== 0) {
+
+                const { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: user })
+
+                res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts, totalDiscount })
+            } else {
+                console.log('Cart is empty')
+                return res.redirect('/carts')
+            }
+
+
         } else {
-            console.log('data not found')
+            console.log('User not logined')
+            return res.redirect('/users/login');
         }
-        if (localStorage.getItem("product")) {
-            console.log('Buy Now')
-            let product = JSON.parse(localStorage.getItem("product"));
-            console.log(product)
-            const totalDiscount = product.price * product.discount / 100;
-            const totalAmount = product.price - totalDiscount;
-            const totalProducts = 1;
-            return res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts, totalDiscount })
-        }
-        if (cart && cart !== null && cart !== undefined && cart.products.length !== 0) {
-
-            const { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: user })
-
-            res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts, totalDiscount })
-        } else {
-            console.log('Cart is empty')
-            return res.redirect('/carts')
-        }
-
-
-    } else {
-        console.log('not userid')
-        return res.redirect('/users/login');
+    } catch (error) {
+        console.log(error)
+        return res.redirect('/err-internal')
     }
-
 }
 
 async function addAddress(req, res) {
@@ -67,6 +71,7 @@ async function addAddress(req, res) {
         }
     } catch (error) {
         console.log(`Error at post address${error}`)
+        return res.redirect('/err-internal')
     }
 }
 
@@ -90,7 +95,6 @@ async function updateAddress(req, res) {
         const data = req.body
         console.log(data)
         console.log(`id is ${id}  and the data is ${data}`)
-        // const update=await addressModel.findOneAndUpdate({'address._id':id},{$set:{address:[data]}})
         const update = await addressModel.findOneAndUpdate({ 'address._id': id }, {
             $set: {
                 'address.$.name': data.name,
@@ -102,7 +106,7 @@ async function updateAddress(req, res) {
                 'address.$.alternativePhone': data.alternativePhone,
             }
         })
-        // const updated=await addressModel.findByIdAndUpdate(id,{$set:{address:[data]}})
+
         if (update) {
             console.log(`successfully updated...`);
             return res.json({ message: 'address successfully updated' })
@@ -117,17 +121,20 @@ async function updateAddress(req, res) {
 }
 
 async function deleteAddress(req, res) {
-    const idd = req.params.id
-    const id = new ObjectId(idd)
-    console.log('it is your address id ' + id)
-    const userId = req.session.currentUserId
-    const deleted = await addressModel.findOneAndUpdate({ userId: userId }, { $pull: { address: { _id: id } } })
-    const addressList = await addressModel.findOne({ userId: userId })
-    if (deleted) {
-        console.log('Address removed...')
-        res.json({ addressList: addressList })
+    try {
+        const idd = req.params.id
+        const id = new ObjectId(idd)
+        console.log('it is your address id ' + id)
+        const userId = req.session.currentUserId
+        const deleted = await addressModel.findOneAndUpdate({ userId: userId }, { $pull: { address: { _id: id } } })
+        const addressList = await addressModel.findOne({ userId: userId })
+        if (deleted) {
+            console.log('Address removed...')
+            res.json({ addressList: addressList })
+        }
+    } catch (error) {
+        cosole.log(error)
     }
-
 }
 
 module.exports = {

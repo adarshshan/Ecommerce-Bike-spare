@@ -93,7 +93,7 @@ app.use('/carts', cartsRouter)
 dbconnect()
 
 // Wildcard Route Handler 
-app.use((req, res, next) => {
+app.use('*',(req, res, next) => {
     const err = new Error(`Cannot Find ${req.originalUrl} on server`);
     err.status = 'Fail';
     err.statusCode = 404; 
@@ -102,7 +102,7 @@ app.use((req, res, next) => {
   
   // Error Handling Middleware 
   app.use((err, req, res, next) => {
-    if (err.statusCode === 404) {
+    if (err.statusCode == 404) {
       err.statusCode = err.statusCode || 500;
       err.status = err.status || 'Error';
       // Log specific error details instead of the entire object

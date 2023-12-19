@@ -7,15 +7,12 @@ async function dashboardHome(req, res) {
     try {
         const allOrders = await helpers.getAllOrders();
         const todoMessage = await helpers.getTodoList();
-        console.log('all orders is .......................................');
-        console.log(allOrders);
-        
-        console.log(allOrders.length);
+        // console.log(allOrders);
         var totalSales = 0;
         for (let i = 0; i < allOrders.length; i++) {
             totalSales += allOrders[i].totalAmount + allOrders[i].walletAmount
         }
-        const topProducts = await mostPurchasedProducts();
+        const topProducts = await helpers.mostPurchasedProducts();
         // console.log(topProducts)
         const timeWiseOrders = await helpers.timeWiseOrders()
 
@@ -32,31 +29,10 @@ async function dashboardHome(req, res) {
         });
     } catch (error) {
         console.log(error)
+        return res.redirect('/err-internal');
     }
 }
-async function mostPurchasedProducts() {
-    try {
-        const product = await Order.aggregate([
-            { $unwind: "$orders" },
-            { $unwind: "$orders.products" },
-            {
-                $group: {
-                    _id: "$orders.products.product_id",
-                    totalQuantity: { $sum: "$orders.products.quantity" },
-                    totalProductPrice: { $sum: "$orders.products.productPrice" },
-                    productPrice: { $first: "$orders.products.productPrice" },
-                    productName: { $first: "$orders.products.productName" },
-                    productImage: { $first: "$orders.products.productImage" }
-                }
-            },
-            { $sort: { totalQuantity: -1 } },
-            { $limit: 5 }
-        ])
-        return product;
-    } catch (error) {
-        console.log(error)
-    }
-}
+
 
 async function orderPagination(req, res) {
     try {

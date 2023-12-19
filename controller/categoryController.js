@@ -10,6 +10,7 @@ async function categoryHome(req, res) {
         })
     } catch (error) {
         console.log(error)
+        return redirect('/err-internal');
     }
 
 }
@@ -19,8 +20,8 @@ async function addCategories(req, res) {
         const iscategory = await Category.findOne({ $and: [{ name: req.body.name }, { isDeleted: false }] })
         const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
         if (!req.body.name) return res.json({ success: false, message: 'The input field must not be blank!' });
-        if(req.body.name.length<4) return res.json({success:false,message:'name should be atlest 4 charactors'});
-        if(specialChars.test(req.body.name)) return res.json({success:false,message:'Special charactors are not accepted!'});
+        if (req.body.name.length < 4) return res.json({ success: false, message: 'name should be atlest 4 charactors' });
+        if (specialChars.test(req.body.name)) return res.json({ success: false, message: 'Special charactors are not accepted!' });
         if (iscategory !== null) return res.json({ success: false, message: 'Entered Category name is already exists!' });
         if (req.body.name.length < 2 || req.body.name.length > 25) return res.json({ success: false, message: 'category name must be below 25 charactors!' });
         const categorie = new Category({
@@ -37,6 +38,7 @@ async function addCategories(req, res) {
             })
     } catch (error) {
         console.log('error at addcategory' + error)
+        return res.json({ success: false, err: true })
     }
 
 }
@@ -46,6 +48,7 @@ function addCategoryPage(req, res) {
         res.render('admin/add_categories', { title: 'add-category', msg: '' })
     } catch (error) {
         console.log(error)
+        return res.redirect('/err-internal');
     }
 }
 
@@ -56,13 +59,14 @@ async function deleteCategory(req, res) {
         category.isDeleted = true
         category.deleted_at = Date.now();
         category.save().then((result) => {
-            return res.json({success:true,message:'category deleted.'})
+            return res.json({ success: true, message: 'category deleted.' })
         }).catch((err) => {
             console.log(err)
-            return res.json({success:false,message:'Failed to deleted.'})
+            return res.json({ success: false, message: 'Failed to deleted.' })
         })
     } catch (error) {
         console.log('Error is at deleteCategory ' + error)
+        return res.json({ success: false, err: true });
     }
 
 }
@@ -78,6 +82,7 @@ function editCategory(req, res) {
         })
     } catch (error) {
         console.log('error is at editCategory' + error)
+        return res.redirect('/err-internal');
     }
 
 }
@@ -108,6 +113,7 @@ function updateCategory(req, res) {
 
     } catch (error) {
         console.log('Error is at updateCategory ' + error)
+        return res.redirect('/err-internal');
     }
 
 }
