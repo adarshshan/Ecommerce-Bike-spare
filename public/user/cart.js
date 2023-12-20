@@ -69,6 +69,7 @@ function increaseProductQuantity(productId, productPrice, actualPrice) {
 
 function decreaseProductQuantity(productId, productPrice, actualPrice) {
     console.log(`Total price de is ${productPrice}`)
+    if (document.getElementById(`form${productId}`).value == 1 || document.getElementById(`form${productId}`).value < 1) return Swal.fire({ title: "!", text: 'Quantity must be atlest 1.' });;
     fetch(`/carts/decreaseCount/${productId}`, {
         method: 'GET'
     }).then((response) => {
@@ -119,7 +120,7 @@ function decreaseProductQuantity(productId, productPrice, actualPrice) {
                 }
             } else {
                 if (data.err) return location.href = '/err-internal';
-                alert(data.message);
+                Swal.fire({ title: "!", text: data.message });
                 console.log(data.message)
             }
         })

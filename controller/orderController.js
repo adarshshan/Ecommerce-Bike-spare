@@ -46,7 +46,14 @@ async function paymentOptionPage(req, res) {
         }
         if (req.session.selectedAddress) {
             const { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: user })
-            res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts, totalDiscount })
+            //awailable coupons
+            const currentDate = new Date().toISOString().split('T')[0];
+            const couponlist = await Coupon.find({ isActive: true, isDeleted: false, minPurchase: { $lt: totalAmount }, expireDate: { $gt: currentDate } })
+            console.log('result is .............................................')
+            console.log(couponlist.length)
+            const available = couponlist.filter(item => item.maxusage > item.used_count);
+            const SuitableCoupon=helpers.suitableCoupon(available,usedcoupons);
+            res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts, totalDiscount, coupon: SuitableCoupon })
         }
     } catch (error) {
         console.log('Error is at /payment_option/:id ' + error)

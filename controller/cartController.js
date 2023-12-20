@@ -5,7 +5,7 @@ const localStorage = require("localStorage")
 const path = require('path')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId;
-const helpers=require('../utils/helpers')
+const helpers = require('../utils/helpers')
 
 async function cartHome(req, res) {
     try {
@@ -58,7 +58,7 @@ async function addCart(req, res) {
                 // return res.redirect('/carts')
                 return res.json({ success: true, message: 'Product successfully added to cart List' })
             } else {
-                return res.json({success:false,message:'Somthing trouble occuring while product add to cart.!'});
+                return res.json({ success: false, message: 'Somthing trouble occuring while product add to cart.!' });
             }
         } else {
             const resu = await Cart.insertMany({
@@ -70,13 +70,13 @@ async function addCart(req, res) {
                 console.log('New cart created with userId ..')
                 return res.json({ success: true, message: 'New cart created with userId' })
             } else {
-                return res.json({success:false,message:'Somthing trouble occuring while product add to cart.!'});
+                return res.json({ success: false, message: 'Somthing trouble occuring while product add to cart.!' });
             }
         }
 
     } catch (error) {
         console.log(`Error is at adding to cart ${error}`)
-        return res.json({success:false,err:true});
+        return res.json({ success: false, err: true });
     }
 
 
@@ -104,7 +104,7 @@ async function removeCart(req, res) {
         }
     } catch (error) {
         console.log('The Error is at Remove from cart.' + error)
-        return res.json({success:false,err:true});
+        return res.json({ success: false, err: true });
     }
 }
 
@@ -153,7 +153,7 @@ async function increaseCount(req, res) {
 
     } catch (error) {
         console.log(`An error occured while increasing the Quantity...${error}`)
-        return res.json({ success: false, err:true })
+        return res.json({ success: false, err: true })
     }
 }
 
@@ -164,14 +164,8 @@ async function decreaseCount(req, res) {
         const userId = req.session.currentUserId
         const use = new ObjectId(userId)
         if (!userId) return res.json({ success: false, message: 'user not logined!' });
-        const currQuantity = await Cart.findOne({ userId: userId, 'products.productId': id }, { _id: 0, 'products.quantity': 1 })
-        if (currQuantity) {
-            let currentQuantity = currQuantity.products[0].quantity
-            if (currentQuantity === 1) return res.json({ success: false, message: 'Quantity must be more than 1.' });
-        }
         await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
         let { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: use })
-        // console.log(`totalAmount ${totalAmount} totalProducts ${totalProducts} totalDiscount ${totalDiscount}`);
         const q = await Cart.aggregate([
             {
                 $match: {
@@ -188,7 +182,7 @@ async function decreaseCount(req, res) {
             },
             {
                 $project: {
-                    _id: 0, 
+                    _id: 0,
                     quantity: "$products.quantity"
                 }
             }
@@ -199,7 +193,7 @@ async function decreaseCount(req, res) {
 
     } catch (error) {
         console.log('An error occured while decreasing the quantity...' + error)
-        return res.json({ success: false, err:true })
+        return res.json({ success: false, err: true })
     }
 }
 
