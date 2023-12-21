@@ -50,8 +50,8 @@
           <input type="file" name="image" id="image" class="form-control" multiple>
 
           <% for (let i=0; i < product.image.length; i++) { %>
-            <img src="http://localhost:3000/<%= product.image[i] %>" style="height: 40px;width: 60px;"
-              alt="http://localhost:3000/<%= product.image[i] %>">
+            <img src="/<%= product.image[i] %>" style="height: 40px;width: 60px;"
+              alt="/<%= product.image[i] %>">
             <a href="/products/deleteImages/<%= product._id %>/<%= product.image[i] %>" class="text-dark"
               onclick="return confirm('Are you sure want to delete this product?')"><i
                 class="fas fa-trash fa-lg mx-1"></i></a>

@@ -41,7 +41,7 @@ async function paymentOptionPage(req, res) {
             console.log('result is .............................................')
             console.log(couponlist.length)
             const available = couponlist.filter(item => item.maxusage > item.used_count);
-            const SuitableCoupon=helpers.suitableCoupon(available,usedcoupons);
+            const SuitableCoupon = helpers.suitableCoupon(available, usedcoupons);
             return res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts, totalDiscount, coupon: SuitableCoupon })
         }
         if (req.session.selectedAddress) {
@@ -52,7 +52,7 @@ async function paymentOptionPage(req, res) {
             console.log('result is .............................................')
             console.log(couponlist.length)
             const available = couponlist.filter(item => item.maxusage > item.used_count);
-            const SuitableCoupon=helpers.suitableCoupon(available,usedcoupons);
+            const SuitableCoupon = helpers.suitableCoupon(available, usedcoupons);
             res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts, totalDiscount, coupon: SuitableCoupon })
         }
     } catch (error) {
@@ -551,7 +551,7 @@ async function orderHomePage(req, res) {
         console.log(`user id is ${user}`)
         const userId = new ObjectId(user)
         const data = await Order.findOne({ userId: user })
-
+        console.log(data)
         if (data && data !== null && data !== undefined) {
             //pagination
             const page = parseInt(req.query.page) || 1;
@@ -559,7 +559,7 @@ async function orderHomePage(req, res) {
             const end = start + productsPerPage;
             const paginatedProducts = data.orders.slice(start, end)
             console.log('the orders are below.....................................................')
-            console.log(paginatedProducts);
+            // console.log(paginatedProducts);
             return res.render('user/orderlist.ejs', {
                 title: 'orderList',
                 data: paginatedProducts,

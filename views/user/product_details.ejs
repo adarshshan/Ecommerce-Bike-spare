@@ -31,12 +31,12 @@
                     <div id="productCarousel" class="carousel slide" data-ride="carousel">
                         <div class="carousel-inner">
                             <div class="carousel-item active">
-                                <img style="width: 100%;" src="<%= imgUri %><%= products.image[0] %>"
+                                <img style="width: 100%;" src="/<%= products.image[0] %>"
                                     class="d-block w-75 zoom_img" alt="Product Image 1">
                             </div>
                             <% for( let i=1; i < products.image.length; i++ ) { %>
                                 <div class="carousel-item">
-                                    <img style="width: 100%;" src="<%= imgUri %><%= products.image[i] %>"
+                                    <img style="width: 100%;" src="/<%= products.image[i] %>"
                                         class="d-block w-75 zoom_img" alt="Product Image 1">
                                 </div>
                                 <% } %>
@@ -53,10 +53,10 @@
                     </div>
                     <div class="row mt-3 center mb-3">
                         <div class="col">
-                            <img style="height: 80px; width: 80px;" src="<%= imgUri %><%= products.image[0] %>"
+                            <img style="height: 80px; width: 80px;" src="/<%= products.image[0] %>"
                                 class="thumbnail-item active" alt="Thumbnail 1">
                             <% for( let i=1; i < products.image.length; i++ ) { %>
-                                <img style="height: 80px; width: 80px;" src="<%= imgUri %><%= products.image[i] %>"
+                                <img style="height: 80px; width: 80px;" src="/<%= products.image[i] %>"
                                     class="thumbnail-item" alt="Thumbnail 1">
                                 <% } %>
                         </div>
