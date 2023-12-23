@@ -19,26 +19,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-
-
-
-// async function addToCart(data) {
-//     const productDetails = JSON.parse(data);
-//     const response = await fetch(`/carts/add/${productDetails.id}/${productDetails.name}/${productDetails.price}/${productDetails.image}/${productDetails.description}`, { method: 'get' })
-//     const resBody = await response.json()
-//     if (resBody.success) {
-//         localStorage.removeItem('CouponDetails')
-//     } else {
-//         // alert(resBody.message)
-//         location.href = '/carts'
-//     }
-// }
-
 async function addToWishlist(id) {
     const response = await fetch(`/add-wishlist/${id}`, { method: 'get' })
     const resBody = await response.json()
     if (resBody.success) {
         document.getElementById(`heart${id}`).style.color = 'red'
+    }else{
+        if(resBody.noUser) return location.href='/users/login';
+        if(resBody.err) return location.href='/err-internal';
     }
 }
 
@@ -47,7 +35,7 @@ async function addToWishlist(id) {
 async function getOtp() {
     try {
         const email = document.getElementById('email').value
-        const response = await fetch(`/forgotPassword/${email}`,{method:'get'});
+        const response = await fetch(`/forgotPassword/${email}`, { method: 'get' });
         const resBody = await response.json()
         if (resBody.success) {
             console.log(resBody.message)
@@ -80,22 +68,22 @@ function closePopup() {
 async function newPass() {
     const password = document.getElementById('password').value.trim()
     const cpassword = document.getElementById('cpassword').value.trim()
-    document.getElementById('password-error').innerText='';document.getElementById('cpassword-error').innerText='';
-    if(!password || !cpassword){
-        if(!password) document.getElementById('password-error').innerText='* This Field is required!';
-        if(!cpassword) document.getElementById('cpassword-error').innerText='*This field is required!';
+    document.getElementById('password-error').innerText = ''; document.getElementById('cpassword-error').innerText = '';
+    if (!password || !cpassword) {
+        if (!password) document.getElementById('password-error').innerText = '* This Field is required!';
+        if (!cpassword) document.getElementById('cpassword-error').innerText = '*This field is required!';
         return;
     }
-    if(password.length<8){
-        document.getElementById('password-error').innerText='*Password must not be less than 8 charactors!';
+    if (password.length < 8) {
+        document.getElementById('password-error').innerText = '*Password must not be less than 8 charactors!';
         return;
     }
-    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || ! /[!@#$%^&*]/.test(password)){
-        document.getElementById('password-error').innerText='password is weak. please make a strong password.';
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || ! /[!@#$%^&*]/.test(password)) {
+        document.getElementById('password-error').innerText = 'password is weak. please make a strong password.';
         return;
     }
-    if(password !==cpassword){
-        document.getElementById('cpassword-error').innerText='Passwords are not matching!';
+    if (password !== cpassword) {
+        document.getElementById('cpassword-error').innerText = 'Passwords are not matching!';
         return;
     }
     const response = await fetch(`/newpassword/${password}/${cpassword}`, { method: 'get' })
@@ -140,7 +128,8 @@ async function addToCart(data) {
         localStorage.removeItem('CouponDetails')
         location.href = '/carts';
     } else {
-        if(resBody.err) return location.href='/err-internal'
+        if (resBody.noUser) return location.href = '/users/login';
+        if (resBody.err) return location.href = '/err-internal'
         alert(resBody.message);
     }
 }
@@ -184,7 +173,7 @@ $(document).ready(function () {
 });
 
 //Remove wishlist
-async function removeWishlist(id,productId) {
+async function removeWishlist(id, productId) {
     Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -212,7 +201,7 @@ async function removeWishlist(id,productId) {
                         location.reload()
                     }, 1000);
                 } else {
-                    if(resBody.err) return location.href='/err-internal';
+                    if (resBody.err) return location.href = '/err-internal';
                     alert(resBody.message)
                 }
             })

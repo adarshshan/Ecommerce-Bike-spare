@@ -40,10 +40,10 @@ async function addCart(req, res) {
         const imageUri = req.params.image
         const discription = req.params.disc;
         const userId = req.session.currentUserId
+        if (!userId) return res.json({ success: false, noUser: true, message: 'User not logined!' })
         if (localStorage.getItem("product")) localStorage.removeItem('product');
         const exist = await Cart.findOne({ userId: userId, products: { $elemMatch: { productId: id } } });
         if (exist) return res.json({ success: false, message: 'Product is already in cartlist...' })
-        if (!userId) return res.json({ success: false, message: 'User not logined!' })
         const existCart = await Cart.findOne({ userId: userId })
         if (existCart) {
             let push = await Cart.findOneAndUpdate({ userId: userId }, { $push: { products: { $each: [{ productId: id, productName: name, productPrice: price, productImage: imageUri, discription: discription }], $position: 0 } } })

@@ -105,7 +105,7 @@ router.get('/newpassword/:password/:cpassword', controller.newPasswordUpdate)
 
 //wishlist
 router.get('/wishlist', userAuth, controller.wishlistHome)
-router.get('/add-wishlist/:id', userAuth, controller.addToWishlist);
+router.get('/add-wishlist/:id', controller.addToWishlist);
 router.delete('/remove-wishlist/:id/:productId', userAuth, controller.removeWishlist)
 
 

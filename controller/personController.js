@@ -474,7 +474,7 @@ async function addToWishlist(req, res) {
     try {
         const productId = req.params.id;
         const userId = req.session.currentUserId;
-        if (!userId) return res.json({ success: false, message: 'user not logined...' });
+        if (!userId) return res.json({ success: false, noUser: true, message: 'user not logined...' });
         // Check if the product already exists in the user's wishlist
         const user = await User.findOneAndUpdate(
             { _id: userId, 'wishlist.productId': { $ne: productId } },
@@ -492,7 +492,7 @@ async function addToWishlist(req, res) {
         return res.json({ success: true, message: 'Product added to wishlist.' });
     } catch (error) {
         console.log(error);
-        return res.redirect('/err-internal');
+        return res.json({err:true});
     }
 }
 

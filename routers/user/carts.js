@@ -15,7 +15,7 @@ const Product = require('../../models/product')
 
 //----cart----
 router.get('/', controller.cartHome)
-router.get('/add/:id/:name/:price/:image/:disc', userAuth, controller.addCart)
+router.get('/add/:id/:name/:price/:image/:disc', controller.addCart)
 router.delete('/remove/:id', userAuth, controller.removeCart)
 router.get('/increaseCount/:id', userAuth, controller.increaseCount)
 router.get('/decreaseCount/:id', userAuth, controller.decreaseCount)
