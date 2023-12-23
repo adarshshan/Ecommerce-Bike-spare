@@ -1,6 +1,6 @@
 <%- include('head/header') %>
     <style>
-        a :hover {
+        .position-sticky a :hover {
             background: rgb(97, 97, 96);
             color: rgb(250, 249, 249);
         }
@@ -17,37 +17,45 @@
             display: none;
             padding: 30px;
         }
+        @media (max-width:500px){
+            .invoice{
+                width: 100%;
+                transform: translate(0, 0);
+                padding-right: 15px;
+            }
+        }
     </style>
     <div class="container-fluid" style="background-color: #f7efef;">
+        <div id="invoice-container" class="invoice shadow"></div>
         <div class="row">
+            
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-4 fw-normal">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-4 fw-normal text-lg-start text-center">
                 <div class="position-sticky">
                     <a class="nav-link text-dark" href="/profile">
-                        <div class="nav-item p-3">
+                        <div class="nav-item p-lg-3 p-1">
                             My Account
                         </div>
                     </a>
                     <a class="nav-link text-dark" href="/carts/orders">
-                        <div class="nav-item p-3">
+                        <div class="nav-item p-lg-3 p-1">
                             Orders
                         </div>
                     </a>
                     <a class="nav-link text-dark" href="/wishlist">
-                        <div class="nav-item p-3">
+                        <div class="nav-item p-lg-3 p-1">
                             wishlist
                         </div>
                     </a>
                     <a class="nav-link text-dark" href="/wallet">
-                        <div class="nav-item p-3">
+                        <div class="nav-item p-lg-3 p-1">
                             Your Wallet
                         </div>
                     </a>
                 </div>
             </nav>
-
+            <hr class="d-md-none">
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <div id="invoice-container" class="invoice shadow"></div>
                 <div
                     class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-5 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Order Listing</h1>

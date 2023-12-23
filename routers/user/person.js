@@ -36,7 +36,8 @@ router.post('/search-product', async (req, res) => {
             filterResult: results,
             categoryNames,
             categorie: '',
-            brands
+            brands,
+            userId:req.session.currentUserId
         })
     } catch (error) {
         console.log(error)

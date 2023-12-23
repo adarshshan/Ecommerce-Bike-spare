@@ -84,7 +84,7 @@
                                 </div>
                                 <hr class="my-4" />
                                 <span id="Errormsg" class="text-danger ms-4"></span>
-                                <input type="submit" class="btn btn-outline-warning py-2 col-10 ms-5 mb-4"
+                                <input type="submit" class="btn btn-outline-warning py-2 col-10 ms-1 mb-4"
                                     value="Place Order">
 
                             </form>
@@ -158,7 +158,7 @@
                 <% if (coupon && coupon!==undefined && coupon.length) { %>
                     <h4>Available Coupons</h4>
                  <% for( let i = 0; i < coupon.length; i++ ) { %>
-                    <div class="card col-6 col-md-2 text-center p-2 bg-light m-2 shadow">
+                    <div class="card col-6 col-md-2 text-center p-2 bg-light shadow">
                         <h5><%= coupon[i].title %></h5>
                         <input class="text-center p-2 m-3" type="text" id="code<%= coupon[i].code %>" value="<%= coupon[i].code %>" disabled>
                         <button onclick="copyCode('<%= coupon[i].code %>')" class=" btn-dark"><i class="fa-solid fa-copy"></i></button>

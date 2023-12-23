@@ -8,30 +8,31 @@
     <div class="container-fluid" style="background-color: #f7efef;">
         <div class="row">
             <!-- Sidebar -->
-            <nav id="sidebar" class="col-md-3 col-lg-3 d-md-block sidebar fs-4 fw-normal shadow">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar fs-4 fw-normal text-lg-start text-center">
                 <div class="position-sticky">
                     <a class="nav-link text-dark" href="/profile">
-                        <div class="nav-item p-3">
+                        <div class="nav-item p-lg-3 p-1">
                             My Account
                         </div>
                     </a>
                     <a class="nav-link text-dark" href="/carts/orders">
-                        <div class="nav-item p-3">
+                        <div class="nav-item p-lg-3 p-1">
                             Orders
                         </div>
                     </a>
                     <a class="nav-link text-dark" href="/wishlist">
-                        <div class="nav-item p-3">
+                        <div class="nav-item p-lg-3 p-1">
                             wishlist
                         </div>
                     </a>
                     <a class="nav-link text-dark" href="/wallet">
-                        <div class="nav-item p-3">
+                        <div class="nav-item p-lg-3 p-1">
                             Your Wallet
                         </div>
                     </a>
                 </div>
             </nav>
+            <hr class="d-md-none">
             <div class="col-lg-9 col-md-12 mb-5">
                 <!-- start -->
 
@@ -71,7 +72,7 @@
                     }
                 </style>
                 <% let rupee=new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , }); %>
-                    <div class="container pt-4">
+                    <div class="container pt-2">
                         <h1 class="text-center mb-4">Your Wallet</h1>
 
                         <div class="row">

@@ -22,7 +22,7 @@ function renderInvoice(invoiceData) {
                 </div>
                 <hr>
                 <div class="row">
-                    <div class="col-md-6 col-lg-6 col-12">
+                    <div class="col-md-6 col-lg-6">
                         <address>
                             <strong>Billed To:</strong><br>
                             ${invoiceData.BilledTo.name}<br>
@@ -30,7 +30,7 @@ function renderInvoice(invoiceData) {
                             ${invoiceData.BilledTo.email}<br>
                         </address>
                     </div>
-                    <div class="col-md-6 col-lg-6 col-12 text-right">
+                    <div class="col-md-6 col-lg-6 text-right">
                         <address>
                             <strong>Shipped To:</strong><br>
                             ${invoiceData.client.client}<br>
@@ -135,14 +135,14 @@ async function placeOrder(val) {
         if (resBody.success) {
             document.getElementById('pay').style.display = 'none'
             document.getElementById('myForm').innerHTML = `
-            <div class="bg-light col-md-8 col-12 text-success d-flex">
+            <div class="bg-light col-md-8 col-12 p-2 text-success d-flex">
                 <div>
                     <h1>Order placed successfully </h1> <br>
                     <a href="/carts/orders" class="btn btn-success">Go to Orders</a>
                 </div>
-                <p class="btn border-0 fw-bold py-3 float-end" onclick="downloadInvoice()">Download Invoice  <i class="fa-solid fa-download fs-5"></i></p>
+                <p class="btn border-0 fw-bold py-3 float-end" id="download-button" onclick="downloadInvoice()"><i class="fa-solid fa-download fs-5"></i></p>
             </div>
-            <div class="col-md-8 col-12 p-5 mt-3 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
+            <div class="col-md-8 col-12 p-2 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
             const receivedInvoiceData = resBody.invoiceData;
             document.getElementById('couponbox').style.display='none'
             openPopup();
@@ -202,14 +202,14 @@ function veryfyPayment(payment, order,receivedInvoiceData) {
             if (response.status) {
                 document.getElementById('pay').style.display = 'none'
                 document.getElementById('myForm').innerHTML = `
-            <div class="bg-light col-md-8 col-12 text-success d-flex">
+            <div class="bg-light col-md-8 col-12 text-success p-2 d-flex">
                 <div>
                     <h1>Order placed successfully </h1> <br>
                     <a href="/carts/orders" class="btn btn-success">Go to Orders</a>
                 </div>
-                <p class="btn border-0 fw-bold py-3 float-end" onclick="downloadInvoice()">Download Invoice  <i class="fa-solid fa-download fs-5"></i></p>
+                <p class="btn border-0 fw-bold py-3 float-end" id="download-button" onclick="downloadInvoice()"><i class="fa-solid fa-download fs-5"></i></p>
             </div>
-            <div class="col-md-8 col-12 p-5 ms-5 mt-3 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
+            <div class="col-md-8 col-12 p-2 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
                 
                 openPopup();
                 renderInvoice(receivedInvoiceData);
@@ -244,7 +244,9 @@ async function downloadInvoice() {
     });
     setTimeout(() => {
         document.getElementById('invoice-container').style.display = 'none';
+        document.getElementById('download-button').style.display = 'none';
     }, 2000);
+    
 }
 
 function htmlToBlob(html, callback) {

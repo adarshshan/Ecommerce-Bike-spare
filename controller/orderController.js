@@ -558,7 +558,7 @@ async function orderHomePage(req, res) {
             const start = (page - 1) * productsPerPage;
             const end = start + productsPerPage;
             const paginatedProducts = data.orders.slice(start, end)
-            console.log('the orders are below.....................................................')
+            console.log('the orders are below.....................................................') 
             // console.log(paginatedProducts);
             return res.render('user/orderlist.ejs', {
                 title: 'orderList',

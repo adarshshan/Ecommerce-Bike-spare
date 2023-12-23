@@ -5,8 +5,8 @@ const controller = require('../../controller/couponController')
 const adminAuth = require('../../middlware/adminAuth')
 const userAuth = require('../../middlware/userAuth')
 
-router.get('/', controller.couponHome);
-router.post('/', controller.addCoupon);
+router.get('/',adminAuth, controller.couponHome);
+router.post('/',adminAuth, controller.addCoupon);
 router.get('/edit-coupon/:id/:minDiscount/:minPurchase/:maxDiscount/:maxPurchase/:date/:maxusage/:title', adminAuth, controller.editCoupon);
 router.delete('/delete-coupon/:couponId', adminAuth, controller.deleteCoupon);
 router.get('/coupon-deactivate/:couponId', adminAuth, controller.deactivateCoupon);
