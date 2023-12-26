@@ -24,7 +24,7 @@ async function addBannerPage(req, res) {
 async function addBannerPost(req, res) {
     try {
         const title = req.body.title;
-        const startDate = req.body.startDate; dfsdfsadfsdf
+        const startDate = req.body.startDate;
         const endDate = req.body.endDate;
         const description = req.body.description;
         const product = req.body.product;

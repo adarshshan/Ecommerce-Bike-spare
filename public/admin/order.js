@@ -20,7 +20,7 @@ async function viewOrders(data){
         for(let i=0;i<resBody.products.length;i++){
             x+=`
             <div class="row border p-5 mb-4 fs-4 bg-light shadow">
-                    <div class="col-12 col-md-4"><img style=" width: 100%;" src="http://localhost:3000/${resBody.products[i].product.productImage}" alt=""></div>
+                    <div class="col-12 col-md-4"><img style=" width: 100%;" src="/${resBody.products[i].product.productImage}" alt=""></div>
                     <div class="col-md-4">
                         <p class="fs-3 fw-bold">${resBody.products[i].product.productName }</p>
                         <small>${ resBody.products[i].product.productDiscription}</small>

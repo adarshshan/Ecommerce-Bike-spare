@@ -440,6 +440,53 @@ function suitableCoupon(available, usedcoupons) {
     return SuitableCoupon;
 }
 
+async function cartItems(use){
+    try {
+        const cart = await Cart.aggregate([
+            {
+                $match:{userId:use}
+            },
+            {
+                $unwind: '$products'
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'products.productId',
+                    foreignField: '_id',
+                    as: 'productData'
+                }
+            },
+            {
+                $unwind: '$productData'
+            },
+            {
+                $match: {
+                    $and: [
+                        { 'productData.isDeleted': false },
+                        { 'productData.stock': { $gt: 0 } }
+                    ]
+                }
+            },
+            {
+                $group: {
+                    _id: '$products.productId',
+                    name: { $first: '$productData.name' },
+                    price: { $first: '$productData.price' },
+                    stock:{$first:'$productData.stock'},
+                    discount:{$first:'$productData.discount'},
+                    image:{$first:'$productData.image'},
+                    description:{$first:'$productData.description'},
+                    quantityInCarts: { $sum: '$products.quantity' }
+                }
+            }
+        ]);
+        return cart;
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     removeCart,
     changePaymentStatus,
@@ -456,6 +503,7 @@ module.exports = {
     walletTransactions,
     sendOtpVerificationEmail,
     categoryName,
-    suitableCoupon
+    suitableCoupon,
+    cartItems
 
 }

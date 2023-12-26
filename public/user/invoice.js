@@ -112,7 +112,7 @@ function renderInvoice(invoiceData) {
                                         <td class="no-line"><strong>Total</strong></td>
                                         <td class="no-line"></td>
                                         <td class="no-line text-center"></td>
-                                        <td class="no-line text-right">Rs.${invoiceData.information.totalAmount+invoiceData.information.wallet}</td>
+                                        <td class="no-line text-right">Rs.${invoiceData.information.totalAmount + invoiceData.information.wallet - invoiceData.information.totalDiscount - invoiceData.information.discount}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -144,17 +144,17 @@ async function placeOrder(val) {
             </div>
             <div class="col-md-8 col-12 p-2 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
             const receivedInvoiceData = resBody.invoiceData;
-            document.getElementById('couponbox').style.display='none'
+            document.getElementById('couponbox').style.display = 'none'
             openPopup();
             renderInvoice(receivedInvoiceData);
         } else if (resBody.online) {
             const receivedInvoiceData = resBody.invoiceData;
-            razorpayPayment(resBody.result,receivedInvoiceData)
-            document.getElementById('couponbox').style.display='none'
-        }else{
-            document.getElementById('Errormsg').innerText=resBody.message;
+            razorpayPayment(resBody.result, receivedInvoiceData)
+            document.getElementById('couponbox').style.display = 'none'
+        } else {
+            document.getElementById('Errormsg').innerText = resBody.message;
             setTimeout(() => {
-                document.getElementById('Errormsg').innerText='';
+                document.getElementById('Errormsg').innerText = '';
             }, 5000);
         }
     } catch (error) {
@@ -163,7 +163,7 @@ async function placeOrder(val) {
     }
 }
 
-function razorpayPayment(order,receivedInvoiceData) {
+function razorpayPayment(order, receivedInvoiceData) {
     var options = {
         "key": "rzp_test_kxpY9d3K4xgnJt", // Enter the Key ID generated from the Dashboard
         "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
@@ -173,7 +173,7 @@ function razorpayPayment(order,receivedInvoiceData) {
         "image": "https://example.com/your_logo",
         "order_id": order.id,
         "handler": function (response) {
-            veryfyPayment(response, order,receivedInvoiceData);
+            veryfyPayment(response, order, receivedInvoiceData);
         },
         "prefill": {
             "name": "Gaurav Kumar",
@@ -190,7 +190,7 @@ function razorpayPayment(order,receivedInvoiceData) {
     var rzp1 = new Razorpay(options);
     rzp1.open();
 }
-function veryfyPayment(payment, order,receivedInvoiceData) {
+function veryfyPayment(payment, order, receivedInvoiceData) {
     $.ajax({
         url: '/carts/veryfy-payment',
         method: 'post',
@@ -210,10 +210,10 @@ function veryfyPayment(payment, order,receivedInvoiceData) {
                 <p class="btn border-0 fw-bold py-3 float-end" id="download-button" onclick="downloadInvoice()"><i class="fa-solid fa-download fs-5"></i></p>
             </div>
             <div class="col-md-8 col-12 p-2 mb-4" id="invoice-container" style="background-color: rgb(251, 255, 255);"></div>`
-                
+
                 openPopup();
                 renderInvoice(receivedInvoiceData);
-            }else{
+            } else {
                 alert(`payment failed`);
                 rzp1.open();
             }
@@ -246,7 +246,7 @@ async function downloadInvoice() {
         document.getElementById('invoice-container').style.display = 'none';
         document.getElementById('download-button').style.display = 'none';
     }, 2000);
-    
+
 }
 
 function htmlToBlob(html, callback) {
@@ -409,7 +409,7 @@ function renderorderInvoice(order) {
                         <td class="no-line"><strong>Total</strong></td>
                         <td class="no-line"></td>
                         <td class="no-line text-center"></td>
-                        <td class="no-line text-right">Rs.${order.totalAmount + order.walletAmount}</td>
+                        <td class="no-line text-right">Rs.${subtotal - order.ProductDiscount - order.couponDiscount}</td>
                     </tr>
                 </tbody>
             </table>

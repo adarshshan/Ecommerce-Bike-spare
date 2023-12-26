@@ -201,8 +201,8 @@ function showform() {
                                 <div class="col-sm-12  col-12 mb-3">
                                     <p class="mb-0">Address</p>
                                     <div class="form-outline">
-                                        <textarea name="address" id="address" cols="100" rows="3"
-                                            placeholder="type here..." onkeyup="validateAddress()"></textarea><br>
+                                    <input type="text" name="address" id="address" placeholder="type here..."
+                                            class="form-control p-3" onkeyup="validateAddress()" />
                                             <span id="address-error"></span>
                                     </div>
                                 </div>
@@ -315,8 +315,8 @@ function editAddress(data) {
                                 <div class="col-sm-12  col-12 mb-3">
                                     <p class="mb-0">Address</p>
                                     <div class="form-outline">
-                                        <textarea name="address" id="address" value="${addressData.fullAddress}" cols="100" rows="3"
-                                            placeholder="type here..." onkeyup="validateAddress()"></textarea><br>
+                                    <input type="text" id="address" value="${addressData.fullAddress}" placeholder="type here..."
+                                            class="form-control p-3" onkeyup="validateAddress()" />
                                             <span id="address-error">name</span>
                                     </div>
                                 </div>

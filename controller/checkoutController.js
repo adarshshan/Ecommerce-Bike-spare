@@ -25,13 +25,16 @@ async function checkoutPage(req, res) {
                 let product = JSON.parse(localStorage.getItem("product"));
                 console.log(product)
                 const totalDiscount = product.price * product.discount / 100;
-                const totalAmount = product.price - totalDiscount;
+                const totalAmount = product.price;
                 const totalProducts = 1;
                 return res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts, totalDiscount })
             }
             if (cart && cart !== null && cart !== undefined && cart.products.length !== 0) {
-
-                const { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: user })
+                // const { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: user })
+                const cart = await helpers.cartItems(user);
+                const totalAmount = cart.reduce((total, product) => total + (product.price * product.quantityInCarts), 0);
+                const totalDiscount = cart.reduce((total, product) => total + (product.quantityInCarts * ((product.price * product.discount) / 100)), 0);
+                const totalProducts = cart.length;
 
                 res.render('user/checkout.ejs', { title: 'checkout', addressDetails, totalAmount, totalProducts, totalDiscount })
             } else {

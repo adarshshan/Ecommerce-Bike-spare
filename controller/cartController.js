@@ -11,25 +11,25 @@ async function cartHome(req, res) {
     try {
         const userId = req.session.currentUserId
         const use = new ObjectId(userId)
-        if (!userId) return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0, totalDiscount: 0 })
-        const cartList = await Cart.find({ userId: userId })
-            .populate({
-                path: 'products.productId',
-                select: 'name price image discount description stock quantity'
-            })
-        if (cartList && cartList.length > 0 && cartList !== undefined) {
-            let { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: use })
-            return res.render('user/cart.ejs', { title: 'shopping_Cart', cartList, totalAmount, totalProducts, totalDiscount })
 
+        const cart = await helpers.cartItems(use);
+        console.log('cart is .........................')
+        console.log(cart)
+        if (!userId) return res.render('user/cart.ejs', { title: 'shopping Cart', cartList: '', totalAmount: 0, totalProducts: 0, totalDiscount: 0 })
+        if (cart && cart !== null) {
+            // let { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: use })
+            const totalAmount = cart.reduce((total, product) => total + (product.price * product.quantityInCarts), 0);
+            const totalDiscount = cart.reduce((total, product) => total + (product.quantityInCarts * ((product.price * product.discount) / 100)), 0);
+            const totalProducts = cart.length;
+            console.log(`totalAmount ${totalAmount} totalDiscount ${totalDiscount} totalProducts ${totalProducts}`)
+            return res.render('user/cart.ejs', { title: 'shopping_Cart', cartList: cart, totalAmount, totalProducts, totalDiscount })
         } else {
             return res.render('user/cart.ejs', { title: 'shopping_Cart', cartList: '', totalAmount: 0, totalProducts: 0, totalDiscount: 0 })
         }
-
     } catch (error) {
         console.log(`An Error occured at ...${error}`)
         return res.redirect('/err-internal')
     }
-
 }
 
 async function addCart(req, res) {
@@ -123,7 +123,11 @@ async function increaseCount(req, res) {
             if (currentQuantity === productdetails.stock || currentQuantity > productdetails.stock) return res.json({ success: false, message: 'Out of stock' });
         }
         await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': 1 } })
-        let { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: use })
+        const cart = await helpers.cartItems(use);
+        const totalAmount = cart.reduce((total, product) => total + (product.price * product.quantityInCarts), 0);
+        const totalDiscount = cart.reduce((total, product) => total + (product.quantityInCarts * ((product.price * product.discount) / 100)), 0);
+        const totalProducts = cart.length;
+        // let { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: use })
         const q = await Cart.aggregate([
             {
                 $match: {
@@ -165,7 +169,11 @@ async function decreaseCount(req, res) {
         const use = new ObjectId(userId)
         if (!userId) return res.json({ success: false, message: 'user not logined!' });
         await Cart.updateOne({ userId: userId, 'products.productId': id }, { $inc: { 'products.$.quantity': -1 } })
-        let { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: use })
+        // let { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: use })
+        const cart = await helpers.cartItems(use);
+        const totalAmount = cart.reduce((total, product) => total + (product.price * product.quantityInCarts), 0);
+        const totalDiscount = cart.reduce((total, product) => total + (product.quantityInCarts * ((product.price * product.discount) / 100)), 0);
+        const totalProducts = cart.length;
         const q = await Cart.aggregate([
             {
                 $match: {

@@ -33,7 +33,7 @@ async function paymentOptionPage(req, res) {
             let product = JSON.parse(localStorage.getItem("product"));
             console.log(product)
             const totalDiscount = product.price * product.discount / 100;
-            const totalAmount = product.price - totalDiscount;
+            const totalAmount = product.price;
             const totalProducts = 1;
             //awailable coupons
             const currentDate = new Date().toISOString().split('T')[0];
@@ -45,7 +45,11 @@ async function paymentOptionPage(req, res) {
             return res.render('user/paymentOption.ejs', { title: 'payment', result: 'success', totalAmount, totalProducts, totalDiscount, coupon: SuitableCoupon })
         }
         if (req.session.selectedAddress) {
-            const { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: user })
+            // const { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: user })
+            const cart = await helpers.cartItems(user);
+            const totalAmount = cart.reduce((total, product) => total + (product.price * product.quantityInCarts), 0);
+            const totalDiscount = cart.reduce((total, product) => total + (product.quantityInCarts * ((product.price * product.discount) / 100)), 0);
+            const totalProducts = cart.length;
             //awailable coupons
             const currentDate = new Date().toISOString().split('T')[0];
             const couponlist = await Coupon.find({ isActive: true, isDeleted: false, minPurchase: { $lt: totalAmount }, expireDate: { $gt: currentDate } })
@@ -194,13 +198,17 @@ async function orderPost(req, res) {
                 //-----/buy Now------//
                 //coupon///
                 if (cart && cart !== null) {
+                    const cartItem = await helpers.cartItems(userId);
                     let items = []
                     var totalAmount;
                     var discount = 0;
                     var couponCode
                     var totalDiscount = 0
                     var couponPercent = 0
-                    var { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: userId })
+                    // var { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: userId })
+                    totalAmount = cartItem.reduce((total, product) => total + (product.price * product.quantityInCarts), 0);
+                    totalDiscount = cartItem.reduce((total, product) => total + (product.quantityInCarts * ((product.price * product.discount) / 100)), 0);
+                    var totalProducts = cart.length;
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
                         totalAmount = parseInt(coupon.total)
@@ -209,25 +217,21 @@ async function orderPost(req, res) {
                         couponPercent = coupon.couponPercent
                     }
 
-                    const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
-                    if (products) {
-                        for (let i = 0; i < products.products.length; i++) {
+                    // const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
+                    if (cart) {
+                        for (let i = 0; i < cartItem.length; i++) {
                             let data = {
-                                product_id: products.products[i].productId,
-                                productName: products.products[i].productName,
-                                productPrice: products.products[i].productPrice,
-                                productImage: products.products[i].productImage,
-                                productDiscription: products.products[i].discription,
-                                quantity: products.products[i].quantity,
+                                product_id: cartItem[i]._id,
+                                productName: cartItem[i].name,
+                                productPrice: cartItem[i].price,
+                                productImage: cartItem[i].image[0],
+                                productDiscription: cartItem[i].description,
+                                quantity: cartItem[i].quantityInCarts,
                                 status: status,
                             }
                             items.push(data)
                         }
-                        console.log('products added to orders...')
-                    } else {
-                        console.log('products not found in database...')
                     }
-
                     if (value === 'online payment + wallet') {
                         console.log('Its online payment + wallet methodd')
                         const userDetails = await User.findById(user)
@@ -277,9 +281,9 @@ async function orderPost(req, res) {
                             if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
                             delete req.session.discount;//To delete the coupon discount details.
                             //Stock Deduction
-                            for (let i = 0; i < products.products.length; i++) {
-                                let proid = products.products[i].productId
-                                let qty = products.products[i].quantity
+                            for (let i = 0; i < cartItem.length; i++) {
+                                let proid = cartItem[i]._id
+                                let qty = cartItem[i].quantityInCarts
                                 await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
                             }
                             return res.json({ success: true, message: 'order placed successfully...', invoiceData: invoiceData })
@@ -293,23 +297,23 @@ async function orderPost(req, res) {
                                 if (couponCode) await User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true });//add used coupon in user collection.
                                 delete req.session.discount;//To delete the coupon discount details.
                                 //Stock Deduction
-                                for (let i = 0; i < products.products.length; i++) {
-                                    let proid = products.products[i].productId
-                                    let qty = products.products[i].quantity
+                                for (let i = 0; i < cartItem.length; i++) {
+                                    let proid = cartItem[i]._id
+                                    let qty = cartItem[i].quantityInCarts
                                     await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
                                 }
                                 return res.json({ success: true, message: 'order placed successfully...(Using the wallet balance', invoiceData: invoiceData })
                             }
                             if (value === 'online payment + wallet') helpers.decreaseWalletBalance(user, wallet);
-                            helpers.generateRazorpay(totalAmount, orderElem.orders[0]._id, res).then((result) => {
+                            helpers.generateRazorpay(totalAmount - totalDiscount, orderElem.orders[0]._id, res).then((result) => {
                                 Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
                                 if (couponCode) User.findByIdAndUpdate(user, { $push: { usedCoupons: { $each: [{ couponCode: couponCode }], $position: 0 } } }, { upsert: true, new: true }).then(() => console.log(''));//add used coupon in user collection.
                                 delete req.session.discount;//To delete the coupon discount details.
                                 //Stock Deduction
-                                for (let i = 0; i < products.products.length; i++) {
-                                    let proid = products.products[i].productId
-                                    let qty = products.products[i].quantity
+                                for (let i = 0; i < cartItem.length; i++) {
+                                    let proid = cartItem[i]._id
+                                    let qty = cartItem[i].quantityInCarts
                                     Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } }).then(() => console.log(''))
                                 }
                                 return res.json({ online: true, message: 'Online Payment...', invoiceData: invoiceData, result });
@@ -444,6 +448,7 @@ async function orderPost(req, res) {
                     var totalDiscount = 0
                     var couponPercent = 0;
                     var { totalAmount, totalProducts, totalDiscount } = await helpers.calculateTotalAmount({ userId: userId })
+
                     if (coupon && coupon !== null && coupon !== undefined) {
                         console.log('Coupon Detected')
                         totalAmount = parseInt(coupon.total);
@@ -454,15 +459,16 @@ async function orderPost(req, res) {
                         console.log('There is no coupon')
                     }
                     const products = await Cart.findOne({ userId: user }, { _id: 0, products: 1 })
+                    const cartItem = await helpers.cartItems(userId);
                     if (products) {
-                        for (let i = 0; i < products.products.length; i++) {
+                        for (let i = 0; i < cartItem.length; i++) {
                             let data = {
-                                product_id: products.products[i].productId,
-                                productName: products.products[i].productName,
-                                productPrice: products.products[i].productPrice,
-                                productImage: products.products[i].productImage,
-                                productDiscription: products.products[i].discription,
-                                quantity: products.products[i].quantity,
+                                product_id: cartItem[i].productId,
+                                productName: cartItem[i].productName,
+                                productPrice: cartItem[i].productPrice,
+                                productImage: cartItem[i].productImage,
+                                productDiscription: cartItem[i].discription,
+                                quantity: cartItem[i].quantity,
                                 status: status,
                             }
                             items.push(data)
@@ -499,9 +505,9 @@ async function orderPost(req, res) {
                             await Cart.findOneAndDelete({ userId: user })//to Delete the order completed cart
                             await Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } })//to deduct the usage of coupon
                             //Stock Deduction
-                            for (let i = 0; i < products.products.length; i++) {
-                                let proid = products.products[i].productId
-                                let qty = products.products[i].quantity
+                            for (let i = 0; i < cartItem.length; i++) {
+                                let proid = cartItem[i]._id
+                                let qty = cartItem[i].quantityInCarts
                                 await Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } });
                             }
                             delete req.session.discount;//To delete the coupon discount details.
@@ -512,9 +518,9 @@ async function orderPost(req, res) {
                                 Cart.findOneAndDelete({ userId: user }).then(() => console.log('Deleted the existing cart from online payment'));
                                 Coupon.findOneAndUpdate({ code: couponCode }, { $inc: { used_count: 1 } }).then(() => console.log('to deduct the usage of coupon from online payment.'));
                                 //Stock Deduction
-                                for (let i = 0; i < products.products.length; i++) {
-                                    let proid = products.products[i].productId
-                                    let qty = products.products[i].quantity
+                                for (let i = 0; i < cartItem.length; i++) {
+                                    let proid = cartItem[i]._id
+                                    let qty = cartItem[i].quantityInCarts
                                     Product.findByIdAndUpdate(proid, { $inc: { stock: -qty } }).then(() => console.log(''))
                                 }
                                 delete req.session.discount;//To delete the coupon discount details.
@@ -558,7 +564,7 @@ async function orderHomePage(req, res) {
             const start = (page - 1) * productsPerPage;
             const end = start + productsPerPage;
             const paginatedProducts = data.orders.slice(start, end)
-            console.log('the orders are below.....................................................') 
+            console.log('the orders are below.....................................................')
             // console.log(paginatedProducts);
             return res.render('user/orderlist.ejs', {
                 title: 'orderList',

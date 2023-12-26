@@ -88,17 +88,14 @@
                                 <h5 id="totalProducts" class="mb-0">(<%= totalProducts %>)items</h5>
                             </div>
                             <% if (cartList && cartList.length) { %>
-                                <% cartList.forEach(cartItem=> { %>
-                                    <% cartItem.products.forEach(productItem=> { %>
-
-
+                                    <% cartList.forEach(productItem=> { %>
                                         <div class="card-body shadow">
                                             <div class="row">
                                                 <div class="col-lg-3 col-md-12 mb-4 mb-lg-0">
                                                     <!-- Image -->
                                                     <div class="bg-image hover-overlay hover-zoom ripple rounded"
                                                         data-mdb-ripple-color="light">
-                                                        <img src="<%= productItem.productId.image[0] %>" class="w-100"
+                                                        <img src="<%= productItem.image[0] %>" class="w-100"
                                                             alt="image" />
                                                         <a href="#!">
                                                             <div class="mask"
@@ -112,9 +109,9 @@
                                                 <div class="col-lg-5 col-md-6 mt-4 mb-lg-0">
                                                     <!-- Data -->
                                                     <p><strong>
-                                                            <%= productItem.productId.name %>
+                                                            <%= productItem.name %>
                                                         </strong></p>
-                                                    <button onclick="removeItem('<%= productItem.productId._id %>')"
+                                                    <button onclick="removeItem('<%= productItem._id %>')"
                                                         class="btn btn-primary btn-sm me-1 mb-2"><i
                                                             class="fas fa-trash"></i></button>
 
@@ -122,7 +119,7 @@
                                                         data-mdb-toggle="tooltip" title="Move to the wish list">
                                                         <i class="fas fa-heart"></i>
                                                     </button>
-                                                    <% if (!productItem.productId||productItem.productId.stock<1) { %>
+                                                    <% if (!productItem||productItem.stock<1) { %>
                                                         <p class="text-danger"></p>
                                                         <% } %>
                                                             <!-- Data -->
@@ -132,19 +129,19 @@
                                                     <!-- Quantity -->
                                                     <div class="d-flex mt-5" style="max-width: 300px">
                                                         <button class="decrement-button btn btn-primary px-3 ms-2"
-                                                            data-product-id="<%= productItem.productId._id %>"
-                                                            onclick="decreaseProductQuantity('<%= productItem.productId._id%>','<%= productItem.productId.discount==0?productItem.productId.price:productItem.productId.price-(productItem.productId.price*productItem.productId.discount/100) %>','<%= productItem.productId.price %>')">
+                                                            data-product-id="<%= productItem._id %>"
+                                                            onclick="decreaseProductQuantity('<%= productItem._id%>','<%= productItem.discount==0?productItem.price:productItem.price-(productItem.price*productItem.discount/100) %>','<%= productItem.price %>')">
                                                             <i class="fas fa-minus mt-3"></i>
                                                         </button>
                                                         <div class="form-outline">
-                                                            <input id="form<%= productItem.productId._id %>" min="0"
-                                                                name="quantity" value="<%= productItem.quantity %>"
+                                                            <input id="form<%= productItem._id %>" min="0"
+                                                                name="quantity" value="<%= productItem.quantityInCarts %>"
                                                                 type="number" class="form-control Qinput" readonly />
                                                             <label class="form-label" for="form1">Quantity</label>
                                                         </div>
                                                         <button class="increment-button btn btn-primary px-3 ms-2"
-                                                            data-product-id="<%= productItem.productId._id %>"
-                                                            onclick="increaseProductQuantity('<%= productItem.productId._id%>','<%= productItem.productId.discount==0?productItem.productId.price:productItem.productId.price-(productItem.productId.price*productItem.productId.discount/100) %>','<%= productItem.productId.price %>')">
+                                                            data-product-id="<%= productItem._id %>"
+                                                            onclick="increaseProductQuantity('<%= productItem._id%>','<%= productItem.discount==0?productItem.price:productItem.price-(productItem.price*productItem.discount/100) %>','<%= productItem.price %>')">
                                                             <i class="fas fa-plus mt-3"></i>
                                                         </button>
                                                     </div>
@@ -152,25 +149,25 @@
 
                                                     <!-- Price -->
 
-                                                    <% if (productItem.productId.discount!==0) { %>
+                                                    <% if (productItem.discount!==0) { %>
                                                         <p class="text-danger text-start text-md-center disp tprice">
-                                                            <del><strong id="tprice<%= productItem.productId._id %>">
-                                                                    <%= rupee.format(productItem.productId.price*productItem.quantity)
+                                                            <del><strong id="tprice<%= productItem._id %>">
+                                                                    <%= rupee.format(productItem.price*productItem.quantityInCarts)
                                                                         %>
                                                                 </strong></del>
                                                         </p>
                                                         <p class="text-success text-start text-md-center disp"
-                                                            id="totalproductPrice<%=productItem.productId._id %>">
+                                                            id="totalproductPrice<%=productItem._id %>">
                                                             <strong>
-                                                                <%= rupee.format(productItem.quantity*(productItem.productId.price-(productItem.productId.price*productItem.productId.discount/100)))
+                                                                <%= rupee.format(productItem.quantityInCarts*(productItem.price-(productItem.price*productItem.discount/100)))
                                                                     %>
                                                             </strong>
                                                         </p>
                                                         <% }else{ %>
                                                             <p class="text-start text-md-center disp tprice"
-                                                                id="totalproductPrice<%=productItem.productId._id %>">
+                                                                id="totalproductPrice<%=productItem._id %>">
                                                                 <strong>
-                                                                    <%= rupee.format(productItem.productId.price*productItem.quantity)
+                                                                    <%= rupee.format(productItem.price*productItem.quantityInCarts)
                                                                         %>
                                                                 </strong>
                                                             </p>
@@ -188,7 +185,6 @@
 
 
                                         </div>
-                                        <% }); %>
                                             <% }); %>
                                                 <% }else{ %>
                                                     <div class="text-center text-secondary mt-5">
@@ -231,7 +227,7 @@
                                         class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">
                                         Price(<%= totalProducts %> items)
                                             <span id="actualamount">
-                                                <%= rupee.format(totalAmount+totalDiscount) %>
+                                                <%= rupee.format(totalAmount) %>
                                             </span>
                                     </li>
                                     <li class="list-group-item d-flex justify-content-between align-items-center px-0">
@@ -253,16 +249,21 @@
                                             </strong>
                                         </div>
                                         <span><strong id="totalAmount">
-                                                <%= rupee.format(totalAmount) %>
+                                                <%= rupee.format(totalAmount-totalDiscount) %>
                                             </strong></span>
                                     </li>
                                 </ul>
-                                <a href="/users/checkout">
-                                    <button type="button" class="btn btn-primary btn-lg btn-block">
-                                        Go to checkout
-                                    </button>
-                                </a>
-
+                                <% if (!cartList.length) { %>
+                                        <button disabled type="button" class="btn btn-primary btn-lg btn-block">
+                                            Go to checkout
+                                        </button>
+                                <% }else{ %>
+                                    <a href="/users/checkout">
+                                        <button type="button" class="btn btn-primary btn-lg btn-block">
+                                            Go to checkout
+                                        </button>
+                                    </a>
+                                    <% } %>
                             </div>
                         </div>
                     </div>
