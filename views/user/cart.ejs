@@ -134,9 +134,15 @@
                                                             <i class="fas fa-minus mt-3"></i>
                                                         </button>
                                                         <div class="form-outline">
-                                                            <input id="form<%= productItem._id %>" min="0"
+                                                            <% if (productItem.quantityInCarts>productItem.stock) { %>
+                                                                <input id="form<%= productItem._id %>" min="0"
+                                                                name="quantity" value="<%= productItem.stock %>"
+                                                                type="number" class="form-control Qinput" readonly />
+                                                            <% }else{ %>
+                                                                <input id="form<%= productItem._id %>" min="0"
                                                                 name="quantity" value="<%= productItem.quantityInCarts %>"
                                                                 type="number" class="form-control Qinput" readonly />
+                                                                <% } %>
                                                             <label class="form-label" for="form1">Quantity</label>
                                                         </div>
                                                         <button class="increment-button btn btn-primary px-3 ms-2"

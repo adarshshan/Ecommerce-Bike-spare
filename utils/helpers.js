@@ -440,11 +440,57 @@ function suitableCoupon(available, usedcoupons) {
     return SuitableCoupon;
 }
 
-async function cartItems(use){
+// async function cartItems(use){
+//     try {
+//         const cart = await Cart.aggregate([
+//             {
+//                 $match:{userId:use}
+//             },
+//             {
+//                 $unwind: '$products'
+//             },
+//             {
+//                 $lookup: {
+//                     from: 'products',
+//                     localField: 'products.productId',
+//                     foreignField: '_id',
+//                     as: 'productData'
+//                 }
+//             },
+//             {
+//                 $unwind: '$productData'
+//             },
+//             {
+//                 $match: {
+//                     $and: [
+//                         { 'productData.isDeleted': false },
+//                         { 'productData.stock': { $gt: 0 } }
+//                     ]
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: '$products.productId',
+//                     name: { $first: '$productData.name' },
+//                     price: { $first: '$productData.price' },
+//                     stock:{$first:'$productData.stock'},
+//                     discount:{$first:'$productData.discount'},
+//                     image:{$first:'$productData.image'},
+//                     description:{$first:'$productData.description'},
+//                     quantityInCarts: { $sum: '$products.quantity' }
+//                 }
+//             }
+//         ]);
+//         return cart;
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
+async function cartItems(use) {
     try {
         const cart = await Cart.aggregate([
             {
-                $match:{userId:use}
+                $match: { userId: use }
             },
             {
                 $unwind: '$products'
@@ -473,19 +519,41 @@ async function cartItems(use){
                     _id: '$products.productId',
                     name: { $first: '$productData.name' },
                     price: { $first: '$productData.price' },
-                    stock:{$first:'$productData.stock'},
-                    discount:{$first:'$productData.discount'},
-                    image:{$first:'$productData.image'},
-                    description:{$first:'$productData.description'},
+                    stock: { $first: '$productData.stock' },
+                    discount: { $first: '$productData.discount' },
+                    image: { $first: '$productData.image' },
+                    description: { $first: '$productData.description' },
                     quantityInCarts: { $sum: '$products.quantity' }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    price: 1,
+                    stock: 1,
+                    discount: 1,
+                    image: 1,
+                    description: 1,
+                    quantityInCarts: {
+                        $cond: {
+                            if: { $lt: ['$stock', '$quantityInCarts'] },
+                            then: '$stock',
+                            else: '$quantityInCarts'
+                        }
+                    }
                 }
             }
         ]);
+
         return cart;
     } catch (error) {
-        console.log(error)
+        // Handle errors appropriately
+        console.error(error);
+        throw error;
     }
 }
+
 
 module.exports = {
     removeCart,
