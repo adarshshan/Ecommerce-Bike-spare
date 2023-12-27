@@ -1,6 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const Coupon = require('../../models/coupon')
 const controller = require('../../controller/couponController')
 const adminAuth = require('../../middlware/adminAuth')
 const userAuth = require('../../middlware/userAuth')

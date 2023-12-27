@@ -786,6 +786,17 @@ async function postReview(req, res) {
         console.log(error)
     }
 }
+async function invoiceDetails (req, res) {
+    try {
+        const orderId = req.params.id;
+        const orderElem = await Order.findOne({ orders: { $elemMatch: { _id: orderId } } },{_id:0,'orders.$':1})
+        const selectedOrder=orderElem.orders[0];
+        console.log(selectedOrder)
+        return res.json({success:true,selectedOrder});
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 async function adminOrderList(req, res) {
     try {
@@ -865,7 +876,8 @@ module.exports = {
     returnProduct,
     buyNow,
     reviewPage,
-    postReview
+    postReview,
+    invoiceDetails
 }
 
 

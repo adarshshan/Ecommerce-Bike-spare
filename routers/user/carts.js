@@ -2,15 +2,8 @@ const express = require('express')
 const router = express.Router()
 const controller = require('../../controller/cartController')
 const orderController = require('../../controller/orderController')
-const Order = require('../../models/order')
-const Cart = require('../../models/cart')
 const userAuth = require('../../middlware/userAuth')
 const adminAuth = require('../../middlware/adminAuth')
-const mongoose = require('mongoose')
-const ObjectId = mongoose.Types.ObjectId;
-const localStorage = require("localStorage")
-const helpers = require('../../utils/helpers')
-const Product = require('../../models/product')
 
 
 //----cart----
@@ -34,17 +27,7 @@ router.get('/return-product/:id', userAuth, orderController.returnProduct);
 router.get('/buy-now/:id/:name/:price/:image/:disc/:discount', orderController.buyNow)
 router.get('/review-page/:productid/:name', orderController.reviewPage)
 router.post('/review', orderController.postReview)
-router.get('/invoice/:id', async (req, res) => {
-    try {
-        const orderId = req.params.id;
-        const orderElem = await Order.findOne({ orders: { $elemMatch: { _id: orderId } } },{_id:0,'orders.$':1})
-        const selectedOrder=orderElem.orders[0];
-        console.log(selectedOrder)
-        return res.json({success:true,selectedOrder});
-    } catch (error) {
-        console.log(error)
-    }
-})
+router.get('/invoice/:id',orderController.invoiceDetails );
 
 
 

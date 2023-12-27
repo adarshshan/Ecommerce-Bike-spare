@@ -1,7 +1,5 @@
 const express = require('express')
 const router = express.Router()
-const Banner = require('../../models/banner')
-const Product = require('../../models/product')
 const controller=require('../../controller/bannerController')
 const adminAuth=require('../../middlware/adminAuth')
 
