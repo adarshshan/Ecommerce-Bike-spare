@@ -184,7 +184,7 @@ async function updatePass() {
     try {
         const oldpassword = document.getElementById('oldpassword').value
         const newpassword = document.getElementById('newpassword').value.trim()
-        if(!newpassword || !oldpassword){
+        if (!newpassword || !oldpassword) {
             document.getElementById('message').innerHTML = `
                             <div class="alert alert-dismissible fade show alert-warning" role="alert">
                                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
@@ -193,7 +193,7 @@ async function updatePass() {
             `
             return 0;
         }
-        if(newpassword.length < 8 || newpassword.length > 20){
+        if (newpassword.length < 8 || newpassword.length > 20) {
             document.getElementById('message').innerHTML = `
                             <div class="alert alert-dismissible fade show alert-warning" role="alert">
                                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
@@ -202,7 +202,7 @@ async function updatePass() {
             `
             return 0;
         }
-        if(!/[A-Z]/.test(newpassword) || !/[a-z]/.test(newpassword) || !/\d/.test(newpassword) || ! /[!@#$%^&*]/.test(newpassword)){
+        if (!/[A-Z]/.test(newpassword) || !/[a-z]/.test(newpassword) || !/\d/.test(newpassword) || ! /[!@#$%^&*]/.test(newpassword)) {
             document.getElementById('message').innerHTML = `
             <div class="alert alert-dismissible fade show alert-warning" role="alert">
                 <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>

@@ -7,15 +7,15 @@ const prouctSchema = new mongoose.Schema({
         required: true
     },
     brandId:
-        {
-            type: mongoose.Types.ObjectId,
-            ref: "brand"
-        },
+    {
+        type: mongoose.Types.ObjectId,
+        ref: "brand"
+    },
     categorieId:
-        {
-            type: mongoose.Types.ObjectId,
-            ref: "categorie"
-        },
+    {
+        type: mongoose.Types.ObjectId,
+        ref: "categorie"
+    },
     price: {
         type: Number,
         default: 0
@@ -27,10 +27,10 @@ const prouctSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    image: [{type: String}],
-    isDeleted:{
-        type:Boolean,
-        default:false
+    image: [{ type: String }],
+    isDeleted: {
+        type: Boolean,
+        default: false
     },
     crated_at: {
         type: Date,
@@ -39,30 +39,30 @@ const prouctSchema = new mongoose.Schema({
     modified_at: {
         type: Date
     },
-    discount:{
-        type:Number,
-        default:0
+    discount: {
+        type: Number,
+        default: 0
     },
-    likes:[{
-        userId:{type:String}
+    likes: [{
+        userId: { type: String }
     }],
-    reviews:[
+    reviews: [
         {
-            title:{
-                type:String,
+            title: {
+                type: String,
             },
-            description:{
-                type:String
+            description: {
+                type: String
             },
-            reviewer:{
-                type:String,
+            reviewer: {
+                type: String,
             },
-            score:{
-                type:Number
+            score: {
+                type: Number
             },
-            time:{
-                type:Date,
-                default:Date.now()
+            time: {
+                type: Date,
+                default: Date.now()
             }
         }
     ]

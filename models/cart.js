@@ -1,49 +1,49 @@
-const mongoose=require('mongoose')
+const mongoose = require('mongoose')
 
-const cartSchema=new mongoose.Schema({
-    userId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'user'
+const cartSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
     },
-    products:[
+    products: [
         {
-            productId:{
-                type:mongoose.Schema.Types.ObjectId,
-                ref:'product',
-                required:true,
+            productId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'product',
+                required: true,
             },
-            productName:{
-                type:String,
-                required:true,
+            productName: {
+                type: String,
+                required: true,
             },
-            productPrice:{
-                type:Number,
-                required:true,
+            productPrice: {
+                type: Number,
+                required: true,
             },
-            productImage:{
-                type:String
+            productImage: {
+                type: String
             },
-            discription:{
-                type:String
+            discription: {
+                type: String
             },
-            quantity:{
-                type:Number,
-                default:1
+            quantity: {
+                type: Number,
+                default: 1
             }
         }
     ],
-    isDeleted:{
-        type:Boolean,
-        default:false
+    isDeleted: {
+        type: Boolean,
+        default: false
     },
-    created_at:{
-        type:Date,
-        default:Date.now
+    created_at: {
+        type: Date,
+        default: Date.now
     },
-    deleted_at:{
-        type:Date
+    deleted_at: {
+        type: Date
     }
 })
 
-const cart=mongoose.model('cart',cartSchema);
-module.exports=cart;
+const cart = mongoose.model('cart', cartSchema);
+module.exports = cart;

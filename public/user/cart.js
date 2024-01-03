@@ -42,7 +42,7 @@ function increaseProductQuantity(productId, productPrice, actualPrice) {
                 }
                 const totalAmountElement = document.getElementById('totalAmount')
                 if (totalAmountElement) {
-                    totalAmountElement.innerHTML = rupee.format(totalAmount-totalDiscount.toFixed(2))
+                    totalAmountElement.innerHTML = rupee.format(totalAmount - totalDiscount.toFixed(2))
                 }
                 const totalProductsElement = document.getElementById('totalProducts')
                 if (totalProductsElement) {
@@ -50,7 +50,7 @@ function increaseProductQuantity(productId, productPrice, actualPrice) {
                 }
                 const taem = document.getElementById('actualamount')
                 if (taem) {
-                    taem.innerHTML = rupee.format(totalAmount.toFixed(2)) 
+                    taem.innerHTML = rupee.format(totalAmount.toFixed(2))
                 }
             } else {
                 if (data.err) return location.href = '/err-internal';
@@ -108,7 +108,7 @@ function decreaseProductQuantity(productId, productPrice, actualPrice) {
                 }
                 const totalAmountElement = document.getElementById('totalAmount')
                 if (totalAmountElement) {
-                    totalAmountElement.innerHTML = rupee.format(totalAmount-totalDiscount.toFixed(2))
+                    totalAmountElement.innerHTML = rupee.format(totalAmount - totalDiscount.toFixed(2))
                 }
                 const totalProductsElement = document.getElementById('totalProducts')
                 if (totalProductsElement) {

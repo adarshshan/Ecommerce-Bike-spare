@@ -11,7 +11,7 @@ function copyCode(code) {
 }
 
 async function cancelCoupon(totalAmount) {
-    const response = await fetch('/coupons/cancelCoupon', { method: 'get' }) 
+    const response = await fetch('/coupons/cancelCoupon', { method: 'get' })
     const resbody = await response.json()
     if (resbody.success) {
         alert(resbody.message)

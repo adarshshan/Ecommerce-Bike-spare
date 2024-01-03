@@ -1,11 +1,11 @@
 
 
 const isuserAuth = (req, res, next) => {
-    if(req.session.userlogin){
+    if (req.session.userlogin) {
         next()
-    }else{
+    } else {
         return res.redirect('/users/login')
     }
 }
 
-module.exports=isuserAuth;
+module.exports = isuserAuth;

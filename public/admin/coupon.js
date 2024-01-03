@@ -158,7 +158,7 @@ async function addCoupon() {
     try {
         let validate = validateCoupon();
         if (!validate) return;
-        const title=document.getElementById('title').value.trim();
+        const title = document.getElementById('title').value.trim();
         const minDiscount = document.getElementById('minDiscount').value
         const minPurchase = document.getElementById('minPurchase').value
         const maxDiscount = document.getElementById('maxDiscount').value
@@ -169,7 +169,7 @@ async function addCoupon() {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                title:title,
+                title: title,
                 minDiscount: minDiscount,
                 minPurchase: minPurchase,
                 maxDiscount: maxDiscount,

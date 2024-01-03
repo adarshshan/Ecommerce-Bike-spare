@@ -24,9 +24,9 @@ async function addToWishlist(id) {
     const resBody = await response.json()
     if (resBody.success) {
         document.getElementById(`heart${id}`).style.color = 'red'
-    }else{
-        if(resBody.noUser) return location.href='/users/login';
-        if(resBody.err) return location.href='/err-internal';
+    } else {
+        if (resBody.noUser) return location.href = '/users/login';
+        if (resBody.err) return location.href = '/err-internal';
     }
 }
 

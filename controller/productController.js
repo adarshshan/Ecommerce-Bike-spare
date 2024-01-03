@@ -107,10 +107,10 @@ async function deleteProduct(req, res) {
         product.isDeleted = true;
         product.deleted_at = Date.now()
         product.save().then((result) => {
-            return res.json({success:true,message:'Product deleted.'})
+            return res.json({ success: true, message: 'Product deleted.' })
         }).catch((err) => {
             console.log(err)
-            return res.json({success:false,message:'Failed to deleted.'})
+            return res.json({ success: false, message: 'Failed to deleted.' })
         })
     } catch (error) {
         console.log('Error is at deleteProduct' + error)

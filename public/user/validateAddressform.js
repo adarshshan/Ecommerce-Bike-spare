@@ -1,4 +1,4 @@
-function formValidate(){
+function formValidate() {
     const name = document.getElementById('name').value
     const phone = document.getElementById('phone').value
     const alterPhone = document.getElementById('alternumber').value
@@ -6,13 +6,13 @@ function formValidate(){
     const pin = document.getElementById('pin').value
     const district = document.getElementById('district').value
     const address = document.getElementById('address').value
-    if(!name.length || !phone.length || !alterPhone.length || !Landmark.length ||!pin.length || !address.length || !district.length){
-        document.getElementById('alertmessage').innerHTML=`
+    if (!name.length || !phone.length || !alterPhone.length || !Landmark.length || !pin.length || !address.length || !district.length) {
+        document.getElementById('alertmessage').innerHTML = `
         <div class="alert alert-dismissible fade show alert-danger" role="alert">
          <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="close"></button>
              <strong>Input fields must be filled!</strong>
       </div>`
-      return false;
+        return false;
     }
     return true;
 }

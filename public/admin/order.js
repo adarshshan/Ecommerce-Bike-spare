@@ -1,44 +1,44 @@
-async function refund(orderId){
-    const response=await fetch(`/wallet-refund/${orderId}`,{method:'get'})
-    const resBody=await response.json()
-    if(resBody.success){
-        setTimeout(()=>{
+async function refund(orderId) {
+    const response = await fetch(`/wallet-refund/${orderId}`, { method: 'get' })
+    const resBody = await response.json()
+    if (resBody.success) {
+        setTimeout(() => {
             location.reload()
-        },500)
-    }else{
+        }, 500)
+    } else {
         alert(resBody.message)
     }
 }
-async function viewOrders(data){
-    const space=document.getElementById('inner');
+async function viewOrders(data) {
+    const space = document.getElementById('inner');
     const productDetails = JSON.parse(data);
-    const response=await fetch(`/orders/view_order/${productDetails.id}/${productDetails.totalAmount}/${productDetails.paymentMethod}/${productDetails.addressName}/${productDetails.addressPhone}/${productDetails.date}`,{method:'get'})
-    const resBody=await response.json()
+    const response = await fetch(`/orders/view_order/${productDetails.id}/${productDetails.totalAmount}/${productDetails.paymentMethod}/${productDetails.addressName}/${productDetails.addressPhone}/${productDetails.date}`, { method: 'get' })
+    const resBody = await response.json()
     console.log(resBody.products[0].product.productName)
-    if(resBody.success){
-        let x=''
-        for(let i=0;i<resBody.products.length;i++){
-            x+=`
+    if (resBody.success) {
+        let x = ''
+        for (let i = 0; i < resBody.products.length; i++) {
+            x += `
             <div class="row border p-5 mb-4 fs-4 bg-light shadow">
                     <div class="col-12 col-md-4"><img style=" width: 100%;" src="/${resBody.products[i].product.productImage}" alt=""></div>
                     <div class="col-md-4">
-                        <p class="fs-3 fw-bold">${resBody.products[i].product.productName }</p>
-                        <small>${ resBody.products[i].product.productDiscription}</small>
+                        <p class="fs-3 fw-bold">${resBody.products[i].product.productName}</p>
+                        <small>${resBody.products[i].product.productDiscription}</small>
                     </div>
 
                     <div class="col-md-4">
                         <p class="fs-4 fw-bold">Order Details</p>
-                        <p>status:${ resBody.products[i].product.status }</p>
-                        <p>quantity:${ resBody.products[i].product.quantity }</p>
-                        <p>Payment method:${ resBody.paymentMethod }</p>
-                        <p>Purchased Date:${ resBody.date }</p>
+                        <p>status:${resBody.products[i].product.status}</p>
+                        <p>quantity:${resBody.products[i].product.quantity}</p>
+                        <p>Payment method:${resBody.paymentMethod}</p>
+                        <p>Purchased Date:${resBody.date}</p>
                         <p class="fs-4 fw-bold">Delivery address</p>
-                        <p>Name : ${ resBody.name }</p>
-                        <p>Phone number : ${resBody.phone }</p>
+                        <p>Name : ${resBody.name}</p>
+                        <p>Phone number : ${resBody.phone}</p>
                     </div>
                 </div>`
 
-                space.innerHTML=x;
+            space.innerHTML = x;
         }
     }
 }
@@ -72,15 +72,15 @@ function backbutton() {
 }
 async function updateStaus(id) {
     const status = document.getElementById('status').value
-    const response = await fetch(`/carts/changeStatus/${id}/${status}`, {method:'get'})
+    const response = await fetch(`/carts/changeStatus/${id}/${status}`, { method: 'get' })
     const resBody = await response.json()
     console.log(resBody)
     if (resBody.success) {
         console.log(resBody.message)
-        setTimeout(()=>{
+        setTimeout(() => {
             location.reload()
-        },500)
-        
+        }, 500)
+
     } else {
         console.log(resBody.message)
         alert(resBody.message)

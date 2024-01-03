@@ -11,7 +11,7 @@ document.getElementById('verifyforgotForm').addEventListener('submit', async (e)
         if (localStorage.getItem('otpTimerRemaining')) localStorage.removeItem('otpTimerRemaining');
         Swal.fire("Email verified successfully!", "success", "success");
         setTimeout(() => {
-            location.href='/newpassword-page'
+            location.href = '/newpassword-page'
         }, 1000);
     } else {
         document.getElementById('error-show').innerHTML = `

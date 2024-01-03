@@ -6,7 +6,7 @@ const detailSchema = new mongoose.Schema({
         ref: 'user',
         required: true
     },
-    address:[
+    address: [
         {
             name: {
                 type: String,
@@ -24,28 +24,28 @@ const detailSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
-            fullAddress:{
-                type:String,
-                required:true
+            fullAddress: {
+                type: String,
+                required: true
             },
-            landmark:{
-                type:String
+            landmark: {
+                type: String
             },
-            alternativePhone:{
-                type:Number
+            alternativePhone: {
+                type: Number
             },
-            date:{
-                type:Date,
-                default:Date.now()
+            date: {
+                type: Date,
+                default: Date.now()
             }
         }
     ],
-    created_at:{
-        type:Date,
-        default:Date.now()
+    created_at: {
+        type: Date,
+        default: Date.now()
     },
-    modified_at:{
-        type:Date
+    modified_at: {
+        type: Date
     },
     isDeleted: {
         type: Boolean,

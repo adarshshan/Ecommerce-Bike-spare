@@ -1,7 +1,7 @@
-
-*{
+* {
     font-family: 'Oswald', sans-serif;
 }
+
 .inp {
     /* background: rgb(36, 108, 149); */
     background: rgb(255, 255, 255);
@@ -12,20 +12,23 @@
 .nav-item {
     margin-right: 30px;
 }
-.nav-item:hover{
+
+.nav-item:hover {
     background: rgb(235, 234, 234);
 }
+
 ::placeholder {
     color: rgb(56, 51, 51);
     opacity: 1;
     /* Firefox */
 }
 
-@media (min-width:1000px){
-    .carousel-inner{
+@media (min-width:1000px) {
+    .carousel-inner {
         height: 520px;
     }
 }
+
 .wallet-card {
     background-color: #f8f9fa;
     border-radius: 15px;

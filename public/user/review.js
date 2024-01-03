@@ -45,7 +45,7 @@ async function reviewSend() {
             description: description,
             score: score,
             productId: productId,
-            username:username
+            username: username
         })
         const response = await fetch('/carts/review', {
             method: 'post',

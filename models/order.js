@@ -11,9 +11,9 @@ const orderSchema = new mongoose.Schema({
       type: Date,
       default: Date.now()
     },
-    invoice:{
-      type:String,
-      required:true
+    invoice: {
+      type: String,
+      required: true
     },
     totalAmount: {
       type: Number,
@@ -23,17 +23,17 @@ const orderSchema = new mongoose.Schema({
       type: String,
       required: true
     },
-    isCancelled:{
-      type:Boolean,
-      default:false
+    isCancelled: {
+      type: Boolean,
+      default: false
     },
     couponDiscount: {
       type: Number,
-      default:0
+      default: 0
     },
-    ProductDiscount:{
-      type:Number,
-      default:0
+    ProductDiscount: {
+      type: Number,
+      default: 0
     },
     walletAmount: {
       type: Number,
@@ -41,10 +41,10 @@ const orderSchema = new mongoose.Schema({
     },
     refund: {
       type: Boolean,
-      default:false
+      default: false
     },
-    return_last_date:{
-      type:Date,
+    return_last_date: {
+      type: Date,
 
     },
     products: [
@@ -54,19 +54,19 @@ const orderSchema = new mongoose.Schema({
           ref: "product",
           required: true,
         },
-        productName:{
-          type:String,
-          required:true,
+        productName: {
+          type: String,
+          required: true,
         },
-        productPrice:{
-          type:Number,
-          required:true
+        productPrice: {
+          type: Number,
+          required: true
         },
-        productImage:{
-          type:String,
+        productImage: {
+          type: String,
         },
-        productDiscription:{
-          type:String
+        productDiscription: {
+          type: String
         },
         quantity: {
           type: Number,
@@ -82,19 +82,19 @@ const orderSchema = new mongoose.Schema({
         }
       }
     ],
-    address:{
+    address: {
       addressId: {
         type: mongoose.Types.ObjectId,
         ref: 'userDetail',
         required: true
       },
-      addressName:{
-        type:String,
-        required:true
+      addressName: {
+        type: String,
+        required: true
       },
-      addressPhone:{
-        type:Number,
-        required:true,
+      addressPhone: {
+        type: Number,
+        required: true,
       }
     }
   }]

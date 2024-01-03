@@ -1,4 +1,4 @@
-const mongoose=require('mongoose')
+const mongoose = require('mongoose')
 
 
 const BannerSchema = new mongoose.Schema({
@@ -14,12 +14,12 @@ const BannerSchema = new mongoose.Schema({
     type: String
   },
   product: {
-    type:mongoose.Types.ObjectId,
-    ref:'product'
+    type: mongoose.Types.ObjectId,
+    ref: 'product'
   },
-  isDeleted:{
-    type:Boolean,
-    default:false
+  isDeleted: {
+    type: Boolean,
+    default: false
   },
   isActive: {
     type: Boolean,
